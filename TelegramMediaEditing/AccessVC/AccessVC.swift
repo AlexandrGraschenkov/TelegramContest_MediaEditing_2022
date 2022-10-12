@@ -168,12 +168,7 @@ class AccessVC: UIViewController {
     }
     
     func goToGallery() {
-        // MARK: - TODO
-        print("Open gallery")
-        let edit = EditVC()
-        edit.media = .image(img: UIImage(named: "test_image")!)
-        edit.modalPresentationStyle = .fullScreen
-        navigationController?.pushViewController(edit, animated: true)
+        let gallery = GalleryViewController()
+        navigationController?.pushViewController(gallery, animated: true)
     }
-
 }

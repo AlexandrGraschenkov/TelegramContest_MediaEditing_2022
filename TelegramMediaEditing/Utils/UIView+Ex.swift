@@ -112,3 +112,16 @@ extension CALayer {
         CATransaction.commit()
     }
 }
+
+// Autolayout
+extension UIView {
+    func pinEdges(to otherView: UIView) {
+        self.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            self.leadingAnchor.constraint(equalTo: otherView.leadingAnchor),
+            self.topAnchor.constraint(equalTo: otherView.topAnchor),
+            self.trailingAnchor.constraint(equalTo: otherView.trailingAnchor),
+            self.bottomAnchor.constraint(equalTo: otherView.bottomAnchor),
+        ])
+    }
+}
