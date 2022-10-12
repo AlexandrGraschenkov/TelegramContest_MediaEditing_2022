@@ -15,6 +15,7 @@ struct LoadedImageInfo {
 // TODO: Support observation of changes and insertion of saved medias
 final class GalleryViewController: UIViewController {
     private var collection: UICollectionView!
+    private var overlay: PhotoPermissionOverlay?
     private var imagesCache: [String: LoadedImageInfo] = [:]
     private let imageManager = PHImageManager.default()
     
@@ -37,8 +38,17 @@ final class GalleryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
-        setupCollection()
-        collection.reloadData()
+        if PHPhotoLibrary.authorizationStatus() == .authorized {
+            setupCollection()
+            collection.reloadData()
+        } else {
+            insertOverlayIfNeeded()
+        }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        overlay?.startAnimation()
     }
     
     private func setupCollection() {
@@ -52,7 +62,11 @@ final class GalleryViewController: UIViewController {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         self.collection = collectionView
         
-        view.addSubview(collectionView)
+        if let overlay = overlay {
+            view.insertSubview(collection, belowSubview: overlay)
+        } else {
+            view.addSubview(collectionView)
+        }
         collectionView.pinEdges(to: view)
         collectionView.backgroundColor = .black
         
@@ -60,6 +74,23 @@ final class GalleryViewController: UIViewController {
         collectionView.dataSource = self
         
         collectionView.register(ImageCell.self, forCellWithReuseIdentifier: ImageCell.reuseId)
+    }
+    
+    private func insertOverlayIfNeeded() {
+        let overlay = PhotoPermissionOverlay()
+        view.addSubview(overlay)
+        overlay.pinEdges(to: view)
+        overlay.onPermissionGranted = { [weak overlay, weak self] in
+            overlay?.dismiss {
+                overlay?.removeFromSuperview()
+            }
+            self?.setupCollection()
+            self?.collection?.reloadData()
+        }
+        overlay.onNavigationIntent = { [weak self] viewController in
+            self?.present(viewController, animated: true)
+        }
+        self.overlay = overlay
     }
 }
 
