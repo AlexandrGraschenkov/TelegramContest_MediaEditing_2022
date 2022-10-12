@@ -10,13 +10,21 @@ import Photos
 import Lottie
 
 // Dirty, but who cares?
-class DoubleShineContainer: UIView {
-    var secondContainer: UIView! = nil
+class DoubleShimmerContainer: UIView {
+    lazy var secondContainer: UIView = {
+        let container = UIView()
+        container.alpha = 0.6
+        container.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        insertSubview(container, at: 0)
+        container.backgroundColor = backgroundColor
+        container.layer.masksToBounds = true
+        return container
+    }()
     fileprivate var animLayers: [CALayer] = []
     
     override var backgroundColor: UIColor? {
         didSet {
-            secondContainer?.backgroundColor = backgroundColor
+            secondContainer.backgroundColor = backgroundColor
         }
     }
     var corner: CGFloat {
@@ -29,16 +37,9 @@ class DoubleShineContainer: UIView {
         }
     }
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        
-        secondContainer = UIView(frame: bounds.insetBy(dx: 2, dy: 2))
-        secondContainer.alpha = 0.6
-        secondContainer.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        insertSubview(secondContainer, at: 0)
-        secondContainer.backgroundColor = backgroundColor
-        layer.masksToBounds = true
-        secondContainer.layer.masksToBounds = true
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        secondContainer.frame = bounds.insetBy(dx: 2, dy: 2)
     }
     
     func startAnimation() {
@@ -55,8 +56,8 @@ class DoubleShineContainer: UIView {
     
     private func addShine(toView: UIView, width: CGFloat, shineVal: CGFloat = 1) {
         let gradient: CAGradientLayer = CAGradientLayer()
-        gradient.startPoint = CGPoint(x: 0, y: 0.45)
-        gradient.endPoint = CGPoint(x: 1, y: 0.55)
+        gradient.startPoint = CGPoint(x: 0, y: 0.5)
+        gradient.endPoint = CGPoint(x: 1, y: 0.5)
         gradient.frame = CGRect(x: 0, y: 0, width: width, height: toView.height)
         gradient.colors = [UIColor(white: 1, alpha: 0),
                            UIColor(white: 1, alpha: 0.78*shineVal),
@@ -86,27 +87,33 @@ class DoubleShineContainer: UIView {
 class HighlightButton: UIButton {
     var normalBg: UIColor = UIColor.clear
     var highlightBg: UIColor = UIColor(white: 0, alpha: 0.1)
-    override func awakeFromNib() {
-        super.awakeFromNib()
+    fileprivate var isSetupDone: Bool = false
+    fileprivate func setup() {
+        if isSetupDone { return }
         
         addTarget(self, action: #selector(pressDown), for: .touchDown)
-        addTarget(self, action: #selector(pressUp), for: .touchUpInside)
-        addTarget(self, action: #selector(pressUp), for: .touchUpOutside)
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        setup()
+    }
+    
+    override var isHighlighted: Bool {
+        didSet {
+            backgroundColor = isHighlighted ? highlightBg : normalBg
+        }
     }
     
     @objc private func pressDown() {
-        backgroundColor = highlightBg
-    }
-    
-    @objc private func pressUp() {
-        backgroundColor = normalBg
+        isHighlighted = true
     }
 }
 
 class AccessVC: UIViewController {
 
     @IBOutlet weak var accessButton: UIButton!
-    @IBOutlet weak var doubleShineButtCntainer: DoubleShineContainer!
+    @IBOutlet weak var doubleShineButtCntainer: DoubleShimmerContainer!
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var animationView: LottieAnimationView!
 //    @IBOutlet weak var image: UIButton!

@@ -10,7 +10,8 @@ import Lottie
 import Photos
 
 final class PhotoPermissionOverlay: UIView {
-    private var button: ShimmeringButton!
+    private var buttonContainer: DoubleShimmerContainer!
+    private var button: UIButton!
     private var animationView: LottieAnimationView!
     
     var onPermissionGranted: (() -> Void)?
@@ -28,7 +29,7 @@ final class PhotoPermissionOverlay: UIView {
     }
     
     func startAnimation() {
-        button.startShimmering()
+        buttonContainer.startAnimation()
         animationView.play()
     }
     
@@ -42,10 +43,15 @@ final class PhotoPermissionOverlay: UIView {
         let animationView = LottieAnimationView(animation: animation)
         self.animationView = animationView
         
-        let button = ShimmeringButton()
-        button.clipsToBounds = true
-        button.layer.cornerRadius = 10
-        button.setBackgroundImage(.init(named: "blue_button_bg"), for: .normal)
+        let shimmerContainer = DoubleShimmerContainer()
+        shimmerContainer.layer.masksToBounds = true
+        shimmerContainer.corner = 10
+        shimmerContainer.backgroundColor = UIColor(rgb: 0x007AFF)
+        centerContainer.addSubview(shimmerContainer)
+        self.buttonContainer = shimmerContainer
+        
+        let button = HighlightButton()
+        button.highlightBg = UIColor(white: 0, alpha: 0.4)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
         centerContainer.addSubview(button)
@@ -59,7 +65,7 @@ final class PhotoPermissionOverlay: UIView {
         label.font = .systemFont(ofSize: 20, weight: .semibold)
         label.textColor = .white
         
-        let views: [UIView] = [animationView, button, label]
+        let views: [UIView] = [animationView, shimmerContainer, button, label]
         views.forEach { view in
             view.translatesAutoresizingMaskIntoConstraints = false
             centerContainer.addSubview(view)
@@ -80,11 +86,16 @@ final class PhotoPermissionOverlay: UIView {
             label.topAnchor.constraint(equalTo: animationView.bottomAnchor, constant: 20),
             
             
-            button.leadingAnchor.constraint(equalTo: centerContainer.leadingAnchor, constant: 16),
-            button.trailingAnchor.constraint(equalTo: centerContainer.trailingAnchor, constant: -16),
-            button.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 25),
-            button.heightAnchor.constraint(equalToConstant: 50),
-            button.bottomAnchor.constraint(equalTo: centerContainer.bottomAnchor),
+            shimmerContainer.leadingAnchor.constraint(equalTo: centerContainer.leadingAnchor, constant: 16),
+            shimmerContainer.trailingAnchor.constraint(equalTo: centerContainer.trailingAnchor, constant: -16),
+            shimmerContainer.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 25),
+            shimmerContainer.heightAnchor.constraint(equalToConstant: 50),
+            shimmerContainer.bottomAnchor.constraint(equalTo: centerContainer.bottomAnchor),
+            
+            button.leadingAnchor.constraint(equalTo: shimmerContainer.leadingAnchor),
+            button.trailingAnchor.constraint(equalTo: shimmerContainer.trailingAnchor),
+            button.topAnchor.constraint(equalTo: shimmerContainer.topAnchor),
+            button.bottomAnchor.constraint(equalTo: shimmerContainer.bottomAnchor),
         ])
     }
     
@@ -102,7 +113,10 @@ final class PhotoPermissionOverlay: UIView {
 
         layer.mask = maskLayer
         
-        dismissCompletion = completion
+        dismissCompletion = {[weak self] in
+            self?.buttonContainer.stopAnimation()
+            completion()
+        }
         let anim = CABasicAnimation(keyPath: "transform.translation.y")
         anim.duration = 0.3
         anim.delegate = self
@@ -116,7 +130,6 @@ final class PhotoPermissionOverlay: UIView {
     
     @objc
     private func onButtonTap() {
-        button.stopShimmering()
         PHPhotoLibrary.requestAccess { granted in
             if granted {
                 self.onPermissionGranted?()
