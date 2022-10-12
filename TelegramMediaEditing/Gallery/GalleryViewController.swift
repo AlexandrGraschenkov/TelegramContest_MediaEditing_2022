@@ -8,10 +8,15 @@
 import UIKit
 import Photos
 
+struct LoadedImageInfo {
+    let image: UIImage?
+    let isFullyLoaded: Bool
+}
 // TODO: Support observation of changes and insertion of saved medias
 final class GalleryViewController: UIViewController {
-    private var images: [UIImage?] = []
     private var collection: UICollectionView!
+    private var imagesCache: [String: LoadedImageInfo] = [:]
+    private let imageManager = PHImageManager.default()
     
     private lazy var allPhotos: PHFetchResult<PHAsset> = {
         let fetchOptions = PHFetchOptions()
@@ -33,7 +38,7 @@ final class GalleryViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .black
         setupCollection()
-        fetchPhotos()
+        collection.reloadData()
     }
     
     private func setupCollection() {
@@ -56,44 +61,81 @@ final class GalleryViewController: UIViewController {
         
         collectionView.register(ImageCell.self, forCellWithReuseIdentifier: ImageCell.reuseId)
     }
-    
-    private func fetchPhotos() {
-        images = .init(repeating: nil, count: allPhotos.count)
-        reload()
-    }
-    
-    private func reload() {
-        collection.reloadData()
-    }
 }
 
 extension GalleryViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        images.count
+        allPhotos.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ImageCell.reuseId, for: indexPath) as? ImageCell else {
             return UICollectionViewCell()
         }
-        if let image = images[indexPath.item] {
-            cell.configure(image: image)
-        } else {
-            cell.configure(index: indexPath.item, photos: allPhotos) { [weak self] image in
-                if self?.images[indexPath.item] == nil {
-                    self?.images[indexPath.item] = image
-                }
+        let asset = allPhotos[indexPath.item]
+        cell.assetId = asset.localIdentifier
+        
+        let cached = imagesCache[asset.localIdentifier]
+        
+        if let image = cached?.image {
+            configureCell(cell, preview: image, asset: asset)
+        }
+        if cached?.isFullyLoaded != true {
+            let side = floor(UIScreen.main.bounds.width / 3)
+            let imageSize = CGSize(width: side, height: side)
+            let loadCancel = fetchPreviewOfAsset(asset, size: imageSize) { [weak self] image, isFullyLoaded in
+                guard let self = self, cell.assetId == asset.localIdentifier else { return }
+                self.imagesCache[asset.localIdentifier] = .init(image: image, isFullyLoaded: isFullyLoaded)
+                self.configureCell(cell, preview: image, asset: asset)
             }
+            cell.onReuse = loadCancel
         }
         return cell
     }
     
+    private func configureCell(_ cell: ImageCell, preview: UIImage?, asset: PHAsset) {
+        switch asset.mediaType {
+        case .image:
+            cell.configure(content: .image(preview))
+        case .video:
+            cell.configure(content: .video(preview, asset.duration))
+        case .unknown,  .audio:
+            break
+        @unknown default:
+            break
+        }
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let image = images[indexPath.item] else { return }
+        let asset = allPhotos[indexPath.item]
+        guard let image = imagesCache[asset.localIdentifier]?.image else { return }
         let edit = EditVC()
         edit.media = .image(img: image)
         edit.modalPresentationStyle = .fullScreen
         present(edit, animated: true)
+    }
+    
+    private func fetchPreviewOfAsset(
+        _ asset: PHAsset,
+        size: CGSize,
+        completion: @escaping (UIImage?, Bool) -> Void
+    ) -> Cancelable {
+        let size = size.mulitply(UIScreen.main.scale)
+        
+        let options = PHImageRequestOptions()
+        options.isNetworkAccessAllowed = true
+        
+        let id = imageManager.requestImage(for: asset,
+                                           targetSize: size,
+                                           contentMode: .aspectFill,
+                                           options: options,
+                                           resultHandler:
+                                            { image, info in
+            let isDegraded = info?[PHImageResultIsDegradedKey] as? NSNumber
+            let isFullyLoadded = isDegraded?.boolValue == false
+            completion(image, isFullyLoadded)
+        })
+        return { [manager = self.imageManager] in manager.cancelImageRequest(id) }
     }
 }
 
