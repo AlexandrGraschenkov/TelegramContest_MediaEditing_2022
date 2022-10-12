@@ -7,6 +7,7 @@
 
 import UIKit
 import Photos
+import Lottie
 
 // Dirty, but who cares?
 class DoubleShineContainer: UIView {
@@ -107,6 +108,7 @@ class AccessVC: UIViewController {
     @IBOutlet weak var accessButton: UIButton!
     @IBOutlet weak var doubleShineButtCntainer: DoubleShineContainer!
     @IBOutlet weak var containerView: UIView!
+    @IBOutlet weak var animationView: LottieAnimationView!
 //    @IBOutlet weak var image: UIButton!
 //    @IBOutlet weak var label: UIButton!
     
@@ -120,12 +122,14 @@ class AccessVC: UIViewController {
         super.viewWillAppear(animated)
         
         doubleShineButtCntainer.startAnimation()
+        animationView.play()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
         doubleShineButtCntainer.stopAnimation()
+        animationView.stop()
     }
     
     override func viewDidLayoutSubviews() {
@@ -166,6 +170,10 @@ class AccessVC: UIViewController {
     func goToGallery() {
         // MARK: - TODO
         print("Open gallery")
+        let edit = EditVC()
+        edit.media = .image(img: UIImage(named: "test_image")!)
+        edit.modalPresentationStyle = .fullScreen
+        navigationController?.pushViewController(edit, animated: true)
     }
 
 }

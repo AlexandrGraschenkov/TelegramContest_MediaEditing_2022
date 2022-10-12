@@ -19,6 +19,10 @@
 		FA046F0328F55987002D5023 /* UIColor+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA046F0228F55987002D5023 /* UIColor+Ex.swift */; };
 		FA046F0528F56996002D5023 /* PHPhotoLibrary+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA046F0428F56996002D5023 /* PHPhotoLibrary+Ex.swift */; };
 		FA046F0728F569BE002D5023 /* GlobalFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA046F0628F569BE002D5023 /* GlobalFunctions.swift */; };
+		FA4BF3D428F6A4E800592051 /* EditVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D328F6A4E800592051 /* EditVC.swift */; };
+		FA4BF3D628F6A80100592051 /* UIImage+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */; };
+		FA4BF3D828F6AAC700592051 /* ZoomScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */; };
+		FA4BF3DB28F6B42400592051 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = FA4BF3DA28F6B42400592051 /* Lottie */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +40,9 @@
 		FA046F0228F55987002D5023 /* UIColor+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Ex.swift"; sourceTree = "<group>"; };
 		FA046F0428F56996002D5023 /* PHPhotoLibrary+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PHPhotoLibrary+Ex.swift"; sourceTree = "<group>"; };
 		FA046F0628F569BE002D5023 /* GlobalFunctions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlobalFunctions.swift; sourceTree = "<group>"; };
+		FA4BF3D328F6A4E800592051 /* EditVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditVC.swift; sourceTree = "<group>"; };
+		FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ex.swift"; sourceTree = "<group>"; };
+		FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomScrollView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +50,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA4BF3DB28F6B42400592051 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,6 +79,7 @@
 				FA046EE428F54B23002D5023 /* AppDelegate.swift */,
 				FA046EE628F54B23002D5023 /* SceneDelegate.swift */,
 				FA046EE828F54B23002D5023 /* ViewController.swift */,
+				FA4BF3D228F6A41E00592051 /* Edit Media */,
 				FA046EFB28F5586F002D5023 /* Utils */,
 				FA046EF828F55286002D5023 /* AccessVC */,
 				FA046EEA28F54B23002D5023 /* Main.storyboard */,
@@ -96,9 +105,19 @@
 				FA046F0628F569BE002D5023 /* GlobalFunctions.swift */,
 				FA046EFE28F558DF002D5023 /* UIView+Ex.swift */,
 				FA046F0028F55953002D5023 /* Extensions.swift */,
+				FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */,
 				FA046F0228F55987002D5023 /* UIColor+Ex.swift */,
 			);
 			path = Utils;
+			sourceTree = "<group>";
+		};
+		FA4BF3D228F6A41E00592051 /* Edit Media */ = {
+			isa = PBXGroup;
+			children = (
+				FA4BF3D328F6A4E800592051 /* EditVC.swift */,
+				FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */,
+			);
+			path = "Edit Media";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -117,6 +136,9 @@
 			dependencies = (
 			);
 			name = TelegramMediaEditing;
+			packageProductDependencies = (
+				FA4BF3DA28F6B42400592051 /* Lottie */,
+			);
 			productName = TelegramMediaEditing;
 			productReference = FA046EE128F54B23002D5023 /* TelegramMediaEditing.app */;
 			productType = "com.apple.product-type.application";
@@ -145,6 +167,9 @@
 				Base,
 			);
 			mainGroup = FA046ED828F54B23002D5023;
+			packageReferences = (
+				FA4BF3D928F6B42400592051 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+			);
 			productRefGroup = FA046EE228F54B23002D5023 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -172,8 +197,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA4BF3D428F6A4E800592051 /* EditVC.swift in Sources */,
 				FA046EFA28F5529D002D5023 /* AccessVC.swift in Sources */,
+				FA4BF3D828F6AAC700592051 /* ZoomScrollView.swift in Sources */,
 				FA046F0528F56996002D5023 /* PHPhotoLibrary+Ex.swift in Sources */,
+				FA4BF3D628F6A80100592051 /* UIImage+Ex.swift in Sources */,
 				FA046F0128F55953002D5023 /* Extensions.swift in Sources */,
 				FA046F0328F55987002D5023 /* UIColor+Ex.swift in Sources */,
 				FA046EE928F54B23002D5023 /* ViewController.swift in Sources */,
@@ -402,6 +430,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		FA4BF3D928F6B42400592051 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FA4BF3DA28F6B42400592051 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA4BF3D928F6B42400592051 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FA046ED928F54B23002D5023 /* Project object */;
 }
