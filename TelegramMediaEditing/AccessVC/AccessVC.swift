@@ -33,6 +33,7 @@ class DoubleShineContainer: UIView {
         super.awakeFromNib()
         
         secondContainer = UIView(frame: bounds.insetBy(dx: 2, dy: 2))
+        secondContainer.alpha = 0.6
         secondContainer.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         insertSubview(secondContainer, at: 0)
         secondContainer.backgroundColor = backgroundColor
@@ -45,7 +46,6 @@ class DoubleShineContainer: UIView {
         
         let shineWidth: CGFloat = 150
         addShine(toView: self, width: shineWidth, shineVal: 0.4)
-        addShine(toView: secondContainer, width: shineWidth, shineVal: 0.2)
     }
     
     func stopAnimation() {
