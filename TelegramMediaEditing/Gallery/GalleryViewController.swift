@@ -114,7 +114,7 @@ extension GalleryViewController: UICollectionViewDelegate, UICollectionViewDataS
         if cached?.isFullyLoaded != true {
             let side = floor(UIScreen.main.bounds.width / 3)
             let imageSize = CGSize(width: side, height: side)
-            let loadCancel = fetchPreviewOfAsset(asset, size: imageSize) { [weak self] image, isFullyLoaded in
+            let loadCancel = imageManager.fetchPreview(asset: asset, size: imageSize) { [weak self] image, isFullyLoaded in
                 guard let self = self, cell.assetId == asset.localIdentifier else { return }
                 self.imagesCache[asset.localIdentifier] = .init(image: image, isFullyLoaded: isFullyLoaded)
                 self.configureCell(cell, preview: image, asset: asset)
@@ -139,34 +139,12 @@ extension GalleryViewController: UICollectionViewDelegate, UICollectionViewDataS
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let asset = allPhotos[indexPath.item]
-        guard let image = imagesCache[asset.localIdentifier]?.image else { return }
+        
         let edit = EditVC()
-        edit.media = .image(img: image)
+        edit.cacheImg = imagesCache[asset.localIdentifier]?.image
+        edit.asset = asset
         edit.modalPresentationStyle = .fullScreen
         present(edit, animated: true)
-    }
-    
-    private func fetchPreviewOfAsset(
-        _ asset: PHAsset,
-        size: CGSize,
-        completion: @escaping (UIImage?, Bool) -> Void
-    ) -> Cancelable {
-        let size = size.mulitply(UIScreen.main.scale)
-        
-        let options = PHImageRequestOptions()
-        options.isNetworkAccessAllowed = true
-        
-        let id = imageManager.requestImage(for: asset,
-                                           targetSize: size,
-                                           contentMode: .aspectFill,
-                                           options: options,
-                                           resultHandler:
-                                            { image, info in
-            let isDegraded = info?[PHImageResultIsDegradedKey] as? NSNumber
-            let isFullyLoadded = isDegraded?.boolValue == false
-            completion(image, isFullyLoadded)
-        })
-        return { [manager = self.imageManager] in manager.cancelImageRequest(id) }
     }
 }
 

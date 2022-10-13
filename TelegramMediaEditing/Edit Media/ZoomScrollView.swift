@@ -15,7 +15,6 @@ class ZoomScrollView: UIScrollView {
         }
         self.content = content
         addSubview(content)
-//        content.autoresizingMask = [.flexibleLeftMargin, .flexibleTopMargin, .flexibleBottomMargin, .flexibleRightMargin]
         
         showsVerticalScrollIndicator = false
         showsHorizontalScrollIndicator = false
@@ -45,22 +44,28 @@ class ZoomScrollView: UIScrollView {
         }
     }
     
-    
+    /// add insets to content, to center it on minimal zoom
     fileprivate func centerScrollViewContents() {
         var horizontalInset: CGFloat = 0
         var verticalInset: CGFloat = 0
         
-        if contentSize.width < bounds.width {
-            horizontalInset = (bounds.width - contentSize.width) * 0.5
+        // contentSize changed during zoom, constraint it between min max sizes
+        var size = contentSize
+        let minSize = content.bounds.size.mulitply(minimumZoomScale)
+        let maxSize = content.bounds.size.mulitply(maximumZoomScale)
+        size.width = size.width.clamp(minSize.width, maxSize.width)
+        size.height = size.height.clamp(minSize.height, maxSize.height)
+        
+        if size.width < bounds.width {
+            horizontalInset = (bounds.width - size.width) * 0.5
             horizontalInset = max(0, horizontalInset)
         }
         
-        if contentSize.height < bounds.height {
-            verticalInset = (bounds.height - contentSize.height) * 0.5
+        if size.height < bounds.height {
+            verticalInset = (bounds.height - size.height) * 0.5
             verticalInset = max(0, verticalInset)
         }
         
-        // http://petersteinberger.com/blog/2013/how-to-center-uiscrollview/
         let inset = UIEdgeInsets(top: verticalInset, left: horizontalInset, bottom: verticalInset, right: horizontalInset)
         if inset != contentInset {
             contentInset = inset
@@ -95,8 +100,5 @@ extension ZoomScrollView: UIScrollViewDelegate {
         } else {
 //            print("•••", zoomScale)
         }
-    }
-    func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
-//        centerScrollViewContents()
     }
 }

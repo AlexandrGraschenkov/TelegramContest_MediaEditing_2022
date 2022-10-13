@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Photos
 
 
 class EditVC: UIViewController {
@@ -14,14 +15,15 @@ class EditVC: UIViewController {
         case image(img: UIImage)
         case video(path: String)
     }
-    var media: Media!
+    var cacheImg: UIImage?
+    var asset: PHAsset!
     var scroll: ZoomScrollView!
     var mediaContainer: UIView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        assert(media != nil)
+        assert(asset != nil)
         setupMediaContainer()
         setupUI()
     }
@@ -52,13 +54,20 @@ class EditVC: UIViewController {
         dismiss(animated: true)
     }
     fileprivate func setupMediaContainer() {
-        switch media! {
-        case .image(img: let img):
-            let imgView = UIImageView(frame: CGRect(origin: .zero, size: img.pixelSize))
-            imgView.image = img
+        let size = CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight))
+        switch asset.mediaType {
+        case .image:
+            let imgView = UIImageView(frame: CGRect(origin: .zero, size: size))
+            imgView.image = cacheImg
+            PHImageManager.default().fetchFullImage(asset: asset) { img in
+                imgView.image = img
+            }
             mediaContainer = imgView
-        case .video(path: let videoPath):
+        case .video:
             // TODO
+            break
+        default:
+            // TODO not supported
             break
         }
     }
