@@ -15,7 +15,6 @@
 		FA046EE928F54B23002D5023 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA046EE828F54B23002D5023 /* ViewController.swift */; };
 		FA046EEE28F54B25002D5023 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA046EED28F54B25002D5023 /* Assets.xcassets */; };
 		FA046EF128F54B25002D5023 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FA046EEF28F54B25002D5023 /* LaunchScreen.storyboard */; };
-		FA046EFA28F5529D002D5023 /* AccessVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA046EF928F5529D002D5023 /* AccessVC.swift */; };
 		FA046EFF28F558DF002D5023 /* UIView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA046EFE28F558DF002D5023 /* UIView+Ex.swift */; };
 		FA046F0128F55953002D5023 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA046F0028F55953002D5023 /* Extensions.swift */; };
 		FA046F0328F55987002D5023 /* UIColor+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA046F0228F55987002D5023 /* UIColor+Ex.swift */; };
@@ -38,7 +37,6 @@
 		FA046EED28F54B25002D5023 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FA046EF028F54B25002D5023 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		FA046EF228F54B25002D5023 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		FA046EF928F5529D002D5023 /* AccessVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessVC.swift; sourceTree = "<group>"; };
 		FA046EFE28F558DF002D5023 /* UIView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Ex.swift"; sourceTree = "<group>"; };
 		FA046F0028F55953002D5023 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		FA046F0228F55987002D5023 /* UIColor+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Ex.swift"; sourceTree = "<group>"; };
@@ -96,7 +94,6 @@
 				FA4BF3D228F6A41E00592051 /* Edit Media */,
 				AAA335CA28F6CCC100B86B89 /* Gallery */,
 				FA046EFB28F5586F002D5023 /* Utils */,
-				FA046EF828F55286002D5023 /* AccessVC */,
 				FA046EED28F54B25002D5023 /* Assets.xcassets */,
 				FA046EEF28F54B25002D5023 /* LaunchScreen.storyboard */,
 				FA046EF228F54B25002D5023 /* Info.plist */,
@@ -104,18 +101,10 @@
 			path = TelegramMediaEditing;
 			sourceTree = "<group>";
 		};
-		FA046EF828F55286002D5023 /* AccessVC */ = {
-			isa = PBXGroup;
-			children = (
-				FA046EF928F5529D002D5023 /* AccessVC.swift */,
-				FA046F0428F56996002D5023 /* PHPhotoLibrary+Ex.swift */,
-			);
-			path = AccessVC;
-			sourceTree = "<group>";
-		};
 		FA046EFB28F5586F002D5023 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				FA046F0428F56996002D5023 /* PHPhotoLibrary+Ex.swift */,
 				FA046F0628F569BE002D5023 /* GlobalFunctions.swift */,
 				FA046EFE28F558DF002D5023 /* UIView+Ex.swift */,
 				FA046F0028F55953002D5023 /* Extensions.swift */,
@@ -211,7 +200,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA4BF3D428F6A4E800592051 /* EditVC.swift in Sources */,
-				FA046EFA28F5529D002D5023 /* AccessVC.swift in Sources */,
 				FA4BF3D828F6AAC700592051 /* ZoomScrollView.swift in Sources */,
 				FA046F0528F56996002D5023 /* PHPhotoLibrary+Ex.swift in Sources */,
 				FA4BF3D628F6A80100592051 /* UIImage+Ex.swift in Sources */,

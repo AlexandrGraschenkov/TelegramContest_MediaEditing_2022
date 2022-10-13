@@ -157,28 +157,108 @@ extension PhotoPermissionOverlay: CAAnimationDelegate {
     }
 }
 
-final class ShimmeringButton: UIButton {
-    private let movingView = UIImageView(image: UIImage(named: "btn_shine"))
+// Dirty, but who cares?
+final private class DoubleShimmerContainer: UIView {
+    lazy var secondContainer: UIView = {
+        let container = UIView()
+        container.alpha = 1.0
+        container.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        insertSubview(container, at: 0)
+        container.backgroundColor = backgroundColor
+        container.layer.masksToBounds = true
+        return container
+    }()
+    fileprivate var animLayers: [CALayer] = []
     
-    func startShimmering() {
-        addSubview(movingView)
-        movingView.layer.compositingFilter = "softLightBlendMode"
-
-        movingView.x = -movingView.width
-        movingView.frame.size = CGSize(width: bounds.width / 2, height: height)
-        UIView.animateKeyframes(withDuration: 2.5, delay: 0, options: [.repeat], animations: {
-            UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: 0.3) {
-                self.movingView.x = self.width
-            }
-        }, completion: nil)
+    override var backgroundColor: UIColor? {
+        didSet {
+            secondContainer.backgroundColor = backgroundColor
+        }
     }
-    
-    func stopShimmering() {
-        layer.removeAllAnimations()
+    var corner: CGFloat {
+        get {
+            return layer.cornerRadius
+        }
+        set {
+            layer.cornerRadius = newValue
+            secondContainer.layer.cornerRadius = newValue-1
+        }
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        movingView.frame.size = CGSize(width: bounds.width / 2, height: height)
+        secondContainer.frame = bounds.insetBy(dx: 1.5, dy: 1.5)
+    }
+    
+    func startAnimation() {
+        stopAnimation()
+        
+        let shineWidth: CGFloat = 150
+        addShine(toView: self, width: shineWidth, shineVal: 1, above: secondContainer.layer)
+        addShine(toView: self, width: shineWidth, shineVal: 1)
+    }
+    
+    func stopAnimation() {
+        animLayers.forEach({$0.removeFromSuperlayer()})
+        animLayers.removeAll()
+    }
+    
+    private func addShine(toView: UIView, width: CGFloat, shineVal: CGFloat = 1, above: CALayer? = nil) {
+        let gradient: CAGradientLayer = CAGradientLayer()
+        gradient.compositingFilter = "softLightBlendMode"
+        gradient.startPoint = CGPoint(x: 0, y: 0.5)
+        gradient.endPoint = CGPoint(x: 1, y: 0.5)
+        gradient.frame = CGRect(x: 0, y: 0, width: width, height: toView.height)
+        gradient.colors = [UIColor(white: 1, alpha: 0),
+                           UIColor(white: 1, alpha: 0.8*shineVal),
+                           UIColor(white: 1, alpha: 1*shineVal),
+                           UIColor(white: 1, alpha: 0.8*shineVal),
+                           UIColor(white: 1, alpha: 0)].map({$0.cgColor})
+        gradient.locations = [0.0, 0.4, 0.5, 0.6, 1.0]
+//        gradient.locations = [0.0, 0.4, 0.45, 0.5, 0.55, 0.6, 1.0]
+        if let above = above {
+            toView.layer.insertSublayer(gradient, above: above)
+        } else {
+            toView.layer.insertSublayer(gradient, at: 0)
+        }
+
+        let anim = CABasicAnimation(keyPath: "transform.translation.x")
+        anim.duration = 3
+        anim.repeatCount = .infinity
+        anim.autoreverses = false
+        anim.isRemovedOnCompletion = false
+        anim.fillMode = .forwards
+        anim.fromValue = -gradient.frame.width*4
+        anim.toValue = gradient.frame.width*4 + toView.width
+//        print(anim.fromValue, anim.toValue)
+        gradient.add(anim, forKey: "animateLayer")
+        animLayers.append(gradient)
+    }
+}
+
+/// make button more interactable
+final private class HighlightButton: UIButton {
+    var normalBg: UIColor = UIColor.clear
+    var highlightBg: UIColor = UIColor(white: 0, alpha: 0.1)
+    fileprivate var isSetupDone: Bool = false
+    fileprivate func setup() {
+        if isSetupDone { return }
+        
+        addTarget(self, action: #selector(pressDown), for: .touchDown)
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        setup()
+    }
+    
+    override var isHighlighted: Bool {
+        didSet {
+            backgroundColor = isHighlighted ? highlightBg : normalBg
+        }
+    }
+    
+    @objc private func pressDown() {
+        isHighlighted = true
     }
 }
