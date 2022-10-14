@@ -125,3 +125,16 @@ extension UIView {
         ])
     }
 }
+
+extension UIControl {
+    func addAction(for controlEvents: UIControl.Event = .touchUpInside, _ closure: @escaping(UIControl)->()) {
+        @objc class ClosureSleeve: NSObject {
+            let closure:(UIControl)->()
+            init(_ closure: @escaping(UIControl)->()) { self.closure = closure }
+            @objc func invoke(control: UIControl) { closure(control) }
+        }
+        let sleeve = ClosureSleeve(closure)
+        addTarget(sleeve, action: #selector(ClosureSleeve.invoke(control:)), for: controlEvents)
+        objc_setAssociatedObject(self, "\(UUID())", sleeve, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
+    }
+}

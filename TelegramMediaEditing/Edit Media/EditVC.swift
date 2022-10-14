@@ -19,6 +19,7 @@ class EditVC: UIViewController {
     var asset: PHAsset!
     var scroll: ZoomScrollView!
     var mediaContainer: UIView!
+    var brush: BrushDrawer!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,6 +36,7 @@ class EditVC: UIViewController {
         view.addSubview(scroll)
         scroll.setup(content: mediaContainer)
         addCloseButton()
+        addBrushAndTempControlls()
     }
     
     private func addCloseButton() {
@@ -49,6 +51,40 @@ class EditVC: UIViewController {
         ])
     }
     
+    private func addBrushAndTempControlls() {
+        brush = BrushDrawer()
+        brush.setup(content: mediaContainer)
+        
+        let brushButt = UIButton(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
+        brushButt.setImage(UIImage(systemName: "paintbrush.pointed"), for: .normal)
+        brushButt.tintColor = .white
+        brushButt.backgroundColor = UIColor(white: 0.2, alpha: 0.4)
+        brushButt.layer.cornerRadius = 5
+        brushButt.layer.masksToBounds = true
+        brushButt.layer.borderColor = UIColor.white.cgColor
+        brushButt.layer.borderWidth = 1
+        brushButt.bottom = view.bounds.maxY
+        brushButt.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
+        brushButt.addAction { [brush] butt in
+            butt.isSelected = !butt.isSelected
+            let imgName = butt.isSelected ? "paintbrush.pointed.fill" : "paintbrush.pointed"
+            (butt as? UIButton)?.setImage(UIImage(systemName: imgName), for: .normal)
+            brush?.active = butt.isSelected
+        }
+        view.addSubview(brushButt)
+        
+        
+//        let forward = UIButton(frame: CGRect(x: 40, y: 0, width: 40, height: 40))
+//        forward.
+//        brushButt.bottom = view.bounds.maxY
+//        brushButt.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
+//        brushButt.addAction { butt in
+//            butt.isSelected = !butt.isSelected
+//            let imgName = butt.isSelected ? "paintbrush.pointed.fill" : "paintbrush.pointed"
+//            (butt as? UIButton)?.setImage(UIImage(systemName: imgName), for: .normal)
+//        }
+    }
+    
     @objc
     private func close() {
         dismiss(animated: true)
@@ -59,6 +95,7 @@ class EditVC: UIViewController {
         case .image:
             let imgView = UIImageView(frame: CGRect(origin: .zero, size: size))
             imgView.image = cacheImg
+            imgView.clipsToBounds = true
             PHImageManager.default().fetchFullImage(asset: asset) { img in
                 imgView.image = img
             }
