@@ -27,6 +27,20 @@ extension CGPoint {
     func mulitply(_ val: CGFloat) -> CGPoint {
         return CGPoint(x: x * val, y: y * val)
     }
+    var norm: CGPoint {
+        let d = distance()
+        return CGPoint(x: x / d, y: y / d)
+    }
+    // clockwise
+    var rot90: CGPoint {
+        return CGPoint(x: y, y: -x)
+    }
+    var rot180: CGPoint {
+        return CGPoint(x: -x, y: -y)
+    }
+    var rot270: CGPoint {
+        return CGPoint(x: -y, y: x)
+    }
 }
 
 extension CGSize {
@@ -97,5 +111,15 @@ extension CGRect {
         
         let r = CGRect(x: p1.x, y: p1.y, width: p2.x-p1.x, height: p2.y-p1.y)
         return r
+    }
+}
+
+extension FloatingPoint {
+    func percent(min: Self, max: Self) -> Self {
+        let dx = max - min
+        return (self - min) / (max - min)
+    }
+    func percentToRange(min: Self, max: Self) -> Self {
+        return (max - min)*self + min
     }
 }

@@ -22,6 +22,7 @@ class BrushDrawer: NSObject {
         content.isUserInteractionEnabled = true
         
         self.content = content
+        brushGen.testSquare()
     }
     
 //    func historyForward() {
@@ -35,17 +36,23 @@ class BrushDrawer: NSObject {
     @objc
     private func onPan(pan: UIPanGestureRecognizer) {
         let p = pan.location(in: content)
+        let t = CACurrentMediaTime()
+        let pp = PanPoint(point: p, time: t)
         switch pan.state {
         case .began:
-            drawBezier = UIBezierPath()
-            drawBezier?.move(to: p)
-            drawBezier?.addLine(to: p)
+            var scale: CGFloat = 1.0
+            if let content = content {
+                scale = content.bounds.width / content.frame.width
+            }
+            brushGen.brushSize = 30*scale
+            drawPath.removeAll()
+            drawPath.append(pp)
             updateDrawLayer()
         case .changed:
-            drawBezier?.addLine(to: p)
+            drawPath.append(pp)
             updateDrawLayer()
         case .ended:
-            drawBezier?.addLine(to: p)
+            drawPath.append(pp)
             updateDrawLayer()
             brushLayers.append(currentDrawLayer!)
             currentDrawLayer = nil
@@ -58,26 +65,35 @@ class BrushDrawer: NSObject {
     fileprivate var pan: UIPanGestureRecognizer!
     fileprivate weak var content: UIView?
     fileprivate var drawBezier: UIBezierPath?
+    fileprivate var drawPath: [PanPoint] = []
     fileprivate var currentDrawLayer: CAShapeLayer?
     fileprivate var brushLayers: [CAShapeLayer] = []
+    fileprivate var brushGen = BrushCurveGenerator()
     
     
     fileprivate func updateDrawLayer() {
+        let bezier = brushGen.generatePolygon(type: .standart, points: drawPath)
         if currentDrawLayer == nil {
             var scale: CGFloat = 1.0
             if let content = content {
                 scale = content.bounds.width / content.frame.width
             }
             let layer = CAShapeLayer()
-            layer.strokeColor = UIColor.white.cgColor
-            layer.lineWidth = scale * 10
-            layer.lineCap = .round
-            layer.lineJoin = .round
-            layer.fillColor = nil
+            let stroke = false
+            if stroke {
+                layer.strokeColor = UIColor.white.cgColor
+                layer.lineWidth = scale * 10
+                layer.lineCap = .round
+                layer.lineJoin = .round
+                layer.fillColor = nil
+            } else {
+                layer.strokeColor = nil
+                layer.fillColor = UIColor.white.cgColor
+            }
             content?.layer.addSublayer(layer)
             currentDrawLayer = layer
         }
-        currentDrawLayer?.path = drawBezier?.cgPath
+        currentDrawLayer?.path = bezier.cgPath
     }
 }
 

@@ -26,6 +26,7 @@
 		FA4BF3D828F6AAC700592051 /* ZoomScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */; };
 		FA4BF3DB28F6B42400592051 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = FA4BF3DA28F6B42400592051 /* Lottie */; };
 		FAEDF41828F9B7BF00094ADF /* BrushDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41728F9B7BF00094ADF /* BrushDrawer.swift */; };
+		FAEDF41B28F9F49200094ADF /* BrushCurveGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +50,7 @@
 		FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ex.swift"; sourceTree = "<group>"; };
 		FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomScrollView.swift; sourceTree = "<group>"; };
 		FAEDF41728F9B7BF00094ADF /* BrushDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrushDrawer.swift; sourceTree = "<group>"; };
+		FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrushCurveGenerator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +127,7 @@
 				FA4BF3D328F6A4E800592051 /* EditVC.swift */,
 				FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */,
 				FAEDF41728F9B7BF00094ADF /* BrushDrawer.swift */,
+				FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */,
 			);
 			path = "Edit Media";
 			sourceTree = "<group>";
@@ -221,6 +224,7 @@
 				FA046EE728F54B23002D5023 /* SceneDelegate.swift in Sources */,
 				FA046EFF28F558DF002D5023 /* UIView+Ex.swift in Sources */,
 				FA046F0728F569BE002D5023 /* GlobalFunctions.swift in Sources */,
+				FAEDF41B28F9F49200094ADF /* BrushCurveGenerator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
