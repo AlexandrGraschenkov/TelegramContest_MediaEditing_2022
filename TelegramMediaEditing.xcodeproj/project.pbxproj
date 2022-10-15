@@ -27,6 +27,8 @@
 		FA4BF3DB28F6B42400592051 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = FA4BF3DA28F6B42400592051 /* Lottie */; };
 		FAEDF41828F9B7BF00094ADF /* BrushDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41728F9B7BF00094ADF /* BrushDrawer.swift */; };
 		FAEDF41B28F9F49200094ADF /* BrushCurveGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */; };
+		FAEDF41F28FAB22000094ADF /* Simplify.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41E28FAB22000094ADF /* Simplify.swift */; };
+		FAEDF42128FAB71000094ADF /* PanSmoothTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF42028FAB71000094ADF /* PanSmoothTime.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,6 +53,8 @@
 		FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomScrollView.swift; sourceTree = "<group>"; };
 		FAEDF41728F9B7BF00094ADF /* BrushDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrushDrawer.swift; sourceTree = "<group>"; };
 		FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrushCurveGenerator.swift; sourceTree = "<group>"; };
+		FAEDF41E28FAB22000094ADF /* Simplify.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Simplify.swift; sourceTree = "<group>"; };
+		FAEDF42028FAB71000094ADF /* PanSmoothTime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanSmoothTime.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,6 +132,8 @@
 				FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */,
 				FAEDF41728F9B7BF00094ADF /* BrushDrawer.swift */,
 				FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */,
+				FAEDF41E28FAB22000094ADF /* Simplify.swift */,
+				FAEDF42028FAB71000094ADF /* PanSmoothTime.swift */,
 			);
 			path = "Edit Media";
 			sourceTree = "<group>";
@@ -220,6 +226,8 @@
 				FA046F0328F55987002D5023 /* UIColor+Ex.swift in Sources */,
 				FA046EE928F54B23002D5023 /* ViewController.swift in Sources */,
 				FA046EE528F54B23002D5023 /* AppDelegate.swift in Sources */,
+				FAEDF41F28FAB22000094ADF /* Simplify.swift in Sources */,
+				FAEDF42128FAB71000094ADF /* PanSmoothTime.swift in Sources */,
 				AAAB481E28F70891008373CB /* PhotoPermissionOverlay.swift in Sources */,
 				FA046EE728F54B23002D5023 /* SceneDelegate.swift in Sources */,
 				FA046EFF28F558DF002D5023 /* UIView+Ex.swift in Sources */,

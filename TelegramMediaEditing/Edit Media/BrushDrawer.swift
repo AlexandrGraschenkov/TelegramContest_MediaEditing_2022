@@ -45,23 +45,31 @@ class BrushDrawer: NSObject {
                 scale = content.bounds.width / content.frame.width
             }
             brushGen.brushSize = 30*scale
-            drawPath.removeAll()
-            drawPath.append(pp)
+            smoothTime.start()
+            smoothTime.update(point: pp)
+            drawPath = smoothTime.points
             updateDrawLayer()
         case .changed:
-            drawPath.append(pp)
+            smoothTime.update(point: pp)
+            drawPath = smoothTime.points
             updateDrawLayer()
+            drawPath.removeLast()
         case .ended:
-            drawPath.append(pp)
+            smoothTime.update(point: pp)
+            smoothTime.end()
+            drawPath = smoothTime.points
+            
             updateDrawLayer()
             brushLayers.append(currentDrawLayer!)
             currentDrawLayer = nil
         default:
+            smoothTime.end()
             currentDrawLayer?.removeFromSuperlayer()
             currentDrawLayer = nil
         }
     }
     
+    fileprivate var smoothTime = PanSmoothTime()
     fileprivate var pan: UIPanGestureRecognizer!
     fileprivate weak var content: UIView?
     fileprivate var drawBezier: UIBezierPath?
@@ -69,7 +77,6 @@ class BrushDrawer: NSObject {
     fileprivate var currentDrawLayer: CAShapeLayer?
     fileprivate var brushLayers: [CAShapeLayer] = []
     fileprivate var brushGen = BrushCurveGenerator()
-    
     
     fileprivate func updateDrawLayer() {
         let bezier = brushGen.generatePolygon(type: .standart, points: drawPath)
