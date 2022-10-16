@@ -50,13 +50,6 @@ final class CorneredSegmentedControl: UIView {
     private func setup() {
         
         backgroundColor = .white.withAlphaComponent(0.1)
-        
-        let stackView = UIStackView()
-        stackView.distribution = .fillEqually
-        stackView.axis = .horizontal
-        addSubview(stackView)
-        stackView.pinEdges(to: self)
-        
         addSubview(selectionView)
         
         let texts = ["Draw", "Text"]
@@ -66,7 +59,7 @@ final class CorneredSegmentedControl: UIView {
             label.textColor = .white
             label.textAlignment = .center
             label.font = .systemFont(ofSize: 13, weight: .semibold)
-            stackView.addArrangedSubview(label)
+            addSubview(label)
             segmentViews.append(label)
         }
         
@@ -90,6 +83,10 @@ final class CorneredSegmentedControl: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        let segmentWidth = width / CGFloat(segmentViews.count)
+        for (idx, segmentView) in segmentViews.enumerated() {
+            segmentView.frame = .init(x: CGFloat(idx) * segmentWidth, y: 0, width: segmentWidth, height: height)
+        }
         if let index = self.selectedIndex, index < segmentViews.count, !isAnimating {
             selectionView.frame = segmentViews[index].frameIn(view: self).inset(by: .all(2))
         }

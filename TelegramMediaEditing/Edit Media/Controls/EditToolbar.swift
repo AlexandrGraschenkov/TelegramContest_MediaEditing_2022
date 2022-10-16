@@ -17,11 +17,15 @@ enum EditToolbarAction {
 final class EditorToolbar: UIView {
     
     var actionHandler: ((EditToolbarAction) -> Void)?
-    private var cancelButton = UIButton()
+    private var cancelButton = BackOrCancelButton(frame: CGRect(x: 0, y: 0, width: 33, height: 33))
     private var saveButton = UIButton()
+    private var plusButton = UIButton()
     private let topControlsContainer = UIView()
     private let bottomControlsContainer = UIView()
-    
+    private let colorPickerControl = ColourPickerButton()
+    private let modeSwitcher = CorneredSegmentedControl()
+    private var toolsContainer: ToolsContainer!
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
@@ -34,63 +38,48 @@ final class EditorToolbar: UIView {
     
     private func setup() {
         backgroundColor = .black.withAlphaComponent(0.5)
-        addSubview(topControlsContainer)
-        addSubview(bottomControlsContainer)
-        bottomControlsContainer.pinEdges(
-            to: self,
-            edges: [.leading, .trailing, .bottom],
-            insets: .tm_insets(left: 8, bottom: -8, right: -8),
-            respectSafeArea: true
-        )
-        topControlsContainer.pinEdges(
-            to: self,
-            edges: [.leading, .trailing],
-            insets: .tm_insets(left: 8, right: -8)
-        )
         
-        topControlsContainer.bottomAnchor.constraint(equalTo: bottomControlsContainer.topAnchor, constant: -16).isActive = true
+        addSubview(bottomControlsContainer)
+        bottomControlsContainer.translatesAutoresizingMaskIntoConstraints = false
+        bottomControlsContainer.frame = .init(x: 8, y: height - 33 - 8 - 34, width: width - 16, height: 33)
+        bottomControlsContainer.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
+        
+        
+        addSubview(topControlsContainer)
+        topControlsContainer.translatesAutoresizingMaskIntoConstraints = false
+        topControlsContainer.frame = .init(x: 8, y: bottomControlsContainer.y - 16 - 33, width: width - 16, height: 33)
+        topControlsContainer.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         setupButtons()
         
-        let colorPickerControl = ColourPickerButton()
+        colorPickerControl.translatesAutoresizingMaskIntoConstraints = false
         topControlsContainer.addSubview(colorPickerControl)
-        colorPickerControl.pinSize(to: .square(side: 33))
-        colorPickerControl.pinEdges(
-            to: topControlsContainer,
-            edges: [.leading, .bottom]
-        )
+        colorPickerControl.frame.size = .square(side: 33)
+        colorPickerControl.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
 
-        let modeSwitcher = CorneredSegmentedControl()
         modeSwitcher.select(0, animated: false)
+        modeSwitcher.translatesAutoresizingMaskIntoConstraints = false
         bottomControlsContainer.addSubview(modeSwitcher)
-        
-        modeSwitcher.pinEdges(to: bottomControlsContainer, edges: [.bottom, .top])
-        NSLayoutConstraint.activate([
-            modeSwitcher.leadingAnchor.constraint(equalTo: cancelButton.trailingAnchor, constant: 16),
-            modeSwitcher.trailingAnchor.constraint(equalTo: saveButton.leadingAnchor, constant: -16),
-        ])
-        
-        let pensContainer = ToolsContainer()
+        modeSwitcher.height = 33
+        modeSwitcher.width = width - cancelButton.width - saveButton.width - 32
+        modeSwitcher.center = .init(x: bottomControlsContainer.width / 2, y: 33 / 2)
+        modeSwitcher.autoresizingMask = [.flexibleWidth]
+//
+        let pensContainer = ToolsContainer(frame: .init(x: 0, y: 0, width: width, height: bottomControlsContainer.y))
+        pensContainer.translatesAutoresizingMaskIntoConstraints = false
         pensContainer.delegate = self
         addSubview(pensContainer)
-        pensContainer.pinEdges(
-            to: self,
-            edges: [.leading, .trailing, .top],
-            insets: .tm_insets(top: 0, left: 75, right: -75)
-        )
-
-        pensContainer.pinHeight(to: 88)
-        pensContainer.bottomAnchor.constraint(equalTo: bottomControlsContainer.topAnchor).isActive = true
+        pensContainer.autoresizingMask = [.flexibleWidth]
+        self.toolsContainer = pensContainer
     }
     
     private func setupButtons() {
         bottomControlsContainer.addSubview(cancelButton)
         bottomControlsContainer.addSubview(saveButton)
-        let plusButton = UIButton()
         topControlsContainer.addSubview(plusButton)
         
         let btns = [cancelButton, saveButton, plusButton]
         let actions: [EditToolbarAction] = [.close, .save, .add]
-        let images = ["edit_cancel", "edit_save", "edit_plus"]
+        let images = ["cancel_empty", "edit_save", "edit_plus"]
         
         for (btn, action, image) in zip3(btns, actions, images) {
             btn.addAction { [weak self] in
@@ -98,23 +87,81 @@ final class EditorToolbar: UIView {
             }
             btn.setImage(.init(named: image), for: .normal)
             btn.translatesAutoresizingMaskIntoConstraints = false
-            btn.pinSize(to: .square(side: 33))
+            btn.frame.size = .square(side: 33)
         }
         
-        cancelButton.pinEdges(
-            to: bottomControlsContainer,
-            edges: [.leading, .bottom, .top]
-        )
+        cancelButton.removeTarget(nil, action: nil, for: .allEvents)
+        cancelButton.addAction { [weak self] in
+            guard let self = self else { return }
+            if self.isInEditMode {
+                self.animateFromEditMode()
+            } else {
+                self.actionHandler?(.close)
+            }
+        }
         
-        saveButton.pinEdges(
-            to: bottomControlsContainer,
-            edges: [.trailing, .bottom]
-        )
+        cancelButton.autoresizingMask = [.flexibleRightMargin]
         
-        plusButton.pinEdges(
-            to: topControlsContainer,
-            edges: [.trailing, .bottom, .top]
-        )
+        saveButton.x = bottomControlsContainer.width - saveButton.width
+        saveButton.autoresizingMask = [.flexibleLeftMargin]
+        
+        plusButton.x = topControlsContainer.width - plusButton.width
+        plusButton.autoresizingMask = [.flexibleLeftMargin]
+    }
+    
+    private var isInEditMode = false
+    private lazy var slider: ToolSlider = {
+        let slider = ToolSlider(frame: CGRect(x: 46.5, y: 0, width: bounds.width - 134, height: bottomControlsContainer.height))
+        slider.translatesAutoresizingMaskIntoConstraints = false
+        slider.autoresizingMask = [.flexibleWidth]
+        slider.alpha = 0
+        return slider
+    }()
+    
+    private func animateToEditMode() {
+        let buttonsToScale: [UIView] = [colorPickerControl, plusButton, saveButton]
+//        saveButton.layer.anchorPoint = CGPoint(x: 1, y: 0.5)
+
+        cancelButton.mode = .back
+        
+        bottomControlsContainer.addSubview(slider)
+        slider.alpha = 0
+        
+        UIView.animate(
+            withDuration: 3,
+            delay: 0,
+            options: [],
+            animations: {
+                buttonsToScale.forEach { $0.transform = .init(scaleX: 0.1, y: 0.1) }
+                self.modeSwitcher.alpha = 0
+                self.slider.alpha = 1
+            },
+            completion: { _ in
+                buttonsToScale.forEach { $0.isHidden = true }
+                self.isInEditMode = true
+        })
+    }
+    
+    private func animateFromEditMode() {
+        let buttonsToScale: [UIView] = [colorPickerControl, plusButton, saveButton]
+        cancelButton.mode = .cancel
+        self.toolsContainer.finishEditing()
+        buttonsToScale.forEach { $0.isHidden = false }
+        UIView.animate(
+            withDuration: 3,
+            delay: 0,
+            options: [],
+            animations: {
+                buttonsToScale.forEach { $0.transform = .identity }
+                self.modeSwitcher.alpha = 1
+                self.slider.alpha = 0
+            },
+            completion: { _ in
+                
+//                self.saveButton.layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+                self.slider.removeFromSuperview()
+                self.isInEditMode = false
+        })
     }
 }
 
@@ -124,7 +171,7 @@ extension EditorToolbar: ToolsContainerDelegate {
     }
     
     func toolsContainer(_ container: ToolsContainer, didTriggerToolEdit tool: ToolView) {
-        // TODO: do the transition
+        animateToEditMode()
     }
     
     func toolsContainer(_ container: ToolsContainer, didChangeActiveTool tool: ToolView) {

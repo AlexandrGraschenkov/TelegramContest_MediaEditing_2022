@@ -127,7 +127,17 @@ final class ToolView: UIView {
     
     var radius: CGFloat? {
         didSet {
-            self.lineViewHeight?.constant = radius ?? 0
+            setNeedsLayout()
+        }
+    }
+    
+    override var frame: CGRect {
+        didSet {
+            // dirty but works
+            let ratio = bounds.width / 20
+            if let lineView = lineView, let radius = radius {
+                lineView.frame = .init(x: 1.5 * ratio, y: bounds.height * 0.45, width: bounds.width - 1.5 * ratio * 2, height: radius * ratio)
+            }
         }
     }
     
@@ -139,9 +149,10 @@ final class ToolView: UIView {
         }
     }
     private var lineView: UIView?
-    private var lineViewHeight: NSLayoutConstraint?
-    
+    private var baseView: UIView?
     private var tipView: UIImageView?
+    
+    
     init(config: ToolViewConfig) {
         self.config = config
         super.init(frame: .zero)
@@ -152,17 +163,29 @@ final class ToolView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setup() {
-        pinSize(to: CGSize(width: 20, height: 88))
+    // dirty but works
+    func setInitialSize(size: CGSize) {
+        frame.size = size
+        baseView?.frame = bounds
+        tipView?.frame = bounds
+        let inset = 1.5 * bounds.width / 20
+        if let lineView = lineView, let radius = radius {
+            lineView.frame = .init(x: inset, y: bounds.height * 0.45, width: bounds.width - inset * 2, height: radius)
+        }
         
+        baseView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        tipView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+    }
+    
+    private func setup() {
         let base = UIImageView()
+        base.translatesAutoresizingMaskIntoConstraints = false
         base.image = config.baseImage
         addSubview(base)
-        
-        base.pinEdges(to: self)
+        base.frame = bounds
+        base.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
         guard let invariants = config.invariants else {
-            base.pinEdges(to: self, edges: [.top])
             return
         }
 
@@ -170,19 +193,15 @@ final class ToolView: UIView {
         let tipView = UIImageView()
         tipView.image = invariants.tipImage
         addSubview(tipView)
-        tipView.pinEdges(to: self)
+        tipView.translatesAutoresizingMaskIntoConstraints = false
+        tipView.frame = bounds
+        tipView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
         let lineView = invariants.lineView
         self.lineView = lineView
         addSubview(lineView)
-        lineView.pinEdges(
-            to: self,
-            edges: [.top, .leading, .trailing],
-            insets: .tm_insets(top: 40, left: 1.25, bottom: 0, right: -1.5)
-        )
-        self.lineViewHeight = lineView.heightAnchor.constraint(equalToConstant: invariants.initialRadius)
+        lineView.translatesAutoresizingMaskIntoConstraints = false
         self.radius = invariants.initialRadius
-        self.lineViewHeight?.isActive = true
         lineView.backgroundColor = invariants.initialColor
     }
 }
