@@ -122,7 +122,10 @@ final class ToolsContainer: UIView {
     
     func finishEditing(animationDuration: Double) {
         stack.isHidden = false
-        stack.collapse(animationDuration: animationDuration)
+        isUserInteractionEnabled = false
+        stack.collapse(animationDuration: animationDuration, completion: {
+            self.isUserInteractionEnabled = true
+        })
         UIView.animate(withDuration: animationDuration) {
             self.gradientView.height -= 16
             self.gradientView.y += 16
@@ -134,6 +137,7 @@ final class ToolsContainer: UIView {
     }
     
     private func triggerNavigaion(to tool: ToolViewContainer, index: Int) {
+        isUserInteractionEnabled = false
         stack.expand(
             index: index,
             insertAction: { [weak self] view in
@@ -145,8 +149,8 @@ final class ToolsContainer: UIView {
                 self.gradientView.height += 16
                 self.gradientView.y -= 16
                 self.delegate?.toolsContainer(self, didTriggerToolEdit: toolView, animationDuration: duration)
-            }, animationCompletion: { [weak self] in
-//                self?.stack.isHidden = true
+            }, animationCompletion: {
+                self.isUserInteractionEnabled = true
             }
         )
     }
@@ -287,7 +291,7 @@ private final class ToolsStack: UIView {
         }
     }
     
-    func collapse(animationDuration: Double) {
+    func collapse(animationDuration: Double, completion: @escaping VoidBlock) {
         guard let expandedIndex = expandedIndex else { return }
         let containerView = views[expandedIndex]
         let toolView = containerView.toolView!
@@ -297,7 +301,7 @@ private final class ToolsStack: UIView {
             toolView.frame = .init(x: (containerView.width - toolView.width) / 2, y: 0, width: toolView.frame.width, height: toolView.frame.height)
             containerView.addSubview(toolView)
             self.expandedIndex = nil
-//            self.setNeedsLayout()
+            completion()
         }
         
         UIView.animate(
