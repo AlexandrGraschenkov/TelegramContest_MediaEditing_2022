@@ -44,7 +44,9 @@ class BrushDrawer: NSObject {
             if let content = content {
                 scale = content.bounds.width / content.frame.width
             }
-            brushGen.brushSize = 10*scale
+            brushGen.brushSize = 20*scale
+            brushGen.scrollZoomScale = scale
+            smoothTime.debugView = content
             smoothTime.start()
             smoothTime.update(point: pp)
             drawPath = smoothTime.points
@@ -53,28 +55,27 @@ class BrushDrawer: NSObject {
             smoothTime.update(point: pp)
             drawPath = smoothTime.points
             updateDrawLayer()
-            drawPath.removeLast()
         case .ended:
             smoothTime.update(point: pp)
             smoothTime.end()
             drawPath = smoothTime.points
             
             updateDrawLayer()
-            brushLayers.append(currentDrawLayer!)
-            currentDrawLayer = nil
+            finishDraw(canceled: false)
         default:
             smoothTime.end()
-            currentDrawLayer?.removeFromSuperlayer()
-            currentDrawLayer = nil
+            finishDraw(canceled: true)
         }
     }
     
-    fileprivate var smoothTime = PanSmoothTime()
+    fileprivate var smoothTime = PanSmoothIK()
+//    fileprivate var smoothTime = PanSmoothTime()
     fileprivate var pan: UIPanGestureRecognizer!
     fileprivate weak var content: UIView?
     fileprivate var drawBezier: UIBezierPath?
     fileprivate var drawPath: [PanPoint] = []
     fileprivate var currentDrawLayer: CAShapeLayer?
+    fileprivate var currentDrawDebugLayer: CAShapeLayer?
     fileprivate var brushLayers: [CAShapeLayer] = []
     fileprivate var brushGen = BrushCurveGenerator()
     
@@ -99,8 +100,32 @@ class BrushDrawer: NSObject {
             }
             content?.layer.addSublayer(layer)
             currentDrawLayer = layer
+            
+            currentDrawDebugLayer = CAShapeLayer()
+            currentDrawDebugLayer?.strokeColor = UIColor.red.cgColor
+            currentDrawDebugLayer?.lineWidth = scale
+            currentDrawDebugLayer?.fillColor = nil
+            content?.layer.addSublayer(currentDrawDebugLayer!)
         }
         currentDrawLayer?.path = bezier.cgPath
+        var debugPath = brushGen.generateStrokePolygon(type: .standart, points: drawPath)
+//        if drawPath.count > 1 {
+//            debugPath.move(to: drawPath[0].point)
+//            for point in drawPath {
+//                debugPath.addLine(to: point.point)
+//            }
+//        }
+        currentDrawDebugLayer?.path = debugPath.cgPath
+    }
+    
+    fileprivate func finishDraw(canceled: Bool) {
+        if canceled {
+            currentDrawLayer?.removeFromSuperlayer()
+        } else {
+            brushLayers.append(currentDrawLayer!)
+        }
+        currentDrawLayer = nil
+        currentDrawDebugLayer = nil
     }
 }
 

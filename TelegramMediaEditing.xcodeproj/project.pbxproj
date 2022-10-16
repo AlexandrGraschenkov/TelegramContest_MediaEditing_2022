@@ -30,6 +30,7 @@
 		FAEDF41F28FAB22000094ADF /* Simplify.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41E28FAB22000094ADF /* Simplify.swift */; };
 		FAEDF42128FAB71000094ADF /* PanSmoothTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF42028FAB71000094ADF /* PanSmoothTime.swift */; };
 		FAEDF42328FB3D7900094ADF /* GausianSmooth.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */; };
+		FAEDF42528FC082F00094ADF /* PanSmoothIK.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF42428FC082F00094ADF /* PanSmoothIK.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,6 +58,7 @@
 		FAEDF41E28FAB22000094ADF /* Simplify.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Simplify.swift; sourceTree = "<group>"; };
 		FAEDF42028FAB71000094ADF /* PanSmoothTime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanSmoothTime.swift; sourceTree = "<group>"; };
 		FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GausianSmooth.swift; sourceTree = "<group>"; };
+		FAEDF42428FC082F00094ADF /* PanSmoothIK.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanSmoothIK.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +139,7 @@
 				FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */,
 				FAEDF41E28FAB22000094ADF /* Simplify.swift */,
 				FAEDF42028FAB71000094ADF /* PanSmoothTime.swift */,
+				FAEDF42428FC082F00094ADF /* PanSmoothIK.swift */,
 			);
 			path = "Edit Media";
 			sourceTree = "<group>";
@@ -237,6 +240,7 @@
 				FA046EFF28F558DF002D5023 /* UIView+Ex.swift in Sources */,
 				FA046F0728F569BE002D5023 /* GlobalFunctions.swift in Sources */,
 				FAEDF41B28F9F49200094ADF /* BrushCurveGenerator.swift in Sources */,
+				FAEDF42528FC082F00094ADF /* PanSmoothIK.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

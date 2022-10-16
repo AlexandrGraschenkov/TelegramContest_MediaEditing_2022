@@ -33,12 +33,13 @@ class BrushCurveGenerator {
     enum BrushType {
         case standart
     }
-    let maxPixSpeed: Double = 3000
+    let maxPixSpeed: Double = 1000
     let minPixSpeed: Double = 100
     var brushSize: CGFloat = 30
     var minBrushSizeMultiplier: CGFloat = 0.3
     /// какой продолжительности отдается шлейф за кистью
     var plumeDurationSec: CFTimeInterval = 0.5
+    var scrollZoomScale: CGFloat = 1
     
     
     func testSquare() -> UIBezierPath {
@@ -63,9 +64,25 @@ class BrushCurveGenerator {
 //        }
 //    }
     
+    func generateStrokePolygon(type: BrushType, points: [PanPoint]) -> UIBezierPath {
+        let traj = generateSmoothTrajectory(points: points)
+        let bezier = UIBezierPath()
+        if traj.count <= 1 {
+            return bezier
+        }
+        bezier.move(to: traj[0].point)
+        for (idx, info) in traj.enumerated() {
+            if let control = info.control, idx+1 < traj.count {
+                bezier.addQuadCurve(to: traj[idx+1].point, controlPoint: control)
+            } else {
+                bezier.addLine(to: info.point)
+            }
+        }
+        return bezier
+    }
     func generatePolygon(type: BrushType, points: [PanPoint]) -> UIBezierPath {
         let traj = generateSmoothTrajectory(points: points)
-        print("Points count", points.count)
+//        print("Points count", points.count)
         let bezier = trajectoryToBrushPoly(traj: traj)
         return bezier
     }
@@ -92,7 +109,7 @@ class BrushCurveGenerator {
         if points.count < 2 {
             return points.map({DrawBezierInfo(point: $0.point, control: $0.point, speed: minPixSpeed)})
         }
-        GausianSmooth.smoothSpeed(points: &points, timeWindow: 0.4)
+        GausianSmooth.smoothSpeed(points: &points, distWindow: 200 * scrollZoomScale)
         
 //        points = Simplify.simplify(points, tolerance: 10, highQuality: true)
         var result: [DrawBezierInfo] = []
@@ -180,7 +197,7 @@ class BrushCurveGenerator {
     
     private func brushSize(speed: Double) -> CGFloat {
         return speed
-            .percent(min: maxPixSpeed, max: minPixSpeed)
+            .percent(min: maxPixSpeed*scrollZoomScale, max: minPixSpeed*scrollZoomScale)
             .clamp(0, 1)
             .percentToRange(min: minBrushSizeMultiplier * brushSize, max: brushSize)
     }

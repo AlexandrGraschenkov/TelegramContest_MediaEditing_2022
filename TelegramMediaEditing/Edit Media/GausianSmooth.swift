@@ -8,17 +8,21 @@
 import UIKit
 
 class GausianSmooth {
-    static func smoothSpeed(points: inout [PanPoint], timeWindow: Double) {
+    static func smoothSpeed(points: inout [PanPoint], distWindow: CGFloat) {
 //        if points.count > 10 {
 //            print("test")
 //        }
         
-        let sigma = 0.1// (timeWindow-1)/6 // 99 percentile of gaus
+        let sigma = (distWindow-1)/6 // 99 percentile of gaus
         var speeds: [Double] = []
+        let dists = generatePointTimeDistance(points: points)
         for idx in 0..<points.count {
-            let (lower, upper) = getRange(points: points, idx: idx, timeWindow: timeWindow)
-            let speed = smoothGausSpeed(points: points, center: idx, lower: lower, upper: upper, sigma: sigma)
+            let (lower, upper) = getRange(points: points, dists: dists, idx: idx, distWindow: distWindow)
+            let speed = smoothGausSpeed(points: points, dists: dists, center: idx, lower: lower, upper: upper, sigma: sigma)
             speeds.append(speed)
+            if idx == 0 {
+                print(upper, "<>", lower, "total", points.count)
+            }
         }
         for idx in 0..<points.count {
             points[idx].speed = speeds[idx]
@@ -33,9 +37,9 @@ class GausianSmooth {
         let a = (x - m) / s
         return invSqrt2pi / s * exp(-0.5 * a * a)
     }
-    fileprivate static func generatePointTimeDistance(points: [PanPoint]) -> [Double] {
-        var distArr: [Double] = [0]
-        var lineLength: Double = 0 
+    fileprivate static func generatePointTimeDistance(points: [PanPoint]) -> [CGFloat] {
+        var distArr: [CGFloat] = [0]
+        var lineLength: CGFloat = 0 
 //        let timeScale: CGFloat = 100
         for i in 1..<points.count {
             lineLength += points[i-1].point.distance(p: points[i].point)
@@ -47,11 +51,11 @@ class GausianSmooth {
         return distArr
     }
     
-    fileprivate static func smoothGausSpeed(points: [PanPoint], center: Int, lower: Int, upper: Int, sigma: Double) -> Double {
+    fileprivate static func smoothGausSpeed(points: [PanPoint], dists: [CGFloat], center: Int, lower: Int, upper: Int, sigma: Double) -> Double {
         var gSum: Double = 0
         var speedSum: Double = 0
         for i in lower..<upper {
-            let g = gaus(x: points[i].time, m: points[center].time, s: sigma)
+            let g = gaus(x: dists[i], m: dists[center], s: sigma)
             gSum += g
             speedSum += g*points[i].speed!
         }
@@ -72,6 +76,23 @@ class GausianSmooth {
         
         var upper = idx
         while upper < points.count-1, abs(points[upper].time - points[idx].time) < timeWindow {
+            upper += 1
+        }
+        return (lower, upper)
+    }
+    
+    fileprivate static func getRange(points: [PanPoint], dists: [CGFloat], idx: Int, distWindow: CGFloat) -> (lower: Int, upper: Int) {
+        var lower = idx
+        let halfWindow = distWindow/2
+        while lower > 0, abs(dists[lower] - dists[idx]) < halfWindow {
+            lower -= 1
+        }
+        if abs(dists[lower] - dists[idx]) > halfWindow {
+            lower += 1
+        }
+        
+        var upper = idx
+        while upper < points.count-1, abs(dists[upper] - dists[idx]) < halfWindow {
             upper += 1
         }
         return (lower, upper)
