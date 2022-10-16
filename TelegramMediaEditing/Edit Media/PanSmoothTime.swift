@@ -20,9 +20,9 @@ class PanSmoothTime {
     }
     
     func update(point: PanPoint) {
-        if points.count > 1 && points[points.count-1].time - points[points.count-2].time < skipTime {
-            _ = points.popLast()
-        }
+//        if points.count > 1 && points[points.count-1].time - points[points.count-2].time < skipTime {
+//            _ = points.popLast()
+//        }
         points.append(point)
     }
 }

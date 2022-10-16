@@ -29,6 +29,7 @@
 		FAEDF41B28F9F49200094ADF /* BrushCurveGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */; };
 		FAEDF41F28FAB22000094ADF /* Simplify.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41E28FAB22000094ADF /* Simplify.swift */; };
 		FAEDF42128FAB71000094ADF /* PanSmoothTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF42028FAB71000094ADF /* PanSmoothTime.swift */; };
+		FAEDF42328FB3D7900094ADF /* GausianSmooth.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +56,7 @@
 		FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrushCurveGenerator.swift; sourceTree = "<group>"; };
 		FAEDF41E28FAB22000094ADF /* Simplify.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Simplify.swift; sourceTree = "<group>"; };
 		FAEDF42028FAB71000094ADF /* PanSmoothTime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanSmoothTime.swift; sourceTree = "<group>"; };
+		FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GausianSmooth.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +134,7 @@
 				FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */,
 				FAEDF41728F9B7BF00094ADF /* BrushDrawer.swift */,
 				FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */,
+				FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */,
 				FAEDF41E28FAB22000094ADF /* Simplify.swift */,
 				FAEDF42028FAB71000094ADF /* PanSmoothTime.swift */,
 			);
@@ -222,6 +225,7 @@
 				FAEDF41828F9B7BF00094ADF /* BrushDrawer.swift in Sources */,
 				AAA335CE28F6CE6F00B86B89 /* ImageCell.swift in Sources */,
 				AAA335CC28F6CCE100B86B89 /* GalleryViewController.swift in Sources */,
+				FAEDF42328FB3D7900094ADF /* GausianSmooth.swift in Sources */,
 				FA046F0128F55953002D5023 /* Extensions.swift in Sources */,
 				FA046F0328F55987002D5023 /* UIColor+Ex.swift in Sources */,
 				FA046EE928F54B23002D5023 /* ViewController.swift in Sources */,

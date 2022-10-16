@@ -15,7 +15,19 @@ struct PanPoint {
     
     let point: CGPoint
     let time: CFTimeInterval
+    var speed: Double?
 }
+
+extension PanPoint: SimplifyValue, Point2f {
+    var xValue: Double { point.x }
+    var yValue: Double { point.y }
+}
+
+//extension PanPoint: SimplifyValue, Point3f {
+//    var xValue: Double { point.x }
+//    var yValue: Double { point.y }
+//    var zValue: Double { time }
+//}
 
 class BrushCurveGenerator {
     enum BrushType {
@@ -68,7 +80,21 @@ class BrushCurveGenerator {
         if points.count < 2 {
             return points.map({DrawBezierInfo(point: $0.point, control: $0.point, speed: minPixSpeed)})
         }
+        var points = points
+        for idx in 0..<points.count {
+            if idx == points.count-1 {
+                points[idx].speed = points[idx-1].speed
+            } else {
+                points[idx].speed = points[idx+1].speed(p: points[idx])
+            }
+        }
+        points = points.filter({$0.speed ?? 0 > 0})
+        if points.count < 2 {
+            return points.map({DrawBezierInfo(point: $0.point, control: $0.point, speed: minPixSpeed)})
+        }
+        GausianSmooth.smoothSpeed(points: &points, timeWindow: 0.4)
         
+//        points = Simplify.simplify(points, tolerance: 10, highQuality: true)
         var result: [DrawBezierInfo] = []
         // reserve first point, change it later
         result.append(DrawBezierInfo(point: .zero, control: nil, speed: 0))
@@ -77,7 +103,7 @@ class BrushCurveGenerator {
             let p2 = points[i]
             let info = DrawBezierInfo(point: p1.mid(p: p2),
                                       control: p2.point,
-                                      speed: p1.speed(p: p2))
+                                      speed: p1.speed ?? p1.speed(p: p2))
             result.append(info)
         }
         result[0] = DrawBezierInfo(point: points[0].point,

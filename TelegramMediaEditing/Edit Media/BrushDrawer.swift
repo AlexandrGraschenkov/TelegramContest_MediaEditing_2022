@@ -44,7 +44,7 @@ class BrushDrawer: NSObject {
             if let content = content {
                 scale = content.bounds.width / content.frame.width
             }
-            brushGen.brushSize = 30*scale
+            brushGen.brushSize = 10*scale
             smoothTime.start()
             smoothTime.update(point: pp)
             drawPath = smoothTime.points

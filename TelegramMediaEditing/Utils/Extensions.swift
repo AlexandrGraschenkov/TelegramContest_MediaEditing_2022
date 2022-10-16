@@ -18,6 +18,12 @@ extension CGPoint {
     func distance() -> CGFloat {
         return sqrt(x * x + y * y)
     }
+    func distanceSqr(p: CGPoint) -> CGFloat {
+        return pow(p.x - x, 2) + pow(p.y - y, 2)
+    }
+    func distance(p: CGPoint) -> CGFloat {
+        return sqrt(pow(p.x - x, 2) + pow(p.y - y, 2))
+    }
     func add(_ p: CGPoint) -> CGPoint {
         return CGPoint(x: x + p.x, y: y + p.y)
     }
