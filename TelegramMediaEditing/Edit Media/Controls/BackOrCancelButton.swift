@@ -8,7 +8,7 @@
 import UIKit
 
 final class BackOrCancelButton: UIButton {
-    enum Mode {
+    enum Mode: Equatable {
         case cancel
         case back
     }
@@ -19,10 +19,12 @@ final class BackOrCancelButton: UIButton {
     
     private var animatedView: CrossOrArrowView!
     
-    var mode: Mode = .cancel {
-        didSet {
-            animatedView.setShape(mode, animated: true)
-        }
+    private var mode: Mode = .cancel
+    
+    func setMode(_ mode: Mode, animationDuration: Double) {
+        guard mode != self.mode else { return }
+        self.mode = mode
+        animatedView.setShape(mode, animated: true, duration: animationDuration)
     }
     
     required init?(coder: NSCoder) {
@@ -35,7 +37,7 @@ final class BackOrCancelButton: UIButton {
         addSubview(animatedView)
         animatedView.translatesAutoresizingMaskIntoConstraints = false
         animatedView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        animatedView.setShape(mode, animated: false)
+        animatedView.setShape(mode, animated: false, duration: 0)
         self.animatedView = animatedView
     }
 }
@@ -95,61 +97,45 @@ private final class CrossOrArrowView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setShape(_ mode: BackOrCancelButton.Mode, animated: Bool) {
+    func setShape(_ mode: BackOrCancelButton.Mode, animated: Bool, duration: Double) {
+        let path = createNewPath()
+        let path2 = createNewPath()
         switch mode {
         case .cancel:
-            let path = createNewPath()
             path.move(to: .init(x: (width + crossSize.width) / 2, y: (height - crossSize.height) / 2) )
             path.addLine(to: .init(x: (width - crossSize.width) / 2, y: (height + crossSize.height) / 2) )
             
-            let path2 = createNewPath()
             path2.move(to: .init(x: (width - crossSize.width) / 2, y: (height - crossSize.height) / 2))
             path2.addLine(to: .init(x: (width + crossSize.width) / 2, y: (height + crossSize.height) / 2) )
-
-            if animated {
-                lastAnimationInfo = [(l1, path), (l2, path2)]
-                animatePath(of: l1, to: path)
-                animatePath(of: l2, to: path2)
-            }  else {
-                l1.path = path.cgPath
-                l2.path = path2.cgPath
-            }
         case .back:
-            let path = createNewPath()
             path.move(to: .init(x: (width + arrowSize.width) / 2, y: (height - arrowSize.height) / 2))
             path.addLine(to: .init(x: (width - arrowSize.width) / 2, y: height / 2))
             
-            let path2 = createNewPath()
             path2.move(to: .init(x: (width - arrowSize.width) / 2, y: height / 2))
             path2.addLine(to: .init(x: (width + arrowSize.width) / 2, y: (height + arrowSize.height) / 2))
-            if animated {
-                lastAnimationInfo = [(l1, path), (l2, path2)]
-                animatePath(of: l1, to: path)
-                animatePath(of: l2, to: path2)
-            }  else {
-                l1.path = path.cgPath
-                l2.path = path2.cgPath
-            }
+        }
+        
+        if animated {
+            lastAnimationInfo = [(l1, path), (l2, path2)]
+            animatePath(of: l1, to: path, duration: duration)
+            animatePath(of: l2, to: path2, duration: duration)
+        }  else {
+            l1.path = path.cgPath
+            l2.path = path2.cgPath
         }
     }
     
     private var lastAnimationInfo: [(CAShapeLayer, UIBezierPath)] = []
     
-    private func animatePath(of layer: CAShapeLayer, to path: UIBezierPath) {
+    private func animatePath(of layer: CAShapeLayer, to path: UIBezierPath, duration: Double) {
         let animation = CABasicAnimation(keyPath: "path")
         animation.delegate = self
-        animation.duration = 3
+        animation.duration = duration
         animation.fromValue = layer.path
         animation.toValue = path.cgPath
         animation.fillMode = .forwards
         animation.isRemovedOnCompletion = false
         layer.add(animation, forKey: "path")
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-//        l1.frame = bounds
-//        l2.frame = bounds
     }
 }
 

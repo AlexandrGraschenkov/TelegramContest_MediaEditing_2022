@@ -12,6 +12,8 @@ enum EditToolbarAction {
     case save
     case add
     case toolChanged(ToolType)
+    case lineWidthChanged(CGFloat)
+    case toolShapeChanged(ToolShape)
 }
 
 final class EditorToolbar: UIView {
@@ -94,7 +96,7 @@ final class EditorToolbar: UIView {
         cancelButton.addAction { [weak self] in
             guard let self = self else { return }
             if self.isInEditMode {
-                self.animateFromEditMode()
+                self.animateFromEditMode(animationDuration: 0.3)
             } else {
                 self.actionHandler?(.close)
             }
@@ -111,30 +113,52 @@ final class EditorToolbar: UIView {
     
     private var isInEditMode = false
     private lazy var slider: ToolSlider = {
-        let slider = ToolSlider(frame: CGRect(x: 46.5, y: 0, width: bounds.width - 134, height: bottomControlsContainer.height))
+        let slider = ToolSlider(frame: CGRect(x: 46.5, y: 0, width: bounds.width - 150, height: bottomControlsContainer.height))
         slider.translatesAutoresizingMaskIntoConstraints = false
         slider.autoresizingMask = [.flexibleWidth]
-        slider.alpha = 0
+        slider.valuesRange = 2...15
         return slider
     }()
     
-    private func animateToEditMode() {
-        let buttonsToScale: [UIView] = [colorPickerControl, plusButton, saveButton]
-//        saveButton.layer.anchorPoint = CGPoint(x: 1, y: 0.5)
+    private lazy var shapeSelector: ToolShapeSelector = {
+        let selector = ToolShapeSelector(frame: CGRect(x: self.bottomControlsContainer.width - 75, y: 0, width: 75, height: bottomControlsContainer.height))
+        selector.shape = .circle
+        return selector
+    }()
+    
+    private func animateToEditMode(animationDuration: TimeInterval, toolView: ToolView) {
+        let buttonsToScale: [UIView] = [colorPickerControl, plusButton]
 
-        cancelButton.mode = .back
-        
-        bottomControlsContainer.addSubview(slider)
-        slider.alpha = 0
+        UIView.performWithoutAnimation {
+            cancelButton.setMode(.back, animationDuration: animationDuration)
+            
+            bottomControlsContainer.addSubview(slider)
+            slider.alpha = 0
+            slider.currentValue = toolView.lineWidth ?? 0
+            slider.onChange = { [weak self, weak toolView] value in
+                toolView?.lineWidth = value
+                self?.actionHandler?(.lineWidthChanged(value))
+            }
+            
+            bottomControlsContainer.addSubview(shapeSelector)
+            shapeSelector.shape = toolView.shape
+            shapeSelector.alpha = 0
+            shapeSelector.onShapeChange = { [weak self, weak toolView] shape in
+                self?.actionHandler?(.toolShapeChanged(shape))
+                toolView?.shape = shape
+            }
+        }
         
         UIView.animate(
-            withDuration: 3,
+            withDuration: animationDuration,
             delay: 0,
             options: [],
             animations: {
                 buttonsToScale.forEach { $0.transform = .init(scaleX: 0.1, y: 0.1) }
                 self.modeSwitcher.alpha = 0
                 self.slider.alpha = 1
+                self.shapeSelector.alpha = 1
+                self.saveButton.frame = .init(x: self.bottomControlsContainer.width, y: self.bottomControlsContainer.height / 2, width: 0, height: 0)
             },
             completion: { _ in
                 buttonsToScale.forEach { $0.isHidden = true }
@@ -142,22 +166,23 @@ final class EditorToolbar: UIView {
         })
     }
     
-    private func animateFromEditMode() {
-        let buttonsToScale: [UIView] = [colorPickerControl, plusButton, saveButton]
-        cancelButton.mode = .cancel
-        self.toolsContainer.finishEditing()
+    private func animateFromEditMode(animationDuration: TimeInterval) {
+        let buttonsToScale: [UIView] = [colorPickerControl, plusButton]
+        cancelButton.setMode(.cancel, animationDuration: animationDuration)
+        self.toolsContainer.finishEditing(animationDuration: animationDuration)
         buttonsToScale.forEach { $0.isHidden = false }
         UIView.animate(
-            withDuration: 3,
+            withDuration: animationDuration,
             delay: 0,
             options: [],
             animations: {
                 buttonsToScale.forEach { $0.transform = .identity }
                 self.modeSwitcher.alpha = 1
                 self.slider.alpha = 0
+                self.shapeSelector.alpha = 0
+                self.saveButton.frame = .init(x: self.bottomControlsContainer.width - 33, y: 0, width: 33, height: 33)
             },
             completion: { _ in
-                
 //                self.saveButton.layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
                 self.slider.removeFromSuperview()
                 self.isInEditMode = false
@@ -170,8 +195,8 @@ extension EditorToolbar: ToolsContainerDelegate {
         return self.superview
     }
     
-    func toolsContainer(_ container: ToolsContainer, didTriggerToolEdit tool: ToolView) {
-        animateToEditMode()
+    func toolsContainer(_ container: ToolsContainer, didTriggerToolEdit tool: ToolView, animationDuration: TimeInterval) {
+        animateToEditMode(animationDuration: animationDuration, toolView: tool)
     }
     
     func toolsContainer(_ container: ToolsContainer, didChangeActiveTool tool: ToolView) {

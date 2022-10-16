@@ -20,17 +20,17 @@ enum ToolType {
 
 final class ToolViewConfig {
     final class Invariants {
-        init(tipImage: UIImage, lineView: UIView, initialColor: UIColor, initialRadius: CGFloat) {
+        init(tipImage: UIImage, lineView: UIView, initialColor: UIColor, initialLineWidth: CGFloat, shape: ToolShape = .circle) {
             self.tipImage = tipImage
             self.lineView = lineView
             self.initialColor = initialColor
-            self.initialRadius = initialRadius
+            self.initialLineWidth = initialLineWidth
         }
         
         let tipImage: UIImage
         let lineView: UIView
         let initialColor: UIColor
-        let initialRadius: CGFloat
+        let initialLineWidth: CGFloat
     }
     
     init(baseImage: UIImage, toolType: ToolType, invariants: Invariants? = nil) {
@@ -77,7 +77,7 @@ extension ToolViewConfig {
             tipImage: UIImage(named: "pen_tip")!,
             lineView: ToolLineView.straight(),
             initialColor: .white,
-            initialRadius: 2
+            initialLineWidth: 2
         )
     )
     
@@ -88,7 +88,7 @@ extension ToolViewConfig {
             tipImage: UIImage(named: "brush_tip")!,
             lineView: ToolLineView.straight(),
             initialColor: UIColor(red: 255, green: 230, blue: 32, a: 1),
-            initialRadius: 6
+            initialLineWidth: 6
         )
     )
     
@@ -99,7 +99,7 @@ extension ToolViewConfig {
             tipImage: UIImage(named: "neon_tip")!,
             lineView: ToolLineView.straight(),
             initialColor: UIColor(red: 50, green: 254, blue: 186, a: 1),
-            initialRadius: 15
+            initialLineWidth: 15
         )
     )
     
@@ -110,7 +110,7 @@ extension ToolViewConfig {
             tipImage: UIImage(named: "pencil_tip")!,
             lineView: ToolLineView.cornered(),
             initialColor: UIColor(red: 45, green: 136, blue: 243, a: 1),
-            initialRadius: 8
+            initialLineWidth: 8
         )
     )
     
@@ -125,18 +125,20 @@ extension ToolViewConfig {
 
 final class ToolView: UIView {
     
-    var radius: CGFloat? {
+    var lineWidth: CGFloat? {
         didSet {
-            setNeedsLayout()
+            let ratio = bounds.width / 20
+            lineView?.height = (lineWidth ?? 1) * ratio
         }
     }
     
+    var shape: ToolShape = .circle
+    
     override var frame: CGRect {
         didSet {
-            // dirty but works
             let ratio = bounds.width / 20
-            if let lineView = lineView, let radius = radius {
-                lineView.frame = .init(x: 1.5 * ratio, y: bounds.height * 0.45, width: bounds.width - 1.5 * ratio * 2, height: radius * ratio)
+            if let lineView = lineView, let lineWidth = lineWidth {
+                lineView.frame = .init(x: 1.5 * ratio, y: bounds.height * 0.45, width: bounds.width - 1.5 * ratio * 2, height: lineWidth * ratio)
             }
         }
     }
@@ -169,8 +171,8 @@ final class ToolView: UIView {
         baseView?.frame = bounds
         tipView?.frame = bounds
         let inset = 1.5 * bounds.width / 20
-        if let lineView = lineView, let radius = radius {
-            lineView.frame = .init(x: inset, y: bounds.height * 0.45, width: bounds.width - inset * 2, height: radius)
+        if let lineView = lineView, let lineWidth = lineWidth {
+            lineView.frame = .init(x: inset, y: bounds.height * 0.45, width: bounds.width - inset * 2, height: lineWidth)
         }
         
         baseView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -201,7 +203,7 @@ final class ToolView: UIView {
         self.lineView = lineView
         addSubview(lineView)
         lineView.translatesAutoresizingMaskIntoConstraints = false
-        self.radius = invariants.initialRadius
+        self.lineWidth = invariants.initialLineWidth
         lineView.backgroundColor = invariants.initialColor
     }
 }

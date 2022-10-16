@@ -18,7 +18,7 @@ private final class ToolViewContainer: UIView {
 
 protocol ToolsContainerDelegate: AnyObject {
     var viewForPopups: UIView? { get }
-    func toolsContainer(_ container: ToolsContainer, didTriggerToolEdit: ToolView)
+    func toolsContainer(_ container: ToolsContainer, didTriggerToolEdit: ToolView, animationDuration: Double)
     func toolsContainer(_ container: ToolsContainer, didChangeActiveTool: ToolView)
 }
 
@@ -120,9 +120,10 @@ final class ToolsContainer: UIView {
         )
     }
     
-    func finishEditing() {
-        stack.collapse()
-        UIView.animate(withDuration: 3) {
+    func finishEditing(animationDuration: Double) {
+        stack.isHidden = false
+        stack.collapse(animationDuration: animationDuration)
+        UIView.animate(withDuration: animationDuration) {
             self.gradientView.height -= 16
             self.gradientView.y += 16
         }
@@ -139,11 +140,11 @@ final class ToolsContainer: UIView {
                 guard let self = self else { return }
                 self.insertSubview(view, belowSubview: self.gradientView)
             },
-            outsideAnimations: { [weak self] toolView in
+            outsideAnimations: { [weak self] toolView, duration in
                 guard let self = self else { return }
                 self.gradientView.height += 16
                 self.gradientView.y -= 16
-                self.delegate?.toolsContainer(self, didTriggerToolEdit: toolView)
+                self.delegate?.toolsContainer(self, didTriggerToolEdit: toolView, animationDuration: duration)
             }, animationCompletion: { [weak self] in
 //                self?.stack.isHidden = true
             }
@@ -162,6 +163,8 @@ final class ToolsContainer: UIView {
     private func onLongPress(_ gesture: UILongPressGestureRecognizer) {
         guard let toolIndex = indedOfViewTouched(by: gesture) else { return }
         if toolIndex == selectedIndex, gesture.state == .began {
+            let isEditable = tools[toolIndex].toolView.config.invariants != nil
+            guard isEditable else { return }
             triggerNavigaion(to: tools[toolIndex], index: toolIndex)
             gesture.isEnabled = false
             gesture.isEnabled = true
@@ -213,14 +216,13 @@ private final class ToolsStack: UIView {
     func expand(
         index: Int,
         insertAction: @escaping (UIView) -> Void,
-        outsideAnimations: @escaping (ToolView) -> Void,
+        outsideAnimations: @escaping (ToolView, TimeInterval) -> Void,
         animationCompletion: @escaping VoidBlock
     ) {
         expandedIndex = index
         let expandedView = self.views[index]
-        let leftShift = expandedView.x
-        let rightShift = width - views[index].frame.maxX
         
+        let duration: TimeInterval = 0.3
         let toolView = expandedView.toolView!
         let newContainer = superview!
         let frame = toolView.frameIn(view: newContainer)
@@ -230,73 +232,141 @@ private final class ToolsStack: UIView {
         self.savedFrame = frame
 
         UIView.animate(
-            withDuration: 3,
+            withDuration: duration,
             delay: 0,
             options: [],
             animations: {
                 expandedView.frame = self.bounds
-                toolView.frame = CGRect(x: (newContainer.width - 40) / 2, y: 0, width: 40, height: 88 * 2)
-                outsideAnimations(toolView)
+                outsideAnimations(toolView, duration)
             },
             completion: { _ in
                 animationCompletion()
             })
         
+        UIView.animate(
+            withDuration: duration * 3.5,
+            delay: 0,
+            usingSpringWithDamping: 0.7,
+            initialSpringVelocity: 0,
+            options: [.curveEaseIn],
+            animations: {
+                toolView.frame = CGRect(x: (newContainer.width - 40) / 2, y: 0, width: 40, height: 88 * 2)
+            },
+            completion: { _ in }
+        )
+
         var distances: [CGFloat] = []
         for i in 0..<views.count {
             distances.append(CGFloat(abs(index - i)))
         }
         let maxDist = distances.max()!
+
         for (idx, view) in views.enumerated() {
             let ratio = distances[idx] / maxDist
-            let duration = 3 - 0.5 * (ratio)
+            let delay = (duration * 0.3) * (1 - ratio)
             UIView.animate(
                 withDuration: duration,
                 delay: 0,
-                options: [],
+                options: [.curveEaseOut],
                 animations: {
                     if idx < index {
-                        view.x -= leftShift
+                        view.x -= 50 + (ratio * 100)
                     } else if idx > index {
-                        view.x += rightShift
+                        view.x += 30 + (ratio * 100)
                     }
-                    view.y = view.height
-                    view.alpha = 0.5
+                    view.alpha = 0
                 },
                 completion: { _ in
-                    animationCompletion()
+                    
                 })
+            UIView.animate(withDuration: duration, delay: delay, options: [], animations: {
+                if idx != index {
+                    view.y = view.bounds.height * 2
+                }
+            }, completion: nil)
         }
     }
     
-    func collapse() {
+    func collapse(animationDuration: Double) {
         guard let expandedIndex = expandedIndex else { return }
-        self.expandedIndex = nil
         let containerView = views[expandedIndex]
         let toolView = containerView.toolView!
         
-        UIView.animate(withDuration: 2, delay: 0, options: [], animations: {
-            toolView.frame = self.savedFrame ?? .zero
-            self.layoutSubviews()
-            self.views.forEach { $0.alpha = 1 }
-        }, completion: { _ in
-            let inFrame = toolView.frameIn(view: containerView)
+        let completion = {
             toolView.removeFromSuperview()
+            toolView.frame = .init(x: (containerView.width - toolView.width) / 2, y: 0, width: toolView.frame.width, height: toolView.frame.height)
             containerView.addSubview(toolView)
-            toolView.frame = inFrame
-        })
+            self.expandedIndex = nil
+//            self.setNeedsLayout()
+        }
         
+        UIView.animate(
+            withDuration: animationDuration,
+            delay: 0,
+            options: [],
+            animations: {
+                containerView.frame = self.desiredFrame(for: expandedIndex)
+            },
+            completion: nil)
+        
+        UIView.animate(
+            withDuration: animationDuration * 3.5,
+            delay: 0,
+            usingSpringWithDamping: 0.7,
+            initialSpringVelocity: 0,
+            options: [.curveEaseIn],
+            animations: {
+                toolView.frame = self.savedFrame ?? .zero
+            },
+            completion: { _ in
+                completion()
+            }
+        )
+        
+        var distances: [CGFloat] = []
+        for i in 0..<views.count {
+            distances.append(CGFloat(abs(expandedIndex - i)))
+        }
+        let maxDist = distances.max()!
+        
+        
+        for (idx, view) in views.enumerated() {
+            let frame = desiredFrame(for: idx)
+            let ratio = distances[idx] / maxDist
+            let delay = (animationDuration * 0.3) * ratio
+            UIView.animate(
+                withDuration: animationDuration,
+                delay: delay,
+                options: [.curveEaseIn],
+                animations: {
+                    view.alpha = 1
+                    view.x = frame.minX
+                },
+                completion: { _ in
+                })
+            
+            UIView.animate(withDuration: animationDuration, delay: delay, options: [.curveEaseOut], animations: {
+                if idx != expandedIndex {
+                    view.y = frame.minY
+                }
+            }, completion: { _ in
+            })
+        }
     }
     
     private var processedSize: CGSize?
     
+    private func desiredFrame(for index: Int) -> CGRect {
+        let contentWidth = width - insets.left - insets.right
+        let containerWidth = contentWidth / CGFloat(views.count)
+        return CGRect(x: containerWidth * CGFloat(index) + insets.left, y: insets.top, width: containerWidth, height: height - insets.top - insets.bottom)
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
         guard expandedIndex == nil else { return }
-        let contentWidth = width - insets.left - insets.right
-        let viewWidth = contentWidth / CGFloat(views.count)
         for (idx, view) in views.enumerated() {
-            view.frame = CGRect(x: viewWidth * CGFloat(idx) + insets.left, y: insets.top, width: viewWidth, height: height - insets.top - insets.bottom)
+            view.frame = desiredFrame(for: idx)
         }
     }
 }
