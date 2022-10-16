@@ -35,6 +35,13 @@ class EditVC: UIViewController {
         view.addSubview(scroll)
         scroll.setup(content: mediaContainer)
         addCloseButton()
+        
+        let toolbar = EditorToolbar()
+        toolbar.actionHandler = { action in
+            print("Toolbar did trigger action \(action)")
+        }
+        view.addSubview(toolbar)
+        toolbar.pinEdges(to: view, edges: [.leading, .trailing, .bottom])
     }
     
     private func addCloseButton() {

@@ -10,6 +10,14 @@
 		AAA335CC28F6CCE100B86B89 /* GalleryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA335CB28F6CCE100B86B89 /* GalleryViewController.swift */; };
 		AAA335CE28F6CE6F00B86B89 /* ImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA335CD28F6CE6F00B86B89 /* ImageCell.swift */; };
 		AAAB481E28F70891008373CB /* PhotoPermissionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB481D28F70891008373CB /* PhotoPermissionOverlay.swift */; };
+		AAAB482328F96A8F008373CB /* EditToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB482228F96A8F008373CB /* EditToolbar.swift */; };
+		AAAB482628F96B76008373CB /* UIControl+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB482528F96B76008373CB /* UIControl+Ex.swift */; };
+		AAAB482928F97F82008373CB /* Array+Zip3.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB482828F97F82008373CB /* Array+Zip3.swift */; };
+		AAAB482C28F982BB008373CB /* UIEdgeInsets+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB482B28F982BB008373CB /* UIEdgeInsets+Ex.swift */; };
+		AAAB482E28F9A99D008373CB /* ToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB482D28F9A99D008373CB /* ToolView.swift */; };
+		AAAB483128F9C876008373CB /* ToolsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB483028F9C876008373CB /* ToolsContainer.swift */; };
+		AAAB483328FAD13A008373CB /* CorneredSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB483228FAD13A008373CB /* CorneredSegmentedControl.swift */; };
+		AAAB483528FAD161008373CB /* ColourPickerCirlce.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB483428FAD161008373CB /* ColourPickerCirlce.swift */; };
 		FA046EE528F54B23002D5023 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA046EE428F54B23002D5023 /* AppDelegate.swift */; };
 		FA046EE728F54B23002D5023 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA046EE628F54B23002D5023 /* SceneDelegate.swift */; };
 		FA046EE928F54B23002D5023 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA046EE828F54B23002D5023 /* ViewController.swift */; };
@@ -31,6 +39,14 @@
 		AAA335CB28F6CCE100B86B89 /* GalleryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryViewController.swift; sourceTree = "<group>"; };
 		AAA335CD28F6CE6F00B86B89 /* ImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCell.swift; sourceTree = "<group>"; };
 		AAAB481D28F70891008373CB /* PhotoPermissionOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPermissionOverlay.swift; sourceTree = "<group>"; };
+		AAAB482228F96A8F008373CB /* EditToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolbar.swift; sourceTree = "<group>"; };
+		AAAB482528F96B76008373CB /* UIControl+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIControl+Ex.swift"; sourceTree = "<group>"; };
+		AAAB482828F97F82008373CB /* Array+Zip3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Zip3.swift"; sourceTree = "<group>"; };
+		AAAB482B28F982BB008373CB /* UIEdgeInsets+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIEdgeInsets+Ex.swift"; sourceTree = "<group>"; };
+		AAAB482D28F9A99D008373CB /* ToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolView.swift; sourceTree = "<group>"; };
+		AAAB483028F9C876008373CB /* ToolsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsContainer.swift; sourceTree = "<group>"; };
+		AAAB483228FAD13A008373CB /* CorneredSegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorneredSegmentedControl.swift; sourceTree = "<group>"; };
+		AAAB483428FAD161008373CB /* ColourPickerCirlce.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColourPickerCirlce.swift; sourceTree = "<group>"; };
 		FA046EE128F54B23002D5023 /* TelegramMediaEditing.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TelegramMediaEditing.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA046EE428F54B23002D5023 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FA046EE628F54B23002D5023 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -71,6 +87,25 @@
 			path = Gallery;
 			sourceTree = "<group>";
 		};
+		AAAB482128F96A82008373CB /* Controls */ = {
+			isa = PBXGroup;
+			children = (
+				AAAB482228F96A8F008373CB /* EditToolbar.swift */,
+				AAAB482D28F9A99D008373CB /* ToolView.swift */,
+				AAAB483028F9C876008373CB /* ToolsContainer.swift */,
+				AAAB483228FAD13A008373CB /* CorneredSegmentedControl.swift */,
+				AAAB483428FAD161008373CB /* ColourPickerCirlce.swift */,
+			);
+			path = Controls;
+			sourceTree = "<group>";
+		};
+		AAAB482F28F9BF51008373CB /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "New Group";
+			sourceTree = "<group>";
+		};
 		FA046ED828F54B23002D5023 = {
 			isa = PBXGroup;
 			children = (
@@ -97,6 +132,7 @@
 				AAA335CA28F6CCC100B86B89 /* Gallery */,
 				FA046EFB28F5586F002D5023 /* Utils */,
 				FA046EED28F54B25002D5023 /* Assets.xcassets */,
+				AAAB482F28F9BF51008373CB /* New Group */,
 				FA046EEF28F54B25002D5023 /* LaunchScreen.storyboard */,
 				FA046EF228F54B25002D5023 /* Info.plist */,
 			);
@@ -113,6 +149,9 @@
 				FA046F0028F55953002D5023 /* Extensions.swift */,
 				FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */,
 				FA046F0228F55987002D5023 /* UIColor+Ex.swift */,
+				AAAB482528F96B76008373CB /* UIControl+Ex.swift */,
+				AAAB482828F97F82008373CB /* Array+Zip3.swift */,
+				AAAB482B28F982BB008373CB /* UIEdgeInsets+Ex.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -120,6 +159,7 @@
 		FA4BF3D228F6A41E00592051 /* Edit Media */ = {
 			isa = PBXGroup;
 			children = (
+				AAAB482128F96A82008373CB /* Controls */,
 				FA4BF3D328F6A4E800592051 /* EditVC.swift */,
 				FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */,
 			);
@@ -206,17 +246,25 @@
 				FA4BF3D828F6AAC700592051 /* ZoomScrollView.swift in Sources */,
 				FA39D93A28F7FE1900CBA7A4 /* PHImageManager+Ex.swift in Sources */,
 				FA046F0528F56996002D5023 /* PHPhotoLibrary+Ex.swift in Sources */,
+				AAAB483528FAD161008373CB /* ColourPickerCirlce.swift in Sources */,
 				FA4BF3D628F6A80100592051 /* UIImage+Ex.swift in Sources */,
+				AAAB482328F96A8F008373CB /* EditToolbar.swift in Sources */,
 				AAA335CE28F6CE6F00B86B89 /* ImageCell.swift in Sources */,
 				AAA335CC28F6CCE100B86B89 /* GalleryViewController.swift in Sources */,
 				FA046F0128F55953002D5023 /* Extensions.swift in Sources */,
+				AAAB483128F9C876008373CB /* ToolsContainer.swift in Sources */,
+				AAAB483328FAD13A008373CB /* CorneredSegmentedControl.swift in Sources */,
 				FA046F0328F55987002D5023 /* UIColor+Ex.swift in Sources */,
+				AAAB482C28F982BB008373CB /* UIEdgeInsets+Ex.swift in Sources */,
 				FA046EE928F54B23002D5023 /* ViewController.swift in Sources */,
+				AAAB482628F96B76008373CB /* UIControl+Ex.swift in Sources */,
 				FA046EE528F54B23002D5023 /* AppDelegate.swift in Sources */,
+				AAAB482E28F9A99D008373CB /* ToolView.swift in Sources */,
 				AAAB481E28F70891008373CB /* PhotoPermissionOverlay.swift in Sources */,
 				FA046EE728F54B23002D5023 /* SceneDelegate.swift in Sources */,
 				FA046EFF28F558DF002D5023 /* UIView+Ex.swift in Sources */,
 				FA046F0728F569BE002D5023 /* GlobalFunctions.swift in Sources */,
+				AAAB482928F97F82008373CB /* Array+Zip3.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -355,7 +403,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = RE82W8HD52;
+				DEVELOPMENT_TEAM = L3NMRMB3TX;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TelegramMediaEditing/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "For photo editing";
@@ -384,7 +432,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = RE82W8HD52;
+				DEVELOPMENT_TEAM = L3NMRMB3TX;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TelegramMediaEditing/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "For photo editing";

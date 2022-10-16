@@ -115,13 +115,59 @@ extension CALayer {
 
 // Autolayout
 extension UIView {
-    func pinEdges(to otherView: UIView) {
+    func pinEdges(to otherView: UIView,
+                  edges: NSDirectionalRectEdge = .all,
+                  insets: UIEdgeInsets = .zero,
+                  respectSafeArea: Bool = false
+    ) {
         self.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            self.leadingAnchor.constraint(equalTo: otherView.leadingAnchor),
-            self.topAnchor.constraint(equalTo: otherView.topAnchor),
-            self.trailingAnchor.constraint(equalTo: otherView.trailingAnchor),
-            self.bottomAnchor.constraint(equalTo: otherView.bottomAnchor),
-        ])
+        var constraints: [NSLayoutConstraint] = []
+        if edges.contains(.leading) {
+            let other = respectSafeArea ? otherView.safeAreaLayoutGuide.leadingAnchor : otherView.leadingAnchor
+            constraints.append(leadingAnchor.constraint(equalTo: other, constant: insets.left))
+        }
+        if edges.contains(.trailing) {
+            let other = respectSafeArea ? otherView.safeAreaLayoutGuide.trailingAnchor : otherView.trailingAnchor
+            constraints.append(trailingAnchor.constraint(equalTo: other, constant: insets.right))
+        }
+        if edges.contains(.top) {
+            let other = respectSafeArea ? otherView.safeAreaLayoutGuide.topAnchor : otherView.topAnchor
+            constraints.append(topAnchor.constraint(equalTo: other, constant: insets.top))
+        }
+        if edges.contains(.bottom) {
+            let other = respectSafeArea ? otherView.safeAreaLayoutGuide.bottomAnchor : otherView.bottomAnchor
+            constraints.append(bottomAnchor.constraint(equalTo: other, constant: insets.bottom))
+        }
+        NSLayoutConstraint.activate(constraints)
+    }
+    
+    func pinWidth(to constant: CGFloat) {
+        self.translatesAutoresizingMaskIntoConstraints = false
+        self.widthAnchor.constraint(equalToConstant: constant).isActive = true
+    }
+    
+    func pinHeight(to constant: CGFloat) {
+        self.translatesAutoresizingMaskIntoConstraints = false
+        self.heightAnchor.constraint(equalToConstant: constant).isActive = true
+    }
+    
+    func pinSize(to size: CGSize) {
+        pinWidth(to: size.width)
+        pinHeight(to: size.height)
+    }
+    
+    func pinCenterX(to otherView: UIView) {
+        self.translatesAutoresizingMaskIntoConstraints = false
+        self.centerXAnchor.constraint(equalTo: otherView.centerXAnchor).isActive = true
+    }
+    
+    func pinCenterY(to otherView: UIView) {
+        self.translatesAutoresizingMaskIntoConstraints = false
+        self.centerYAnchor.constraint(equalTo: otherView.centerYAnchor).isActive = true
+    }
+    
+    func pinCenter(to otherView: UIView) {
+        pinCenterX(to: otherView)
+        pinCenterY(to: otherView)
     }
 }
