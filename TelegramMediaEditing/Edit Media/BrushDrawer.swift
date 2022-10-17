@@ -33,6 +33,7 @@ class BrushDrawer: NSObject {
 //        
 //    }
     
+    var debugBegunFlag = false
     @objc
     private func onPan(pan: UIPanGestureRecognizer) {
         let p = pan.location(in: content)
@@ -40,6 +41,10 @@ class BrushDrawer: NSObject {
         let pp = PanPoint(point: p, time: t)
         switch pan.state {
         case .began:
+            if debugBegunFlag {
+                return
+            }
+            debugBegunFlag = true
             var scale: CGFloat = 1.0
             if let content = content {
                 scale = content.bounds.width / content.frame.width

@@ -109,6 +109,7 @@ class BrushCurveGenerator {
         if points.count < 2 {
             return points.map({DrawBezierInfo(point: $0.point, control: $0.point, speed: minPixSpeed)})
         }
+        print("ªªª", 200 * scrollZoomScale)
         GausianSmooth.smoothSpeed(points: &points, distWindow: 200 * scrollZoomScale)
         
 //        points = Simplify.simplify(points, tolerance: 10, highQuality: true)
@@ -132,6 +133,9 @@ class BrushCurveGenerator {
         return result
     }
     
+    private var debugContext: CGContext?
+    private var debugContextOffset: CGPoint?
+    
     private func trajectoryToBrushPoly(traj: [DrawBezierInfo]) -> UIBezierPath {
         var bezier = UIBezierPath()
         if traj.isEmpty { return bezier }
@@ -144,15 +148,40 @@ class BrushCurveGenerator {
             print("test")
         }
         
+        var minPoint = traj[0].point
+        var maxPoint = traj[0].point
+        for t in traj {
+            minPoint.x = min(t.point.x, minPoint.x)
+            minPoint.y = min(t.point.y, minPoint.y)
+            maxPoint.x = max(t.point.x, maxPoint.x)
+            maxPoint.y = max(t.point.y, maxPoint.y)
+        }
+        minPoint.x -= 50; minPoint.y -= 50
+        maxPoint.x += 50; maxPoint.y += 50
+        debugContextOffset = minPoint
+        
+        
+        let contextSize = maxPoint.substract(minPoint).size
+        UIGraphicsBeginImageContextWithOptions(contextSize, true, 0)
+        debugContext = UIGraphicsGetCurrentContext()
+        UIColor.white.setFill()
+        UIColor.red.setStroke()
+        debugContext?.fill(CGRect(origin: .zero, size: contextSize))
+        debugContext?.translateBy(x: -minPoint.x, y: -minPoint.y)
+        
         // рисуем по правой стороне в одну сторону, и по левой в обратную
         // проходим по массиву 2 раза
         brushStartCirleLeftRightConterClock(start: traj[0], end: traj[1], moveToStart: true, bezier: &bezier)
         brushRightSide(traj: traj, reversed: false, bezier: &bezier)
         
+//        debugContext?.translateBy(x: 10, y: 0)
+//        debugContext?.strokeLineSegments(between: [.zero, contextSize.point])
+        
         brushStartCirleLeftRightConterClock(start: traj[traj.count-1], end: traj[traj.count-2], moveToStart: false, bezier: &bezier)
         brushRightSide(traj: traj, reversed: true, bezier: &bezier)
         
         bezier.close()
+        UIGraphicsEndImageContext()
         return bezier
     }
     
@@ -168,30 +197,93 @@ class BrushCurveGenerator {
         bezier.addArc(withCenter: start.point, radius: startSize, startAngle: angl+CGFloat.pi*0.5, endAngle: angl+CGFloat.pi*1.5, clockwise: true)
     }
     
+    private func generateNormals(traj: [DrawBezierInfo], toRight: Bool) -> [CGPoint] {
+        // angle of neigbor lines can be differ
+        // so first calculate mean angle for each point
+        // insead of angle use normal directed to right
+        var normalArr: [CGPoint] = []
+        normalArr.reserveCapacity(traj.count)
+        for idx in 0..<traj.count {
+            let i1 = max(0, idx - 1)
+            let i2 = min(traj.count-1, idx + 1)
+            let dir: CGPoint = traj[i2].point.substract(traj[i1].point)
+            let normDir = toRight ? dir.norm.rot90 : dir.norm.rot270
+            normalArr.append(normDir)
+        }
+        return normalArr
+    }
+    
     private func brushRightSide(traj: [DrawBezierInfo], reversed: Bool, bezier: inout UIBezierPath) {
+        var debugBezier = UIBezierPath()
         var prev: DrawBezierInfo?
-        for curr in (reversed ? traj.reversed() : traj) {
+        var prevIdx: Int = -1
+        let rightNormalArr: [CGPoint] = generateNormals(traj: traj, toRight: !reversed)
+        
+//        stride(from: 0, to: traj.count, by: 1)
+//        stride(from: traj.count-1, to: -1, by: 1)
+        for idx in (reversed ? stride(from: traj.count-1, to: -1, by: -1) : stride(from: 0, to: traj.count, by: 1)) {
+//        for idx in (reversed ? (0..<traj.count).reversed() : (0..<traj.count)) {
+//
+//        }
+//        for curr in (reversed ? traj.reversed() : traj) {
+            let curr = traj[idx]
             guard let prevVal = prev else {
                 prev = curr
+                prevIdx = idx
+//                debugBezier.move(to: curr.control ?? curr.point)
                 continue
             }
-            let dir = curr.point.substract(prevVal.point)
-            let rightNorm = dir.norm.rot90
             let fromSize = brushSize(speed: prevVal.speed)
             let toSize = brushSize(speed: curr.speed)
             
-            let fromOffset = rightNorm.mulitply(fromSize)
-            let toOffset = rightNorm.mulitply(toSize)
-//            let from = prevVal.point.add(fromOffset)
+            let fromOffset = rightNormalArr[prevIdx].mulitply(fromSize)
+            let toOffset = rightNormalArr[idx].mulitply(toSize)
+            let from = prevVal.point.add(fromOffset)
             let to = curr.point.add(toOffset)
+            debugContext?.setLineWidth(1)
+            debugContext?.setStrokeColor(UIColor.red.cgColor)
+            debugContext?.setFillColor(UIColor.blue.cgColor)
+            debugContext?.strokeLineSegments(between: [prevVal.point, curr.point])
+            debugContext?.fillEllipse(in: CGRect(mid: prevVal.point, size: CGSize(width: 3, height: 3)))
+            debugContext?.fillEllipse(in: CGRect(mid: curr.point, size: CGSize(width: 3, height: 3)))
+            
             if var control = reversed ? curr.control : prevVal.control {
+                debugContext?.setLineWidth(1)
+                debugContext?.setStrokeColor(UIColor.green.cgColor)
+                debugContext?.addEllipse(in: CGRect(mid: control, size: CGSize(width: 5, height: 5)))
+                debugContext?.strokePath()
+                
                 control = control.add(fromOffset.add(toOffset).mulitply(0.5))
                 bezier.addQuadCurve(to: to, controlPoint: control)
+//                bezier.addLine(to: control)
+                debugBezier.addLine(to: control)
+                
+                debugContext?.move(to: prevVal.point)
+                debugContext?.addLine(to: from)
+                debugContext?.move(to: curr.point)
+                debugContext?.addLine(to: to)
+                debugContext?.strokePath()
+                
+                debugContext?.setStrokeColor(UIColor.blue.cgColor)
+                debugContext?.setLineWidth(2)
+                debugContext?.move(to: from)
+                debugContext?.addQuadCurve(to: to, control: control)
+                debugContext?.strokePath()
+                debugContext?.setLineWidth(1)
+                debugContext?.addEllipse(in: CGRect(mid: control, size: CGSize(width: 5, height: 5)))
+                debugContext?.strokePath()
             } else {
                 // straight line
                 bezier.addLine(to: to)
+                debugBezier.addLine(to: to)
+            }
+            if let debugContext = debugContext, reversed {
+                
+                let img = debugContext.makeImage().map({UIImage(cgImage: $0)})
+                print(img?.size)
             }
             prev = curr
+            prevIdx = idx
         }
     }
     
@@ -201,6 +293,8 @@ class BrushCurveGenerator {
             .clamp(0, 1)
             .percentToRange(min: minBrushSizeMultiplier * brushSize, max: brushSize)
     }
+    
+    
 }
 
 private extension PanPoint {
