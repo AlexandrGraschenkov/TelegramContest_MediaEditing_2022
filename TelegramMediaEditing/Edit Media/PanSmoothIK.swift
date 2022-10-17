@@ -43,13 +43,13 @@ class PanSmoothIK: NSObject {
         lastPoint = nil
         smoothPoints.removeAll()
         lastPoints.removeAll()
-        if let debugView = debugView {
-            
-            DispatchQueue.main.async {
-                debugView.layer.addSublayer(self.debugLayer)
-                debugView.layer.addSublayer(self.debugLayer2)
-            }
-        }
+//        if let debugView = debugView {
+//
+//            DispatchQueue.main.async {
+//                debugView.layer.addSublayer(self.debugLayer)
+//                debugView.layer.addSublayer(self.debugLayer2)
+//            }
+//        }
     }
     
     func end() {

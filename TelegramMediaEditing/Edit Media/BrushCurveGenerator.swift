@@ -110,7 +110,7 @@ class BrushCurveGenerator {
             return points.map({DrawBezierInfo(point: $0.point, control: $0.point, speed: minPixSpeed)})
         }
         print("ªªª", 200 * scrollZoomScale)
-        GausianSmooth.smoothSpeed(points: &points, distWindow: 200 * scrollZoomScale)
+        GausianSmooth.smoothSpeed(points: &points, distWindow: 300 * scrollZoomScale)
         
 //        points = Simplify.simplify(points, tolerance: 10, highQuality: true)
         var result: [DrawBezierInfo] = []
@@ -161,24 +161,24 @@ class BrushCurveGenerator {
         debugContextOffset = minPoint
         
         
-        let contextSize = maxPoint.substract(minPoint).size
-        UIGraphicsBeginImageContextWithOptions(contextSize, true, 0)
-        debugContext = UIGraphicsGetCurrentContext()
-        UIColor.white.setFill()
-        UIColor.red.setStroke()
-        debugContext?.fill(CGRect(origin: .zero, size: contextSize))
-        debugContext?.translateBy(x: -minPoint.x, y: -minPoint.y)
+//        let contextSize = maxPoint.substract(minPoint).size
+//        UIGraphicsBeginImageContextWithOptions(contextSize, true, 0)
+//        debugContext = UIGraphicsGetCurrentContext()
+//        UIColor.white.setFill()
+//        UIColor.red.setStroke()
+//        debugContext?.fill(CGRect(origin: .zero, size: contextSize))
+//        debugContext?.translateBy(x: -minPoint.x, y: -minPoint.y)
         
         // рисуем по правой стороне в одну сторону, и по левой в обратную
         // проходим по массиву 2 раза
         brushStartCirleLeftRightConterClock(start: traj[0], end: traj[1], moveToStart: true, bezier: &bezier)
-        brushRightSide(traj: traj, reversed: false, bezier: &bezier)
+        brushRightSide2(traj: traj, reversed: false, bezier: &bezier)
         
 //        debugContext?.translateBy(x: 10, y: 0)
 //        debugContext?.strokeLineSegments(between: [.zero, contextSize.point])
         
         brushStartCirleLeftRightConterClock(start: traj[traj.count-1], end: traj[traj.count-2], moveToStart: false, bezier: &bezier)
-        brushRightSide(traj: traj, reversed: true, bezier: &bezier)
+        brushRightSide2(traj: traj, reversed: true, bezier: &bezier)
         
         bezier.close()
         UIGraphicsEndImageContext()
@@ -207,6 +207,22 @@ class BrushCurveGenerator {
             let i1 = max(0, idx - 1)
             let i2 = min(traj.count-1, idx + 1)
             let dir: CGPoint = traj[i2].point.substract(traj[i1].point)
+            let normDir = toRight ? dir.norm.rot90 : dir.norm.rot270
+            normalArr.append(normDir)
+        }
+        return normalArr
+    }
+    
+    private func generateNormals(points: [CGPoint], toRight: Bool) -> [CGPoint] {
+        // angle of neigbor lines can be differ
+        // so first calculate mean angle for each point
+        // insead of angle use normal directed to right
+        var normalArr: [CGPoint] = []
+        normalArr.reserveCapacity(points.count)
+        for idx in 0..<points.count {
+            let i1 = max(0, idx - 1)
+            let i2 = min(points.count-1, idx + 1)
+            let dir: CGPoint = points[i2].substract(points[i1])
             let normDir = toRight ? dir.norm.rot90 : dir.norm.rot270
             normalArr.append(normDir)
         }
@@ -284,6 +300,70 @@ class BrushCurveGenerator {
             }
             prev = curr
             prevIdx = idx
+        }
+    }
+    
+    private func brushRightSide2(traj: [DrawBezierInfo], reversed: Bool, bezier: inout UIBezierPath) {
+        var debugBezier = UIBezierPath()
+        var prev: DrawBezierInfo?
+        
+//        stride(from: 0, to: traj.count, by: 1)
+//        stride(from: traj.count-1, to: -1, by: 1)
+        for idx in (reversed ? stride(from: traj.count-1, to: -1, by: -1) : stride(from: 0, to: traj.count, by: 1)) {
+            let curr = traj[idx]
+            guard let prevVal = prev else {
+                prev = curr
+//                debugBezier.move(to: curr.control ?? curr.point)
+                continue
+            }
+            let fromSize = brushSize(speed: prevVal.speed)
+            let toSize = brushSize(speed: curr.speed)
+            
+            let from = prevVal.point
+            let to = curr.point
+            if let control = reversed ? curr.control : prevVal.control {
+                manualBezier(from: from, to: to, control: control, fromWidth: fromSize, toWidth: toSize, inOutBezier: &bezier)
+            } else {
+                // straight line
+                let norm = to.substract(from).norm.rot90
+                bezier.addLine(to: to.add(norm.mulitply(toSize)))
+//                    debugBezier.addLine(to: to)
+            }
+//            if let debugContext = debugContext, reversed {
+//
+//                let img = debugContext.makeImage().map({UIImage(cgImage: $0)})
+//                print(img?.size)
+//            }
+            prev = curr
+        }
+    }
+    
+    fileprivate func manualBezier(from: CGPoint, to: CGPoint, control: CGPoint, fromWidth: CGFloat, toWidth: CGFloat, inOutBezier: inout UIBezierPath) {
+        let segmentDistance: CGFloat = 2
+        let distance = from.distance(p: to)
+        let numberOfSegments: Int = min(128, max(Int(distance / segmentDistance), 16))
+        print(numberOfSegments)
+        
+        var t: CGFloat = 0.0
+        let step = 1.0 / CGFloat(numberOfSegments)
+        var points: [CGPoint] = []
+        var widthArr: [CGFloat] = []
+        points.reserveCapacity(numberOfSegments)
+        widthArr.reserveCapacity(numberOfSegments)
+        for _ in 0..<numberOfSegments {
+            let t1 = pow(1 - t, 2)
+            let t2 = 2.0 * (1 - t) * t
+            let t3 = pow(t, 2)
+            let p = from.mulitply(t1).add(control.mulitply(t2)).add(to.mulitply(t3))
+            let w = fromWidth * (1-t) + toWidth * t
+            points.append(p)
+            widthArr.append(w)
+            t += step
+        }
+        let normals = generateNormals(points: points, toRight: true)
+        for i in 0..<points.count {
+            let p = points[i].add(normals[i].mulitply(widthArr[i]))
+            inOutBezier.addLine(to: p)
         }
     }
     

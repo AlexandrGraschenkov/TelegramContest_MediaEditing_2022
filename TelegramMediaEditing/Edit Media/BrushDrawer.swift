@@ -33,7 +33,7 @@ class BrushDrawer: NSObject {
 //        
 //    }
     
-    var debugBegunFlag = false
+//    var debugBegunFlag = false
     @objc
     private func onPan(pan: UIPanGestureRecognizer) {
         let p = pan.location(in: content)
@@ -41,16 +41,17 @@ class BrushDrawer: NSObject {
         let pp = PanPoint(point: p, time: t)
         switch pan.state {
         case .began:
-            if debugBegunFlag {
-                return
-            }
-            debugBegunFlag = true
+//            if debugBegunFlag {
+//                return
+//            }
+//            debugBegunFlag = true
             var scale: CGFloat = 1.0
             if let content = content {
                 scale = content.bounds.width / content.frame.width
             }
             brushGen.brushSize = 20*scale
             brushGen.scrollZoomScale = scale
+            smoothTime.scale = scale
             smoothTime.debugView = content
             smoothTime.start()
             smoothTime.update(point: pp)
@@ -106,11 +107,11 @@ class BrushDrawer: NSObject {
             content?.layer.addSublayer(layer)
             currentDrawLayer = layer
             
-            currentDrawDebugLayer = CAShapeLayer()
-            currentDrawDebugLayer?.strokeColor = UIColor.red.cgColor
-            currentDrawDebugLayer?.lineWidth = scale
-            currentDrawDebugLayer?.fillColor = nil
-            content?.layer.addSublayer(currentDrawDebugLayer!)
+//            currentDrawDebugLayer = CAShapeLayer()
+//            currentDrawDebugLayer?.strokeColor = UIColor.red.cgColor
+//            currentDrawDebugLayer?.lineWidth = scale
+//            currentDrawDebugLayer?.fillColor = nil
+//            content?.layer.addSublayer(currentDrawDebugLayer!)
         }
         currentDrawLayer?.path = bezier.cgPath
         var debugPath = brushGen.generateStrokePolygon(type: .standart, points: drawPath)
