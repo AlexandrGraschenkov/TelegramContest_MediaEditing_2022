@@ -26,7 +26,7 @@ final class PopupMenu: UIView {
     private func setup(actions: [Action]) {
         for (idx, action) in actions.enumerated() {
             let item = PopupMenuRow(frame: CGRect(x: 0, y: idx * 44, width: Int(width), height: 44))
-            item.translatesAutoresizingMaskIntoConstraints = false
+            item.translatesAutoresizingMaskIntoConstraints = true
             addSubview(item)
             item.autoresizingMask = [.flexibleWidth]
             item.action = action
@@ -66,7 +66,7 @@ final class PopupMenuRow: UIView {
     }
     
     private func setup() {
-        label.translatesAutoresizingMaskIntoConstraints = false
+        label.translatesAutoresizingMaskIntoConstraints = true
         addSubview(label)
         label.frame = bounds.inset(by: .tm_insets(top: 0, left: 16, bottom: 0, right: 16))
         label.autoresizingMask = [.flexibleWidth, .flexibleTopMargin, .flexibleBottomMargin, .flexibleRightMargin]
@@ -75,7 +75,7 @@ final class PopupMenuRow: UIView {
 
         label.setTitleColor(.white, for: .normal)
         
-        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.translatesAutoresizingMaskIntoConstraints = true
         addSubview(imageView)
         imageView.frame = .init(x: width - 16 - 24, y: (height - 24) / 2, width: 24, height: 24)
         imageView.autoresizingMask = [.flexibleLeftMargin, .flexibleTopMargin, .flexibleBottomMargin]
@@ -83,7 +83,7 @@ final class PopupMenuRow: UIView {
         let px = 1 / UIScreen.main.scale
         let separator = UIView(frame: CGRect(x: 0, y: height - px, width: width, height: px))
         separator.backgroundColor = .white
-        separator.translatesAutoresizingMaskIntoConstraints = false
+        separator.translatesAutoresizingMaskIntoConstraints = true
         separator.autoresizingMask = [.flexibleWidth]
         separator.alpha = 0.3
         addSubview(separator)

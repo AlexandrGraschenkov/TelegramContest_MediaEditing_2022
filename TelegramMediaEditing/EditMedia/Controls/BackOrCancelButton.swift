@@ -35,7 +35,7 @@ final class BackOrCancelButton: UIButton {
         let animatedView = CrossOrArrowView(frame: bounds)
         animatedView.isUserInteractionEnabled = false
         addSubview(animatedView)
-        animatedView.translatesAutoresizingMaskIntoConstraints = false
+        animatedView.translatesAutoresizingMaskIntoConstraints = true
         animatedView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         animatedView.setShape(mode, animated: false, duration: 0)
         self.animatedView = animatedView

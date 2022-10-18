@@ -57,7 +57,7 @@ final class ToolShapeSelector: UIButton {
     
     private func setup() {
         for view in [nameLabel, shapePreview] {
-            view.translatesAutoresizingMaskIntoConstraints = false
+            view.translatesAutoresizingMaskIntoConstraints = true
             addSubview(view)
             view.y = (height - view.height) / 2
             view.isUserInteractionEnabled = false
@@ -75,7 +75,7 @@ final class ToolShapeSelector: UIButton {
     private func insertShapesMenu() {
         guard let window = self.window else { return }
         let container = MenuOverlayView(frame: window.bounds)
-        container.translatesAutoresizingMaskIntoConstraints = false
+        container.translatesAutoresizingMaskIntoConstraints = true
         container.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         window.addSubview(container)
         
@@ -120,7 +120,7 @@ final class ToolShapeSelector: UIButton {
             frame: initialFrame
         )
         menu.alpha = 0
-        menu.translatesAutoresizingMaskIntoConstraints = false
+        menu.translatesAutoresizingMaskIntoConstraints = true
         container.addSubview(menu)
         menu.frame = initialFrame
         

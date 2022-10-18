@@ -83,7 +83,7 @@ final class ColourPickerButton: UIView {
         guard let hostView = superview?.superview?.superview else { return }
         
         let gradient = UIImageView(image: UIImage(named: "spectrum_square")!)
-        gradient.translatesAutoresizingMaskIntoConstraints = false
+        gradient.translatesAutoresizingMaskIntoConstraints = true
         let selfFrame = self.frameIn(view: hostView)
         
         let width = hostView.width * 0.8
@@ -98,7 +98,7 @@ final class ColourPickerButton: UIView {
         pickerCircle.frame = centerView.frameIn(view: gradient)
         pickerView = pickerCircle
 
-        pickerCircle.translatesAutoresizingMaskIntoConstraints = false
+        pickerCircle.translatesAutoresizingMaskIntoConstraints = true
         gradient.addSubview(pickerCircle)
         UIView.animate(
             withDuration: 0.1,

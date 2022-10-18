@@ -10,11 +10,10 @@ import UIKit
 final class TestViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-//        view.backgroundColor = .white
         view.backgroundColor = .black
                 
         let toolbar = EditorToolbar(frame: CGRect(x: 0, y: view.bounds.height - 196, width: view.bounds.width, height: 196))
-        toolbar.translatesAutoresizingMaskIntoConstraints = false
+        toolbar.translatesAutoresizingMaskIntoConstraints = true
         toolbar.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         view.addSubview(toolbar)
         toolbar.actionHandler = { action in

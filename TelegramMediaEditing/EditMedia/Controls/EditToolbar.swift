@@ -42,20 +42,20 @@ final class EditorToolbar: UIView {
     private func setup() {
         backgroundColor = .black.withAlphaComponent(0.5)
         
+        bottomControlsContainer.translatesAutoresizingMaskIntoConstraints = true
         addSubview(bottomControlsContainer)
-        
-        bottomControlsContainer.translatesAutoresizingMaskIntoConstraints = false
         bottomControlsContainer.frame = .init(x: 8, y: height - 33 - 8 - 34, width: width - 16, height: 33)
         bottomControlsContainer.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         
         
+        topControlsContainer.translatesAutoresizingMaskIntoConstraints = true
         addSubview(topControlsContainer)
-        topControlsContainer.translatesAutoresizingMaskIntoConstraints = false
         topControlsContainer.frame = .init(x: 8, y: bottomControlsContainer.y - 16 - 33, width: width - 16, height: 33)
         topControlsContainer.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
-        setupButtons()
+
         
-        colorPickerControl.translatesAutoresizingMaskIntoConstraints = false
+        setupButtons()
+        colorPickerControl.translatesAutoresizingMaskIntoConstraints = true
         topControlsContainer.addSubview(colorPickerControl)
         colorPickerControl.frame.size = .square(side: 33)
         colorPickerControl.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
@@ -65,7 +65,7 @@ final class EditorToolbar: UIView {
         }
 
         modeSwitcher.select(0, animated: false)
-        modeSwitcher.translatesAutoresizingMaskIntoConstraints = false
+        modeSwitcher.translatesAutoresizingMaskIntoConstraints = true
         bottomControlsContainer.addSubview(modeSwitcher)
         modeSwitcher.height = 33
         modeSwitcher.width = width - cancelButton.width - saveButton.width - 32
@@ -73,7 +73,7 @@ final class EditorToolbar: UIView {
         modeSwitcher.autoresizingMask = [.flexibleWidth]
 
         let pensContainer = ToolsContainer(frame: .init(x: 0, y: 0, width: width, height: bottomControlsContainer.y))
-        pensContainer.translatesAutoresizingMaskIntoConstraints = false
+        pensContainer.translatesAutoresizingMaskIntoConstraints = true
         pensContainer.delegate = self
         addSubview(pensContainer)
         pensContainer.autoresizingMask = [.flexibleWidth]
@@ -82,10 +82,6 @@ final class EditorToolbar: UIView {
     }
     
     private func setupButtons() {
-        bottomControlsContainer.addSubview(cancelButton)
-        bottomControlsContainer.addSubview(saveButton)
-        topControlsContainer.addSubview(plusButton)
-        
         let btns = [cancelButton, saveButton, plusButton]
         let actions: [EditToolbarAction] = [.close, .save, .add]
         let images = ["cancel_empty", "edit_save", "edit_plus"]
@@ -95,7 +91,7 @@ final class EditorToolbar: UIView {
                 self?.actionHandler?(action)
             }
             btn.setImage(.init(named: image), for: .normal)
-            btn.translatesAutoresizingMaskIntoConstraints = false
+            btn.translatesAutoresizingMaskIntoConstraints = true
             btn.frame.size = .square(side: 33)
         }
         
@@ -109,6 +105,10 @@ final class EditorToolbar: UIView {
             }
         }
         
+        bottomControlsContainer.addSubview(cancelButton)
+        bottomControlsContainer.addSubview(saveButton)
+        topControlsContainer.addSubview(plusButton)
+        
         cancelButton.autoresizingMask = [.flexibleRightMargin]
         
         saveButton.x = bottomControlsContainer.width - saveButton.width
@@ -121,7 +121,7 @@ final class EditorToolbar: UIView {
     private var isInEditMode = false
     private lazy var slider: ToolSlider = {
         let slider = ToolSlider(frame: CGRect(x: 46.5, y: 0, width: bounds.width - 150, height: bottomControlsContainer.height))
-        slider.translatesAutoresizingMaskIntoConstraints = false
+        slider.translatesAutoresizingMaskIntoConstraints = true
         slider.autoresizingMask = [.flexibleWidth]
         slider.valuesRange = 2...15
         return slider
@@ -129,6 +129,7 @@ final class EditorToolbar: UIView {
     
     private lazy var shapeSelector: ToolShapeSelector = {
         let selector = ToolShapeSelector(frame: CGRect(x: self.bottomControlsContainer.width - 75, y: 0, width: 75, height: bottomControlsContainer.height))
+        selector.autoresizingMask = [.flexibleLeftMargin]
         selector.shape = .circle
         return selector
     }()

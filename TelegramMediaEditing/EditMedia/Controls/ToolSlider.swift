@@ -37,7 +37,7 @@ final class ToolSlider: UIView {
     
     private func setup() {
         let imageView = UIImageView(image: UIImage(named: "slider_bg")!)
-        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.translatesAutoresizingMaskIntoConstraints = true
         imageView.frame = bounds
         imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         addSubview(imageView)
@@ -50,13 +50,13 @@ final class ToolSlider: UIView {
         slider.setMaximumTrackImage(UIImage(), for: .normal)
         slider.setMinimumTrackImage(UIImage(), for: .normal)
         slider.setThumbImage(UIImage(named: "circle")!, for: .normal)
-        slider.translatesAutoresizingMaskIntoConstraints = false
+        slider.translatesAutoresizingMaskIntoConstraints = true
         slider.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.slider = slider
         
 //
 //        let movingPart = UIView(frame: CGRect(x: 0, y: (height - 28) / 2, width: 28, height: 28))
-//        movingPart.translatesAutoresizingMaskIntoConstraints = false
+//        movingPart.translatesAutoresizingMaskIntoConstraints = true
 //        addSubview(movingPart)
 //
 //        let panGR = UIPanGestureRecognizer()

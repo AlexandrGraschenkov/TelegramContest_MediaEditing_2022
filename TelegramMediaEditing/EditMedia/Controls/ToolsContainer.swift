@@ -54,11 +54,11 @@ final class ToolsContainer: UIView {
         let eraser = ToolView(config: .eraser)
         
         self.tools = [pen, brush, neon, pencil, lasso, eraser].map { tool in
-            tool.translatesAutoresizingMaskIntoConstraints = false
+            tool.translatesAutoresizingMaskIntoConstraints = true
             let container = ToolViewContainer()
             container.frame.size = CGSize(width: 20, height: 88)
 
-            container.translatesAutoresizingMaskIntoConstraints = false
+            container.translatesAutoresizingMaskIntoConstraints = true
             container.addSubview(tool)
             container.toolView = tool
             tool.setInitialSize(size: container.bounds.size)
@@ -75,7 +75,7 @@ final class ToolsContainer: UIView {
         
         let stackView = ToolsStack(views: self.tools)
         addSubview(stackView)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.translatesAutoresizingMaskIntoConstraints = true
         stackView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         stackView.frame = bounds
         stackView.insets = .init(top: 33, left: 75, bottom: 0, right: 75)

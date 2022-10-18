@@ -31,14 +31,14 @@ final class EditVC: UIViewController {
     fileprivate func setupUI() {
         view.backgroundColor = .black
         scroll = ZoomScrollView(frame: view.bounds)
-        scroll.translatesAutoresizingMaskIntoConstraints = false
+        scroll.translatesAutoresizingMaskIntoConstraints = true
         scroll.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(scroll)
         scroll.setup(content: mediaContainer)
         addCloseButton()
         
         let toolbar = EditorToolbar(frame: CGRect(x: 0, y: view.bounds.height - 196, width: view.bounds.width, height: 196))
-        toolbar.translatesAutoresizingMaskIntoConstraints = false
+        toolbar.translatesAutoresizingMaskIntoConstraints = true
         toolbar.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         view.addSubview(toolbar)
         toolbar.actionHandler = { action in
@@ -49,11 +49,12 @@ final class EditVC: UIViewController {
     private func addCloseButton() {
         let button = UIButton()
         button.setTitle("Close", for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
+        button.translatesAutoresizingMaskIntoConstraints = true
         view.addSubview(button)
         button.addTarget(self, action: #selector(close), for: .touchUpInside)
         button.x = 15
         button.y = 32
+        button.sizeToFit()
         button.autoresizingMask = [.flexibleBottomMargin, .flexibleRightMargin]
     }
     

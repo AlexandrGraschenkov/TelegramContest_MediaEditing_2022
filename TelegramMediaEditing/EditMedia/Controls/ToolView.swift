@@ -181,7 +181,7 @@ final class ToolView: UIView {
     
     private func setup() {
         let base = UIImageView()
-        base.translatesAutoresizingMaskIntoConstraints = false
+        base.translatesAutoresizingMaskIntoConstraints = true
         base.image = config.baseImage
         addSubview(base)
         base.frame = bounds
@@ -195,14 +195,14 @@ final class ToolView: UIView {
         let tipView = UIImageView()
         tipView.image = invariants.tipImage
         addSubview(tipView)
-        tipView.translatesAutoresizingMaskIntoConstraints = false
+        tipView.translatesAutoresizingMaskIntoConstraints = true
         tipView.frame = bounds
         tipView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
         let lineView = invariants.lineView
         self.lineView = lineView
         addSubview(lineView)
-        lineView.translatesAutoresizingMaskIntoConstraints = false
+        lineView.translatesAutoresizingMaskIntoConstraints = true
         self.lineWidth = invariants.initialLineWidth
         lineView.backgroundColor = invariants.initialColor
     }
