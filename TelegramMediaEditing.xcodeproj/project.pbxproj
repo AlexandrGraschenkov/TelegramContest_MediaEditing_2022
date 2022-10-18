@@ -142,7 +142,7 @@
 				FA046EE428F54B23002D5023 /* AppDelegate.swift */,
 				FA046EE628F54B23002D5023 /* SceneDelegate.swift */,
 				FA046EE828F54B23002D5023 /* ViewController.swift */,
-				FA4BF3D228F6A41E00592051 /* Edit Media */,
+				FA4BF3D228F6A41E00592051 /* EditMedia */,
 				AAA335CA28F6CCC100B86B89 /* Gallery */,
 				FA046EFB28F5586F002D5023 /* Utils */,
 				FA046EED28F54B25002D5023 /* Assets.xcassets */,
@@ -169,14 +169,14 @@
 			path = Utils;
 			sourceTree = "<group>";
 		};
-		FA4BF3D228F6A41E00592051 /* Edit Media */ = {
+		FA4BF3D228F6A41E00592051 /* EditMedia */ = {
 			isa = PBXGroup;
 			children = (
 				AAAB482128F96A82008373CB /* Controls */,
 				FA4BF3D328F6A4E800592051 /* EditVC.swift */,
 				FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */,
 			);
-			path = "Edit Media";
+			path = EditMedia;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
