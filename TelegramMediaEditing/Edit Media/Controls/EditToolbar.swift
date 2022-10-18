@@ -14,6 +14,7 @@ enum EditToolbarAction {
     case toolChanged(ToolType)
     case lineWidthChanged(CGFloat)
     case toolShapeChanged(ToolShape)
+    case colorChange(UIColor)
 }
 
 final class EditorToolbar: UIView {
@@ -22,8 +23,8 @@ final class EditorToolbar: UIView {
     private var cancelButton = BackOrCancelButton(frame: CGRect(x: 0, y: 0, width: 33, height: 33))
     private var saveButton = UIButton()
     private var plusButton = UIButton()
-    private let topControlsContainer = UIView()
-    private let bottomControlsContainer = UIView()
+    private let topControlsContainer = PassthroughView()
+    private let bottomControlsContainer = PassthroughView()
     private let colorPickerControl = ColourPickerButton()
     private let modeSwitcher = CorneredSegmentedControl()
     private var toolsContainer: ToolsContainer!
@@ -42,6 +43,7 @@ final class EditorToolbar: UIView {
         backgroundColor = .black.withAlphaComponent(0.5)
         
         addSubview(bottomControlsContainer)
+        
         bottomControlsContainer.translatesAutoresizingMaskIntoConstraints = false
         bottomControlsContainer.frame = .init(x: 8, y: height - 33 - 8 - 34, width: width - 16, height: 33)
         bottomControlsContainer.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
@@ -57,6 +59,10 @@ final class EditorToolbar: UIView {
         topControlsContainer.addSubview(colorPickerControl)
         colorPickerControl.frame.size = .square(side: 33)
         colorPickerControl.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
+        colorPickerControl.onColourChange = { [weak self] color in
+            self?.actionHandler?(.colorChange(color))
+            self?.toolsContainer.selectedTool?.tintColor = color
+        }
 
         modeSwitcher.select(0, animated: false)
         modeSwitcher.translatesAutoresizingMaskIntoConstraints = false
@@ -65,13 +71,14 @@ final class EditorToolbar: UIView {
         modeSwitcher.width = width - cancelButton.width - saveButton.width - 32
         modeSwitcher.center = .init(x: bottomControlsContainer.width / 2, y: 33 / 2)
         modeSwitcher.autoresizingMask = [.flexibleWidth]
-//
+
         let pensContainer = ToolsContainer(frame: .init(x: 0, y: 0, width: width, height: bottomControlsContainer.y))
         pensContainer.translatesAutoresizingMaskIntoConstraints = false
         pensContainer.delegate = self
         addSubview(pensContainer)
         pensContainer.autoresizingMask = [.flexibleWidth]
         self.toolsContainer = pensContainer
+        bringSubviewToFront(topControlsContainer)
     }
     
     private func setupButtons() {
@@ -201,33 +208,6 @@ extension EditorToolbar: ToolsContainerDelegate {
     
     func toolsContainer(_ container: ToolsContainer, didChangeActiveTool tool: ToolView) {
         actionHandler?(.toolChanged(tool.config.toolType))
-    }
-}
-
-final class ColourPickerButton: UIView {
-    private var ringView: UIView!
-    private var centerView: ColourPickerCirlce!
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setup()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func setup() {
-        ringView = UIImageView(image: UIImage(named: "edit_colour_control_ring")!)
-        centerView = ColourPickerCirlce()
-        addSubview(ringView)
-        addSubview(centerView)
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        ringView.frame = bounds
-        centerView.frame = bounds.inset(by: .all(5))
     }
 }
 

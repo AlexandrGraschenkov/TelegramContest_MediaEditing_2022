@@ -74,7 +74,7 @@ final class ToolShapeSelector: UIButton {
     
     private func insertShapesMenu() {
         guard let window = self.window else { return }
-        let container = PassThroughView(frame: window.bounds)
+        let container = MenuOverlayView(frame: window.bounds)
         container.translatesAutoresizingMaskIntoConstraints = false
         container.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         window.addSubview(container)
@@ -141,7 +141,7 @@ final class ToolShapeSelector: UIButton {
 }
 
 
-class PassThroughView: UIView {
+private final class MenuOverlayView: UIView {
     var onInteraction: VoidBlock?
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
         for subview in subviews {

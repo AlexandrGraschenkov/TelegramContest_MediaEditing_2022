@@ -31,6 +31,10 @@ final class ToolsContainer: UIView {
     private var stack: ToolsStack!
     private var gradientView: UIView!
     
+    var selectedTool: ToolView? {
+        selectedIndex.flatMap { tools[$0].toolView }
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
