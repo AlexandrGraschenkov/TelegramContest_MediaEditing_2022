@@ -9,11 +9,6 @@ import UIKit
 
 private final class ToolViewContainer: UIView {
     var toolView: ToolView!
-    
-//    override func layoutSubviews() {
-//        super.layoutSubviews()
-//        toolView.x = (bounds.width - toolView.width) / 2
-//    }
 }
 
 protocol ToolsContainerDelegate: AnyObject {
@@ -63,8 +58,7 @@ final class ToolsContainer: UIView {
             container.toolView = tool
             tool.setInitialSize(size: container.bounds.size)
             tool.frame = container.bounds
-//            tool.centerXAnchor.constraint(equalTo: container.centerXAnchor).isActive = true
-//            tool.pinEdges(to: container, edges: [.top, .bottom])
+
             container.toolView.autoresizingMask = [.flexibleRightMargin, .flexibleLeftMargin]
             return container
         }
@@ -182,23 +176,6 @@ final class ToolsContainer: UIView {
         }
     }
 }
-
-private final class GradientView: UIView {
-    override class var layerClass: AnyClass {
-        CAGradientLayer.self
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        let layer = self.layer as! CAGradientLayer
-        layer.colors = [UIColor.clear, UIColor.black].map(\.cgColor)
-    }
-}
-
 
 private final class ToolsStack: UIView {
     private let views: [ToolViewContainer]

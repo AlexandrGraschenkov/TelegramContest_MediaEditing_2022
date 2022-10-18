@@ -20,7 +20,7 @@ enum EditToolbarAction {
 final class EditorToolbar: UIView {
     
     var actionHandler: ((EditToolbarAction) -> Void)?
-    private var cancelButton = BackOrCancelButton(frame: CGRect(x: 0, y: 0, width: 33, height: 33))
+    private var cancelButton = BackOrCancelButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
     private var saveButton = UIButton()
     private var plusButton = UIButton()
     private let topControlsContainer = PassthroughView()
@@ -42,43 +42,34 @@ final class EditorToolbar: UIView {
     private func setup() {
         backgroundColor = .black.withAlphaComponent(0.5)
         
-        bottomControlsContainer.translatesAutoresizingMaskIntoConstraints = true
+        setupContainers()
+        setupButtons()
+        setupColourPicker()
+        setupModeSwitcher()
+        setupToolsContainer()
+    }
+    
+    private func setupContainers() {
         addSubview(bottomControlsContainer)
-        bottomControlsContainer.frame = .init(x: 8, y: height - 33 - 8 - 34, width: width - 16, height: 33)
+        
+        bottomControlsContainer.frame = .init(
+            x: 0,
+            y: 0,
+            width: self.width,
+            height: 44
+        )
+        bottomControlsContainer.y = self.height - bottomControlsContainer.height - 8 - UIApplication.shared.tm_keyWindow.safeAreaInsets.bottom
         bottomControlsContainer.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         
-        
-        topControlsContainer.translatesAutoresizingMaskIntoConstraints = true
         addSubview(topControlsContainer)
-        topControlsContainer.frame = .init(x: 8, y: bottomControlsContainer.y - 16 - 33, width: width - 16, height: 33)
+        topControlsContainer.frame = .init(
+            x: 0,
+            y: 0,
+            width: self.width,
+            height: 44
+        )
+        topControlsContainer.y = bottomControlsContainer.y - 4 - topControlsContainer.height
         topControlsContainer.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
-
-        
-        setupButtons()
-        colorPickerControl.translatesAutoresizingMaskIntoConstraints = true
-        topControlsContainer.addSubview(colorPickerControl)
-        colorPickerControl.frame.size = .square(side: 33)
-        colorPickerControl.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
-        colorPickerControl.onColourChange = { [weak self] color in
-            self?.actionHandler?(.colorChange(color))
-            self?.toolsContainer.selectedTool?.tintColor = color
-        }
-
-        modeSwitcher.select(0, animated: false)
-        modeSwitcher.translatesAutoresizingMaskIntoConstraints = true
-        bottomControlsContainer.addSubview(modeSwitcher)
-        modeSwitcher.height = 33
-        modeSwitcher.width = width - cancelButton.width - saveButton.width - 32
-        modeSwitcher.center = .init(x: bottomControlsContainer.width / 2, y: 33 / 2)
-        modeSwitcher.autoresizingMask = [.flexibleWidth]
-
-        let pensContainer = ToolsContainer(frame: .init(x: 0, y: 0, width: width, height: bottomControlsContainer.y))
-        pensContainer.translatesAutoresizingMaskIntoConstraints = true
-        pensContainer.delegate = self
-        addSubview(pensContainer)
-        pensContainer.autoresizingMask = [.flexibleWidth]
-        self.toolsContainer = pensContainer
-        bringSubviewToFront(topControlsContainer)
     }
     
     private func setupButtons() {
@@ -92,7 +83,7 @@ final class EditorToolbar: UIView {
             }
             btn.setImage(.init(named: image), for: .normal)
             btn.translatesAutoresizingMaskIntoConstraints = true
-            btn.frame.size = .square(side: 33)
+            btn.frame.size = .square(side: 44)
         }
         
         cancelButton.removeTarget(nil, action: nil, for: .allEvents)
@@ -109,13 +100,46 @@ final class EditorToolbar: UIView {
         bottomControlsContainer.addSubview(saveButton)
         topControlsContainer.addSubview(plusButton)
         
+        cancelButton.x = 2.5
         cancelButton.autoresizingMask = [.flexibleRightMargin]
         
-        saveButton.x = bottomControlsContainer.width - saveButton.width
+        saveButton.x = bottomControlsContainer.width - saveButton.width - 2.5
         saveButton.autoresizingMask = [.flexibleLeftMargin]
         
-        plusButton.x = topControlsContainer.width - plusButton.width
+        plusButton.x = topControlsContainer.width - plusButton.width - 2.5
         plusButton.autoresizingMask = [.flexibleLeftMargin]
+    }
+    
+    private func setupColourPicker() {
+        colorPickerControl.translatesAutoresizingMaskIntoConstraints = true
+        topControlsContainer.addSubview(colorPickerControl)
+        colorPickerControl.x = 2.5
+        colorPickerControl.frame.size = .square(side: 44)
+        colorPickerControl.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
+        colorPickerControl.onColourChange = { [weak self] color in
+            self?.actionHandler?(.colorChange(color))
+            self?.toolsContainer.selectedTool?.tintColor = color
+        }
+    }
+    
+    private func setupModeSwitcher() {
+        modeSwitcher.select(0, animated: false)
+        modeSwitcher.translatesAutoresizingMaskIntoConstraints = true
+        bottomControlsContainer.addSubview(modeSwitcher)
+        modeSwitcher.height = 33
+        modeSwitcher.width = width - cancelButton.width - saveButton.width - 10
+        modeSwitcher.center = .init(x: bottomControlsContainer.width / 2, y: bottomControlsContainer.height / 2)
+        modeSwitcher.autoresizingMask = [.flexibleWidth]
+    }
+    
+    private func setupToolsContainer() {
+        let toolsContainer = ToolsContainer(frame: .init(x: 0, y: 0, width: width, height: bottomControlsContainer.y + 5.5))
+        toolsContainer.translatesAutoresizingMaskIntoConstraints = true
+        toolsContainer.delegate = self
+        addSubview(toolsContainer)
+        toolsContainer.autoresizingMask = [.flexibleWidth]
+        self.toolsContainer = toolsContainer
+        bringSubviewToFront(topControlsContainer)
     }
     
     private var isInEditMode = false
@@ -191,7 +215,6 @@ final class EditorToolbar: UIView {
                 self.saveButton.frame = .init(x: self.bottomControlsContainer.width - 33, y: 0, width: 33, height: 33)
             },
             completion: { _ in
-//                self.saveButton.layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
                 self.slider.removeFromSuperview()
                 self.isInEditMode = false
         })
