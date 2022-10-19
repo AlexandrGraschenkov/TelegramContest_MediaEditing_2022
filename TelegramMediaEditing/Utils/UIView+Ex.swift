@@ -115,8 +115,19 @@ extension CALayer {
 
 // Autolayout
 extension UIView {
+    struct Edge: OptionSet {
+        let rawValue: Int
+
+        static let top    = Edge(rawValue: 1 << 0)
+        static let leading  = Edge(rawValue: 1 << 1)
+        static let bottom   = Edge(rawValue: 1 << 2)
+        static let trailing   = Edge(rawValue: 1 << 3)
+
+        static let all: Edge = [.top, .leading, .bottom, .trailing]
+    }
+    
     func pinEdges(to otherView: UIView,
-                  edges: NSDirectionalRectEdge = .all,
+                  edges: Edge = .all,
                   insets: UIEdgeInsets = .zero,
                   respectSafeArea: Bool = false
     ) {
