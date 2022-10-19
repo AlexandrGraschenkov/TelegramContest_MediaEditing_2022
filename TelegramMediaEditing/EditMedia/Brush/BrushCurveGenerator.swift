@@ -33,10 +33,10 @@ class BrushCurveGenerator {
     enum BrushType {
         case standart
     }
-    let maxPixSpeed: Double = 1000
-    let minPixSpeed: Double = 100
+    let maxPixSpeed: Double = 800
+    let minPixSpeed: Double = 50
     var brushSize: CGFloat = 30
-    var minBrushSizeMultiplier: CGFloat = 0.3
+    var minBrushSizeMultiplier: CGFloat = 0.4
     /// какой продолжительности отдается шлейф за кистью
     var plumeDurationSec: CFTimeInterval = 0.5
     var scrollZoomScale: CGFloat = 1
