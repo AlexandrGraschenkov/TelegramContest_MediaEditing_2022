@@ -9,7 +9,7 @@ import UIKit
 import Photos
 
 
-class EditVC: UIViewController {
+final class EditVC: UIViewController {
 
     enum Media {
         case image(img: UIImage)
@@ -31,29 +31,31 @@ class EditVC: UIViewController {
     fileprivate func setupUI() {
         view.backgroundColor = .black
         scroll = ZoomScrollView(frame: view.bounds)
+        scroll.translatesAutoresizingMaskIntoConstraints = true
         scroll.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(scroll)
         scroll.setup(content: mediaContainer)
         addCloseButton()
         
-        let toolbar = EditorToolbar()
+        let toolbar = EditorToolbar(frame: CGRect(x: 0, y: view.bounds.height - 196, width: view.bounds.width, height: 196))
+        toolbar.translatesAutoresizingMaskIntoConstraints = true
+        toolbar.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
+        view.addSubview(toolbar)
         toolbar.actionHandler = { action in
             print("Toolbar did trigger action \(action)")
         }
-        view.addSubview(toolbar)
-        toolbar.pinEdges(to: view, edges: [.leading, .trailing, .bottom])
     }
     
     private func addCloseButton() {
         let button = UIButton()
         button.setTitle("Close", for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
+        button.translatesAutoresizingMaskIntoConstraints = true
         view.addSubview(button)
         button.addTarget(self, action: #selector(close), for: .touchUpInside)
-        NSLayoutConstraint.activate([
-            button.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            button.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 15)
-        ])
+        button.x = 15
+        button.y = 32
+        button.sizeToFit()
+        button.autoresizingMask = [.flexibleBottomMargin, .flexibleRightMargin]
     }
     
     @objc
