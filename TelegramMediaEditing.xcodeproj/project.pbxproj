@@ -40,6 +40,12 @@
 		FA4BF3D628F6A80100592051 /* UIImage+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */; };
 		FA4BF3D828F6AAC700592051 /* ZoomScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */; };
 		FA4BF3DB28F6B42400592051 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = FA4BF3DA28F6B42400592051 /* Lottie */; };
+		FAEDF41828F9B7BF00094ADF /* BrushDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41728F9B7BF00094ADF /* BrushDrawer.swift */; };
+		FAEDF41B28F9F49200094ADF /* BrushCurveGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */; };
+		FAEDF41F28FAB22000094ADF /* Simplify.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41E28FAB22000094ADF /* Simplify.swift */; };
+		FAEDF42128FAB71000094ADF /* PanSmoothTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF42028FAB71000094ADF /* PanSmoothTime.swift */; };
+		FAEDF42328FB3D7900094ADF /* GausianSmooth.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */; };
+		FAEDF42528FC082F00094ADF /* PanSmoothIK.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF42428FC082F00094ADF /* PanSmoothIK.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -77,6 +83,12 @@
 		FA4BF3D328F6A4E800592051 /* EditVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditVC.swift; sourceTree = "<group>"; };
 		FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ex.swift"; sourceTree = "<group>"; };
 		FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomScrollView.swift; sourceTree = "<group>"; };
+		FAEDF41728F9B7BF00094ADF /* BrushDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrushDrawer.swift; sourceTree = "<group>"; };
+		FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrushCurveGenerator.swift; sourceTree = "<group>"; };
+		FAEDF41E28FAB22000094ADF /* Simplify.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Simplify.swift; sourceTree = "<group>"; };
+		FAEDF42028FAB71000094ADF /* PanSmoothTime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanSmoothTime.swift; sourceTree = "<group>"; };
+		FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GausianSmooth.swift; sourceTree = "<group>"; };
+		FAEDF42428FC082F00094ADF /* PanSmoothIK.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanSmoothIK.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -173,10 +185,24 @@
 			isa = PBXGroup;
 			children = (
 				AAAB482128F96A82008373CB /* Controls */,
+				FACE5BD1290026AF00960A48 /* Brush */,
 				FA4BF3D328F6A4E800592051 /* EditVC.swift */,
 				FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */,
 			);
 			path = EditMedia;
+			sourceTree = "<group>";
+		};
+		FACE5BD1290026AF00960A48 /* Brush */ = {
+			isa = PBXGroup;
+			children = (
+				FAEDF41728F9B7BF00094ADF /* BrushDrawer.swift */,
+				FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */,
+				FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */,
+				FAEDF41E28FAB22000094ADF /* Simplify.swift */,
+				FAEDF42028FAB71000094ADF /* PanSmoothTime.swift */,
+				FAEDF42428FC082F00094ADF /* PanSmoothIK.swift */,
+			);
+			path = Brush;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -262,10 +288,12 @@
 				FA046F0528F56996002D5023 /* PHPhotoLibrary+Ex.swift in Sources */,
 				AAAB483528FAD161008373CB /* ColourPickerCirlce.swift in Sources */,
 				FA4BF3D628F6A80100592051 /* UIImage+Ex.swift in Sources */,
+				FAEDF41828F9B7BF00094ADF /* BrushDrawer.swift in Sources */,
 				AAAB482328F96A8F008373CB /* EditToolbar.swift in Sources */,
 				AAAB484328FC58FC008373CB /* PopupMenu.swift in Sources */,
 				AAA335CE28F6CE6F00B86B89 /* ImageCell.swift in Sources */,
 				AAA335CC28F6CCE100B86B89 /* GalleryViewController.swift in Sources */,
+				FAEDF42328FB3D7900094ADF /* GausianSmooth.swift in Sources */,
 				FA046F0128F55953002D5023 /* Extensions.swift in Sources */,
 				AAAB483128F9C876008373CB /* ToolsContainer.swift in Sources */,
 				AAAB483328FAD13A008373CB /* CorneredSegmentedControl.swift in Sources */,
@@ -278,12 +306,16 @@
 				AAAB482628F96B76008373CB /* UIControl+Ex.swift in Sources */,
 				AAAB483728FB14D8008373CB /* TestVC.swift in Sources */,
 				FA046EE528F54B23002D5023 /* AppDelegate.swift in Sources */,
+				FAEDF41F28FAB22000094ADF /* Simplify.swift in Sources */,
+				FAEDF42128FAB71000094ADF /* PanSmoothTime.swift in Sources */,
 				AAAB482E28F9A99D008373CB /* ToolView.swift in Sources */,
 				AAAB481E28F70891008373CB /* PhotoPermissionOverlay.swift in Sources */,
 				AAAB484128FC4E54008373CB /* ToolShapeSelector.swift in Sources */,
 				FA046EE728F54B23002D5023 /* SceneDelegate.swift in Sources */,
 				FA046EFF28F558DF002D5023 /* UIView+Ex.swift in Sources */,
 				FA046F0728F569BE002D5023 /* GlobalFunctions.swift in Sources */,
+				FAEDF41B28F9F49200094ADF /* BrushCurveGenerator.swift in Sources */,
+				FAEDF42528FC082F00094ADF /* PanSmoothIK.swift in Sources */,
 				AAAB482928F97F82008373CB /* Array+Zip3.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -423,7 +455,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = L3NMRMB3TX;
+				DEVELOPMENT_TEAM = RE82W8HD52;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TelegramMediaEditing/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "For photo editing";
@@ -452,7 +484,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = L3NMRMB3TX;
+				DEVELOPMENT_TEAM = RE82W8HD52;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TelegramMediaEditing/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "For photo editing";
@@ -466,6 +498,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = alex.TelegramMediaEditing;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

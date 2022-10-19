@@ -19,6 +19,11 @@ final class EditVC: UIViewController {
     var asset: PHAsset!
     var scroll: ZoomScrollView!
     var mediaContainer: UIView!
+    lazy var brush: BrushDrawer = {
+        let brush = BrushDrawer()
+        brush.setup(content: mediaContainer)
+        return brush
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,6 +31,7 @@ final class EditVC: UIViewController {
         assert(asset != nil)
         setupMediaContainer()
         setupUI()
+        brush.active = true
     }
     
     fileprivate func setupUI() {
@@ -68,6 +74,7 @@ final class EditVC: UIViewController {
         case .image:
             let imgView = UIImageView(frame: CGRect(origin: .zero, size: size))
             imgView.image = cacheImg
+            imgView.clipsToBounds = true
             PHImageManager.default().fetchFullImage(asset: asset) { img in
                 imgView.image = img
             }
