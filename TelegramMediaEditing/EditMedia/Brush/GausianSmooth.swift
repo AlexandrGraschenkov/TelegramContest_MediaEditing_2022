@@ -20,9 +20,6 @@ class GausianSmooth {
             let (lower, upper) = getRange(points: points, dists: dists, idx: idx, distWindow: distWindow)
             let speed = smoothGausSpeed(points: points, dists: dists, center: idx, lower: lower, upper: upper, sigma: sigma)
             speeds.append(speed)
-            if idx == 0 {
-                print(upper, "<>", lower, "total", points.count)
-            }
         }
         for idx in 0..<points.count {
             points[idx].speed = speeds[idx]

@@ -22,7 +22,6 @@ class BrushDrawer: NSObject {
         content.isUserInteractionEnabled = true
         
         self.content = content
-        brushGen.testSquare()
     }
     
 //    func historyForward() {
