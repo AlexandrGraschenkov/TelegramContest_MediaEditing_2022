@@ -131,7 +131,6 @@ extension CGRect {
 
 extension FloatingPoint {
     func percent(min: Self, max: Self) -> Self {
-        let dx = max - min
         return (self - min) / (max - min)
     }
     func percentToRange(min: Self, max: Self) -> Self {

@@ -41,6 +41,8 @@ class BrushDrawer: NSObject {
         let pp = PanPoint(point: p, time: t)
         switch pan.state {
         case .began:
+            
+//// MARK: - FOR DEBUG
 //            if debugBegunFlag {
 //                return
 //            }
