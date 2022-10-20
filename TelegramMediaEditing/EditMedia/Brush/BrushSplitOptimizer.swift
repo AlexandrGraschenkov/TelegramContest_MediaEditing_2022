@@ -23,16 +23,23 @@ class BrushSplitOptimizer: NSObject {
         frozenCount = 0
     }
     
+    func finish(updateLayer: Bool, points: [PanPoint]) {
+        let suffixCount = points.count - frozenCount
+        let poly = brushGen.generatePolygon(type: .standart, points: points.suffix(suffixCount), withPlume: false)
+        bezierArr[bezierArr.count-1] = poly
+        if updateLayer {
+            shapeArr.last!.path = poly.cgPath
+        }
+    }
+    
     func updatePath(points: [PanPoint]) {
         if points.count - frozenCount > splitThreshCount {
             let poly = brushGen.generatePolygon(type: .standart, points: Array<PanPoint>(points[frozenCount..<frozenCount+splitCount+1]), withPlume: false)
             shapeArr.last!.path = poly.cgPath
             let newShape = shapeArr.last!.customCopy()
             shapeArr.last!.superlayer?.insertSublayer(newShape, above: shapeArr.last!)
-//            shapeArr.last!.backgroundColor = UIColor.red.cgColor
 //            shapeArr.last!.strokeColor = UIColor.red.cgColor
             shapeArr.last!.lineWidth = 2
-            print("123")
             
             frozenCount += splitCount
             shapeArr.append(newShape)

@@ -125,8 +125,10 @@ class BrushDrawer: NSObject {
             brushLayers.append(currentDrawLayer!)
             
             let suffCount = drawPath.count - splitOpt.frozenCount
+            // generate last layer without plume
+            splitOpt.finish(updateLayer: false, points: drawPath)
+            // run pretty animation with plume shrinks
             brushGen.finishPlumAnimation(type: .standart, points: drawPath.suffix(suffCount), onLayer: splitOpt.shapeArr.last!, duration: 0.24)
-//            brushGen.finishPlumAnimation(type: .standart, points: drawPath, onLayer: currentDrawLayer!, duration: 0.2)
         }
         currentDrawLayer = nil
         currentDrawDebugLayer = nil
