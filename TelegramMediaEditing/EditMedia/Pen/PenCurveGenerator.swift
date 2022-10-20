@@ -1,5 +1,5 @@
 //
-//  BrushCurveGenerator.swift
+//  PenCurveGenerator.swift
 //  TelegramMediaEditing
 //
 //  Created by Alexander Graschenkov on 14.10.2022.
@@ -19,13 +19,10 @@ struct PanPoint: Equatable {
 }
 
 
-struct BrushCurveGenerator {
-    enum BrushType {
-        case standart
-    }
+struct PenCurveGenerator {
     let maxPixSpeed: Double = 800
     let minPixSpeed: Double = 50
-    var brushSize: CGFloat = 30
+    var penSize: CGFloat = 30
     var minBrushSizeMultiplier: CGFloat = 0.4
     var scrollZoomScale: CGFloat = 1
     /// какой продолжительности отдается шлейф за кистью
@@ -33,7 +30,7 @@ struct BrushCurveGenerator {
     /// 0 - minPixSpeed, 1 - maxPixSpeed
     var plumeLastSpeedPercent: CGFloat = 0.2
     
-    func finishPlumAnimation(type: BrushType, points: [PanPoint], onLayer: CAShapeLayer, duration: Double) {
+    func finishPlumAnimation(points: [PanPoint], onLayer: CAShapeLayer, duration: Double) {
         var selfCopy = self
         let startPlumePointsCount = plumePointsCount
         let startPlumeLastSpeedPercent = plumeLastSpeedPercent
@@ -41,12 +38,12 @@ struct BrushCurveGenerator {
 //            if onLayer.superlayer == nil { return }
             selfCopy.plumePointsCount = (1-percent) * startPlumePointsCount
             selfCopy.plumeLastSpeedPercent = percent * (1 - startPlumeLastSpeedPercent) + startPlumeLastSpeedPercent
-            let path = selfCopy.generatePolygon(type: type, points: points)
+            let path = selfCopy.generatePolygon(points: points)
             onLayer.path = path.cgPath
         }
     }
     
-    func generateStrokePolygon(type: BrushType, points: [PanPoint]) -> UIBezierPath {
+    func generateStrokePolygon(points: [PanPoint]) -> UIBezierPath {
         let traj = generateSmoothTrajectory(points: points, plumePointsCount: plumePointsCount)
         let bezier = UIBezierPath()
         if traj.count <= 1 {
@@ -62,10 +59,10 @@ struct BrushCurveGenerator {
         }
         return bezier
     }
-    func generatePolygon(type: BrushType, points: [PanPoint], withPlume: Bool = true) -> UIBezierPath {
+    func generatePolygon(points: [PanPoint], withPlume: Bool = true) -> UIBezierPath {
         let traj = generateSmoothTrajectory(points: points, plumePointsCount: withPlume ? plumePointsCount : 0)
 //        print("Points count", points.count)
-        let bezier = trajectoryToBrushPoly(traj: traj)
+        let bezier = trajectoryToPenPoly(traj: traj)
         return bezier
     }
     // MARK: - private
@@ -100,7 +97,7 @@ struct BrushCurveGenerator {
         GausianSmooth.smoothSpeed(points: &points, distWindow: gausDistWindow * scrollZoomScale)
         if plumePointsCount > 0 {
             let lastPlumSpeed = plumeLastSpeedPercent * (maxPixSpeed - minPixSpeed) * scrollZoomScale
-            BrushPlume.makePlumeOnEndPath(points: &points, lastNPoints: plumePointsCount, lastPointOverrideSpeed: lastPlumSpeed)
+            PenPlume.makePlumeOnEndPath(points: &points, lastNPoints: plumePointsCount, lastPointOverrideSpeed: lastPlumSpeed)
         }
         
         if points.count < 2 {
@@ -130,11 +127,11 @@ struct BrushCurveGenerator {
     private var debugContext: CGContext?
     private var debugContextOffset: CGPoint?
     
-    private func trajectoryToBrushPoly(traj: [DrawBezierInfo]) -> UIBezierPath {
+    private func trajectoryToPenPoly(traj: [DrawBezierInfo]) -> UIBezierPath {
         var bezier = UIBezierPath()
         if traj.isEmpty { return bezier }
         if traj.count == 1 {
-            let size = brushSize(speed: traj[0].speed)
+            let size = penSize(speed: traj[0].speed)
             bezier = UIBezierPath(ovalIn: CGRect(mid: traj[0].point, size: CGSize(width: size, height: size)))
             return bezier
         }
@@ -160,23 +157,23 @@ struct BrushCurveGenerator {
         
         // рисуем по правой стороне в одну сторону, и по левой в обратную
         // проходим по массиву 2 раза
-        brushStartCirleLeftRightConterClock(start: traj[0], end: traj[1], moveToStart: true, bezier: &bezier)
-        brushRightSide(traj: traj, reversed: false, bezier: &bezier)
+        penStartCirleLeftRightConterClock(start: traj[0], end: traj[1], moveToStart: true, bezier: &bezier)
+        penRightSide(traj: traj, reversed: false, bezier: &bezier)
         
 //        debugContext?.translateBy(x: 10, y: 0)
 //        debugContext?.strokeLineSegments(between: [.zero, contextSize.point])
         
-        brushStartCirleLeftRightConterClock(start: traj[traj.count-1], end: traj[traj.count-2], moveToStart: false, bezier: &bezier)
-        brushRightSide(traj: traj, reversed: true, bezier: &bezier)
+        penStartCirleLeftRightConterClock(start: traj[traj.count-1], end: traj[traj.count-2], moveToStart: false, bezier: &bezier)
+        penRightSide(traj: traj, reversed: true, bezier: &bezier)
         
         bezier.close()
         UIGraphicsEndImageContext()
         return bezier
     }
     
-    private func brushStartCirleLeftRightConterClock(start: DrawBezierInfo, end: DrawBezierInfo, moveToStart: Bool, bezier: inout UIBezierPath) {
+    private func penStartCirleLeftRightConterClock(start: DrawBezierInfo, end: DrawBezierInfo, moveToStart: Bool, bezier: inout UIBezierPath) {
         let dirNorm = end.point.substract(start.point).norm
-        let startSize = brushSize(speed: start.speed)
+        let startSize = penSize(speed: start.speed)
         let angl = atan2(dirNorm.y, dirNorm.x)
 //        if moveToStart {
 //            let leftNorm = dirNorm.rot270
@@ -218,7 +215,7 @@ struct BrushCurveGenerator {
         return normalArr
     }
     
-    private func brushRightSide(traj: [DrawBezierInfo], reversed: Bool, bezier: inout UIBezierPath) {
+    private func penRightSide(traj: [DrawBezierInfo], reversed: Bool, bezier: inout UIBezierPath) {
         var debugBezier = UIBezierPath()
         var prev: DrawBezierInfo?
         
@@ -232,8 +229,8 @@ struct BrushCurveGenerator {
 //                debugBezier.move(to: curr.control ?? curr.point)
                 continue
             }
-            let fromSize = brushSize(speed: prevVal.speed)
-            let toSize = brushSize(speed: curr.speed)
+            let fromSize = penSize(speed: prevVal.speed)
+            let toSize = penSize(speed: curr.speed)
             
             let from = prevVal.point
             let to = curr.point
@@ -326,11 +323,11 @@ struct BrushCurveGenerator {
         }
     }
     
-    private func brushSize(speed: Double) -> CGFloat {
+    private func penSize(speed: Double) -> CGFloat {
         return speed
             .percent(min: maxPixSpeed*scrollZoomScale, max: minPixSpeed*scrollZoomScale)
             .clamp(0, 1)
-            .percentToRange(min: minBrushSizeMultiplier * brushSize, max: brushSize)
+            .percentToRange(min: minBrushSizeMultiplier * penSize, max: penSize)
     }
     
     

@@ -123,7 +123,8 @@ final class EditorToolbar: UIView {
         let slider = ToolSlider(frame: CGRect(x: 46.5, y: 0, width: bounds.width - 150, height: bottomControlsContainer.height))
         slider.translatesAutoresizingMaskIntoConstraints = true
         slider.autoresizingMask = [.flexibleWidth]
-        slider.valuesRange = 2...15
+        slider.valuesRange = 2...20
+        slider.currentValue = 10
         return slider
     }()
     

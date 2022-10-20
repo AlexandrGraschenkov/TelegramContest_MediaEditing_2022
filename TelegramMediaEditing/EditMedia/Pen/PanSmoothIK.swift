@@ -80,14 +80,14 @@ class PanSmoothIK: NSObject {
         let dt = lastPoints.last!.time - lastPoints.first!.time
         let speed = dt > 0.00001 ? lineLenght / dt : 0
         // larger speed => larger offset dist
-        let maxBrushOffset = log(speed/2/scale+1) * 2 * scale // just gogle it to understand formula of log
-//        print(speed, maxBrushOffset, log(speed/2/scale+1) * 2)
+        let maxPanOffset = log(speed/2/scale+1) * 2 * scale // just gogle it to understand formula of log
+//        print(speed, maxPanOffset, log(speed/2/scale+1) * 2)
         let dist = smoothPoints.last!.point.distance(p: point.point)
-        if dist < maxBrushOffset {
+        if dist < maxPanOffset {
             return
         }
         var offset = smoothPoints.last!.point.substract(point.point)
-        offset = offset.norm.mulitply(maxBrushOffset)
+        offset = offset.norm.mulitply(maxPanOffset)
         let newPoint = point.point.add(offset)
         if newPoint.distance(p: smoothPoints.last!.point) < 14 {
             return

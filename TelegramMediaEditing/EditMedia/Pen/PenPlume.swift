@@ -1,5 +1,5 @@
 //
-//  BrushPlume.swift
+//  PenPlume.swift
 //  TelegramMediaEditing
 //
 //  Created by Alexander Graschenkov on 19.10.2022.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class BrushPlume: NSObject {
+class PenPlume: NSObject {
     /// оставляем шлейф за линией, перезаписываем скорость только если она больше
     static func makePlumeOnEndPath(points: inout [PanPoint], lastNPoints: CGFloat, lastPointOverrideSpeed: Double) {
         let startIdx = max(0, CGFloat(points.count) - lastNPoints)

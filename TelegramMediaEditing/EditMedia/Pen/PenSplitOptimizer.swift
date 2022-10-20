@@ -1,5 +1,5 @@
 //
-//  BrushSplitOptimizer.swift
+//  PenSplitOptimizer.swift
 //  TelegramMediaEditing
 //
 //  Created by Alexander Graschenkov on 20.10.2022.
@@ -8,24 +8,27 @@
 import UIKit
 
 /// Если пользователь будет водить продолжительное время кисточкой, обновление CAShapeLayer начинает занимать слишком много, поэтому бъем на кусочки
-class BrushSplitOptimizer: NSObject {
+class PenSplitOptimizer: NSObject {
     fileprivate(set) var bezierArr: [UIBezierPath] = []
     fileprivate(set) var shapeArr: [CAShapeLayer] = []
-    fileprivate(set) var brushGen: BrushCurveGenerator!
+    fileprivate(set) var penGen: PenCurveGenerator!
     fileprivate(set) var frozenCount: Int = 0
     let splitThreshCount = 150
     let splitCount = 100
+    fileprivate(set) var isPrepared: Bool = false
     
-    func start(layer: CAShapeLayer, brushGen: BrushCurveGenerator) {
+    func start(layer: CAShapeLayer, penGen: PenCurveGenerator) {
+        isPrepared = true
         shapeArr = [layer]
         bezierArr = [UIBezierPath()]
-        self.brushGen = brushGen
+        self.penGen = penGen
         frozenCount = 0
     }
     
     func finish(updateLayer: Bool, points: [PanPoint]) {
+        isPrepared = false
         let suffixCount = points.count - frozenCount
-        let poly = brushGen.generatePolygon(type: .standart, points: points.suffix(suffixCount), withPlume: false)
+        let poly = penGen.generatePolygon(points: points.suffix(suffixCount), withPlume: false)
         bezierArr[bezierArr.count-1] = poly
         if updateLayer {
             shapeArr.last!.path = poly.cgPath
@@ -34,7 +37,7 @@ class BrushSplitOptimizer: NSObject {
     
     func updatePath(points: [PanPoint]) {
         if points.count - frozenCount > splitThreshCount {
-            let poly = brushGen.generatePolygon(type: .standart, points: Array<PanPoint>(points[frozenCount..<frozenCount+splitCount+1]), withPlume: false)
+            let poly = penGen.generatePolygon(points: Array<PanPoint>(points[frozenCount..<frozenCount+splitCount+1]), withPlume: false)
             shapeArr.last!.path = poly.cgPath
             let newShape = shapeArr.last!.customCopy()
             shapeArr.last!.superlayer?.insertSublayer(newShape, above: shapeArr.last!)
@@ -46,7 +49,7 @@ class BrushSplitOptimizer: NSObject {
             bezierArr.append(UIBezierPath())
         }
         let suffixCount = points.count - frozenCount
-        let poly = brushGen.generatePolygon(type: .standart, points: points.suffix(suffixCount))
+        let poly = penGen.generatePolygon(points: points.suffix(suffixCount))
         bezierArr[bezierArr.count-1] = poly
         shapeArr.last!.path = poly.cgPath
     }
