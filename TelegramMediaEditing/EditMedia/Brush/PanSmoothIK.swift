@@ -100,11 +100,11 @@ class PanSmoothIK: NSObject {
     }
     
     fileprivate func updateDebug2() {
-        let bezier = UIBezierPath()
-        for p in smoothPoints {
-            bezier.append(UIBezierPath(ovalIn: CGRect(mid: p.point, size: CGSize(width: 5*scale, height: 5*scale))))
-        }
-        debugLayer2.path = bezier.cgPath
+//        let bezier = UIBezierPath()
+//        for p in smoothPoints {
+//            bezier.append(UIBezierPath(ovalIn: CGRect(mid: p.point, size: CGSize(width: 5*scale, height: 5*scale))))
+//        }
+//        debugLayer2.path = bezier.cgPath
     }
     
     fileprivate func calcLineLength(points: [PanPoint]) -> CGFloat {

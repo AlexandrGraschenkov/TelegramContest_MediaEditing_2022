@@ -62,8 +62,8 @@ struct BrushCurveGenerator {
         }
         return bezier
     }
-    func generatePolygon(type: BrushType, points: [PanPoint]) -> UIBezierPath {
-        let traj = generateSmoothTrajectory(points: points, plumePointsCount: plumePointsCount)
+    func generatePolygon(type: BrushType, points: [PanPoint], withPlume: Bool = true) -> UIBezierPath {
+        let traj = generateSmoothTrajectory(points: points, plumePointsCount: withPlume ? plumePointsCount : 0)
 //        print("Points count", points.count)
         let bezier = trajectoryToBrushPoly(traj: traj)
         return bezier

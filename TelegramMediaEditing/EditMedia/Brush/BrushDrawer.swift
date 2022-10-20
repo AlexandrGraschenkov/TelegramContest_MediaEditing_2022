@@ -50,7 +50,7 @@ class BrushDrawer: NSObject {
             if let content = content {
                 scale = content.bounds.width / content.frame.width
             }
-            brushGen.brushSize = 20*scale
+            brushGen.brushSize = 10*scale
             brushGen.scrollZoomScale = scale
             smoothTime.scale = scale
             smoothTime.debugView = content
@@ -84,28 +84,20 @@ class BrushDrawer: NSObject {
     fileprivate var currentDrawDebugLayer: CAShapeLayer?
     fileprivate var brushLayers: [CAShapeLayer] = []
     fileprivate var brushGen = BrushCurveGenerator()
+    fileprivate let splitOpt = BrushSplitOptimizer()
     
     fileprivate func updateDrawLayer() {
-        let bezier = brushGen.generatePolygon(type: .standart, points: drawPath)
         if currentDrawLayer == nil {
             var scale: CGFloat = 1.0
             if let content = content {
                 scale = content.bounds.width / content.frame.width
             }
             let layer = CAShapeLayer()
-            let stroke = false
-            if stroke {
-                layer.strokeColor = UIColor.white.cgColor
-                layer.lineWidth = scale * 10
-                layer.lineCap = .round
-                layer.lineJoin = .round
-                layer.fillColor = nil
-            } else {
-                layer.strokeColor = nil
-                layer.fillColor = UIColor.white.cgColor
-            }
+            layer.strokeColor = nil
+            layer.fillColor = UIColor.white.cgColor
             content?.layer.addSublayer(layer)
             currentDrawLayer = layer
+            splitOpt.start(layer: layer, brushGen: brushGen)
             
 //            currentDrawDebugLayer = CAShapeLayer()
 //            currentDrawDebugLayer?.strokeColor = UIColor.red.cgColor
@@ -113,15 +105,17 @@ class BrushDrawer: NSObject {
 //            currentDrawDebugLayer?.fillColor = nil
 //            content?.layer.addSublayer(currentDrawDebugLayer!)
         }
-        currentDrawLayer?.path = bezier.cgPath
-        var debugPath = brushGen.generateStrokePolygon(type: .standart, points: drawPath)
+        splitOpt.updatePath(points: drawPath)
+//        let bezier = brushGen.generatePolygon(type: .standart, points: drawPath)
+//        currentDrawLayer?.path = bezier.cgPath
+//        var debugPath = brushGen.generateStrokePolygon(type: .standart, points: drawPath)
 //        if drawPath.count > 1 {
 //            debugPath.move(to: drawPath[0].point)
 //            for point in drawPath {
 //                debugPath.addLine(to: point.point)
 //            }
 //        }
-        currentDrawDebugLayer?.path = debugPath.cgPath
+//        currentDrawDebugLayer?.path = debugPath.cgPath
     }
     
     fileprivate func finishDraw(canceled: Bool) {
@@ -129,7 +123,10 @@ class BrushDrawer: NSObject {
             currentDrawLayer?.removeFromSuperlayer()
         } else {
             brushLayers.append(currentDrawLayer!)
-            brushGen.finishPlumAnimation(type: .standart, points: drawPath, onLayer: currentDrawLayer!, duration: 0.2)
+            
+            let suffCount = drawPath.count - splitOpt.frozenCount
+            brushGen.finishPlumAnimation(type: .standart, points: drawPath.suffix(suffCount), onLayer: splitOpt.shapeArr.last!, duration: 0.24)
+//            brushGen.finishPlumAnimation(type: .standart, points: drawPath, onLayer: currentDrawLayer!, duration: 0.2)
         }
         currentDrawLayer = nil
         currentDrawDebugLayer = nil
