@@ -71,17 +71,9 @@ struct PenCurveGenerator {
         var control: CGPoint?
         var speed: Double
     }
-//    private var prevPointsCount: Int = 0
-//    private var frozenCount: Int = 0
-//    private var frozenTraj: [DrawBezierInfo] = []
     private let gausDistWindow: CGFloat = 300
     
     private func generateSmoothTrajectory(points: [PanPoint], plumePointsCount: CGFloat) -> [DrawBezierInfo] {
-//        if points.count < prevPointsCount {
-//            frozenCount = 0
-//            frozenTraj.removeAll()
-//            prevPointsCount = points.count
-//        }
         if points.count < 2 {
             return points.map({DrawBezierInfo(point: $0.point, control: $0.point, speed: minPixSpeed)})
         }
@@ -124,8 +116,8 @@ struct PenCurveGenerator {
         return result
     }
     
-    private var debugContext: CGContext?
-    private var debugContextOffset: CGPoint?
+//    private var debugContext: CGContext?
+//    private var debugContextOffset: CGPoint?
     
     private func trajectoryToPenPoly(traj: [DrawBezierInfo]) -> UIBezierPath {
         var bezier = UIBezierPath()
@@ -136,32 +128,10 @@ struct PenCurveGenerator {
             return bezier
         }
         
-//        var minPoint = traj[0].point
-//        var maxPoint = traj[0].point
-//        for t in traj {
-//            minPoint.x = min(t.point.x, minPoint.x)
-//            minPoint.y = min(t.point.y, minPoint.y)
-//            maxPoint.x = max(t.point.x, maxPoint.x)
-//            maxPoint.y = max(t.point.y, maxPoint.y)
-//        }
-//        minPoint.x -= 50; minPoint.y -= 50
-//        maxPoint.x += 50; maxPoint.y += 50
-//        debugContextOffset = minPoint
-//        let contextSize = maxPoint.substract(minPoint).size
-//        UIGraphicsBeginImageContextWithOptions(contextSize, true, 0)
-//        debugContext = UIGraphicsGetCurrentContext()
-//        UIColor.white.setFill()
-//        UIColor.red.setStroke()
-//        debugContext?.fill(CGRect(origin: .zero, size: contextSize))
-//        debugContext?.translateBy(x: -minPoint.x, y: -minPoint.y)
-        
         // рисуем по правой стороне в одну сторону, и по левой в обратную
         // проходим по массиву 2 раза
         penStartCirleLeftRightConterClock(start: traj[0], end: traj[1], moveToStart: true, bezier: &bezier)
         penRightSide(traj: traj, reversed: false, bezier: &bezier)
-        
-//        debugContext?.translateBy(x: 10, y: 0)
-//        debugContext?.strokeLineSegments(between: [.zero, contextSize.point])
         
         penStartCirleLeftRightConterClock(start: traj[traj.count-1], end: traj[traj.count-2], moveToStart: false, bezier: &bezier)
         penRightSide(traj: traj, reversed: true, bezier: &bezier)
@@ -175,53 +145,16 @@ struct PenCurveGenerator {
         let dirNorm = end.point.substract(start.point).norm
         let startSize = penSize(speed: start.speed)
         let angl = atan2(dirNorm.y, dirNorm.x)
-//        if moveToStart {
-//            let leftNorm = dirNorm.rot270
-//            let startPoint = start.point.add(leftNorm.mulitply(startSize))
-//            bezier.move(to: startPoint)
-//        }
         bezier.addArc(withCenter: start.point, radius: startSize, startAngle: angl+CGFloat.pi*0.5, endAngle: angl+CGFloat.pi*1.5, clockwise: true)
     }
     
-    private func generateNormals(traj: [DrawBezierInfo], toRight: Bool) -> [CGPoint] {
-        // angle of neigbor lines can be differ
-        // so first calculate mean angle for each point
-        // insead of angle use normal directed to right
-        var normalArr: [CGPoint] = []
-        normalArr.reserveCapacity(traj.count)
-        for idx in 0..<traj.count {
-            let i1 = max(0, idx - 1)
-            let i2 = min(traj.count-1, idx + 1)
-            let dir: CGPoint = traj[i2].point.substract(traj[i1].point)
-            let normDir = toRight ? dir.norm.rot90 : dir.norm.rot270
-            normalArr.append(normDir)
-        }
-        return normalArr
-    }
-    
-    private func generateNormals(points: [CGPoint], toRight: Bool) -> [CGPoint] {
-        // angle of neigbor lines can be differ
-        // so first calculate mean angle for each point
-        // insead of angle use normal directed to right
-        var normalArr: [CGPoint] = []
-        normalArr.reserveCapacity(points.count)
-        for idx in 0..<points.count {
-            let i1 = max(0, idx - 1)
-            let i2 = min(points.count-1, idx + 1)
-            let dir: CGPoint = points[i2].substract(points[i1])
-            let normDir = toRight ? dir.norm.rot90 : dir.norm.rot270
-            normalArr.append(normDir)
-        }
-        return normalArr
-    }
-    
     private func penRightSide(traj: [DrawBezierInfo], reversed: Bool, bezier: inout UIBezierPath) {
-        var debugBezier = UIBezierPath()
+//        var debugBezier = UIBezierPath()
         var prev: DrawBezierInfo?
         
 //        stride(from: 0, to: traj.count, by: 1)
 //        stride(from: traj.count-1, to: -1, by: 1)
-        debugContext?.setFillColor(UIColor.blue.cgColor)
+//        debugContext?.setFillColor(UIColor.blue.cgColor)
         for idx in (reversed ? stride(from: traj.count-1, to: -1, by: -1) : stride(from: 0, to: traj.count, by: 1)) {
             let curr = traj[idx]
             guard let prevVal = prev else {
@@ -242,10 +175,10 @@ struct PenCurveGenerator {
                 bezier.addLine(to: to.add(norm.mulitply(toSize)))
 //                    debugBezier.addLine(to: to)
             }
-            if let debugContext = debugContext, reversed {
-                let img = debugContext.makeImage().map({UIImage(cgImage: $0)})
-                print(img?.size)
-            }
+//            if let debugContext = debugContext, reversed {
+//                let img = debugContext.makeImage().map({UIImage(cgImage: $0)})
+//                print(img?.size)
+//            }
             prev = curr
         }
     }

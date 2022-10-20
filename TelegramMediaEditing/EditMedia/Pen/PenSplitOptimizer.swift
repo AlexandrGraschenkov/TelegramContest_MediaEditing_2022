@@ -42,7 +42,7 @@ class PenSplitOptimizer: NSObject {
             let newShape = shapeArr.last!.customCopy()
             shapeArr.last!.superlayer?.insertSublayer(newShape, above: shapeArr.last!)
 //            shapeArr.last!.strokeColor = UIColor.red.cgColor
-            shapeArr.last!.lineWidth = 2
+//            shapeArr.last!.lineWidth = 2
             
             frozenCount += splitCount
             shapeArr.append(newShape)
