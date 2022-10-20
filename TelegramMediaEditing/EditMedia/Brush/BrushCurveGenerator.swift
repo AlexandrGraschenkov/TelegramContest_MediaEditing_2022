@@ -19,7 +19,7 @@ struct PanPoint: Equatable {
 }
 
 
-class BrushCurveGenerator {
+struct BrushCurveGenerator {
     enum BrushType {
         case standart
     }
@@ -27,13 +27,27 @@ class BrushCurveGenerator {
     let minPixSpeed: Double = 50
     var brushSize: CGFloat = 30
     var minBrushSizeMultiplier: CGFloat = 0.4
-    /// какой продолжительности отдается шлейф за кистью
-    var plumeDurationSec: CFTimeInterval = 0.5
     var scrollZoomScale: CGFloat = 1
+    /// какой продолжительности отдается шлейф за кистью
+    var plumePointsCount: CGFloat = 10
+    /// 0 - minPixSpeed, 1 - maxPixSpeed
+    var plumeLastSpeedPercent: CGFloat = 0.2
     
+    func finishPlumAnimation(type: BrushType, points: [PanPoint], onLayer: CAShapeLayer, duration: Double) {
+        var selfCopy = self
+        let startPlumePointsCount = plumePointsCount
+        let startPlumeLastSpeedPercent = plumeLastSpeedPercent
+        _ = DisplayLinkAnimator.animate(duration: duration) { percent in
+//            if onLayer.superlayer == nil { return }
+            selfCopy.plumePointsCount = (1-percent) * startPlumePointsCount
+            selfCopy.plumeLastSpeedPercent = percent * (1 - startPlumeLastSpeedPercent) + startPlumeLastSpeedPercent
+            let path = selfCopy.generatePolygon(type: type, points: points)
+            onLayer.path = path.cgPath
+        }
+    }
     
     func generateStrokePolygon(type: BrushType, points: [PanPoint]) -> UIBezierPath {
-        let traj = generateSmoothTrajectory(points: points)
+        let traj = generateSmoothTrajectory(points: points, plumePointsCount: plumePointsCount)
         let bezier = UIBezierPath()
         if traj.count <= 1 {
             return bezier
@@ -49,7 +63,7 @@ class BrushCurveGenerator {
         return bezier
     }
     func generatePolygon(type: BrushType, points: [PanPoint]) -> UIBezierPath {
-        let traj = generateSmoothTrajectory(points: points)
+        let traj = generateSmoothTrajectory(points: points, plumePointsCount: plumePointsCount)
 //        print("Points count", points.count)
         let bezier = trajectoryToBrushPoly(traj: traj)
         return bezier
@@ -60,8 +74,17 @@ class BrushCurveGenerator {
         var control: CGPoint?
         var speed: Double
     }
+//    private var prevPointsCount: Int = 0
+//    private var frozenCount: Int = 0
+//    private var frozenTraj: [DrawBezierInfo] = []
+    private let gausDistWindow: CGFloat = 300
     
-    private func generateSmoothTrajectory(points: [PanPoint]) -> [DrawBezierInfo] {
+    private func generateSmoothTrajectory(points: [PanPoint], plumePointsCount: CGFloat) -> [DrawBezierInfo] {
+//        if points.count < prevPointsCount {
+//            frozenCount = 0
+//            frozenTraj.removeAll()
+//            prevPointsCount = points.count
+//        }
         if points.count < 2 {
             return points.map({DrawBezierInfo(point: $0.point, control: $0.point, speed: minPixSpeed)})
         }
@@ -74,10 +97,15 @@ class BrushCurveGenerator {
             }
         }
         points = points.filter({$0.speed ?? 0 > 0})
+        GausianSmooth.smoothSpeed(points: &points, distWindow: gausDistWindow * scrollZoomScale)
+        if plumePointsCount > 0 {
+            let lastPlumSpeed = plumeLastSpeedPercent * (maxPixSpeed - minPixSpeed) * scrollZoomScale
+            BrushPlum.makePlumeOnEndPath(points: &points, lastNPoints: plumePointsCount, lastPointOverrideSpeed: lastPlumSpeed)
+        }
+        
         if points.count < 2 {
             return points.map({DrawBezierInfo(point: $0.point, control: $0.point, speed: minPixSpeed)})
         }
-        GausianSmooth.smoothSpeed(points: &points, distWindow: 300 * scrollZoomScale)
         
         var result: [DrawBezierInfo] = []
         // reserve first point, change it later
@@ -236,9 +264,9 @@ class BrushCurveGenerator {
             return p
         }
         let calcWidth: (CGFloat)->(CGFloat) = { fromWidth * (1-$0) + toWidth * $0 }
-        let maxPixErr: CGFloat = 0.6
+        let maxPixErr: CGFloat = 0.4
         let maxPixErrSqr = pow(maxPixErr, 2)
-        let cosValThresh: CGFloat = 0.7
+        let cosValThresh: CGFloat = 0.8
         
         var pointsT: [(p:CGPoint, t:CGFloat)] = [(from, 0), (to, 1)]
         var idx: Int = 1

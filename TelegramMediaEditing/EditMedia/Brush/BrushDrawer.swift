@@ -63,7 +63,6 @@ class BrushDrawer: NSObject {
             drawPath = smoothTime.points
             updateDrawLayer()
         case .ended:
-            smoothTime.update(point: pp)
             smoothTime.end()
             drawPath = smoothTime.points
             
@@ -130,6 +129,7 @@ class BrushDrawer: NSObject {
             currentDrawLayer?.removeFromSuperlayer()
         } else {
             brushLayers.append(currentDrawLayer!)
+            brushGen.finishPlumAnimation(type: .standart, points: drawPath, onLayer: currentDrawLayer!, duration: 0.2)
         }
         currentDrawLayer = nil
         currentDrawDebugLayer = nil

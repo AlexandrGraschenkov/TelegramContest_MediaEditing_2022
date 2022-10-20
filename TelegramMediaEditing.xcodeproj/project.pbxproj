@@ -39,6 +39,8 @@
 		FA4BF3D628F6A80100592051 /* UIImage+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */; };
 		FA4BF3D828F6AAC700592051 /* ZoomScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */; };
 		FA4BF3DB28F6B42400592051 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = FA4BF3DA28F6B42400592051 /* Lottie */; };
+		FACE5BD3290057C600960A48 /* BrushPlum.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD2290057C600960A48 /* BrushPlum.swift */; };
+		FACE5BD5290147EF00960A48 /* DisplayLinkAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */; };
 		FAEDF41828F9B7BF00094ADF /* BrushDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41728F9B7BF00094ADF /* BrushDrawer.swift */; };
 		FAEDF41B28F9F49200094ADF /* BrushCurveGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */; };
 		FAEDF42328FB3D7900094ADF /* GausianSmooth.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */; };
@@ -79,6 +81,8 @@
 		FA4BF3D328F6A4E800592051 /* EditVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditVC.swift; sourceTree = "<group>"; };
 		FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ex.swift"; sourceTree = "<group>"; };
 		FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomScrollView.swift; sourceTree = "<group>"; };
+		FACE5BD2290057C600960A48 /* BrushPlum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrushPlum.swift; sourceTree = "<group>"; };
+		FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayLinkAnimator.swift; sourceTree = "<group>"; };
 		FAEDF41728F9B7BF00094ADF /* BrushDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrushDrawer.swift; sourceTree = "<group>"; };
 		FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrushCurveGenerator.swift; sourceTree = "<group>"; };
 		FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GausianSmooth.swift; sourceTree = "<group>"; };
@@ -170,6 +174,7 @@
 				AAAB482528F96B76008373CB /* UIControl+Ex.swift */,
 				AAAB482828F97F82008373CB /* Array+Zip3.swift */,
 				AAAB482B28F982BB008373CB /* UIEdgeInsets+Ex.swift */,
+				FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -192,6 +197,7 @@
 				FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */,
 				FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */,
 				FAEDF42428FC082F00094ADF /* PanSmoothIK.swift */,
+				FACE5BD2290057C600960A48 /* BrushPlum.swift */,
 			);
 			path = Brush;
 			sourceTree = "<group>";
@@ -282,6 +288,7 @@
 				FAEDF41828F9B7BF00094ADF /* BrushDrawer.swift in Sources */,
 				AAAB482328F96A8F008373CB /* EditToolbar.swift in Sources */,
 				AAAB484328FC58FC008373CB /* PopupMenu.swift in Sources */,
+				FACE5BD3290057C600960A48 /* BrushPlum.swift in Sources */,
 				AAA335CE28F6CE6F00B86B89 /* ImageCell.swift in Sources */,
 				AAA335CC28F6CCE100B86B89 /* GalleryViewController.swift in Sources */,
 				FAEDF42328FB3D7900094ADF /* GausianSmooth.swift in Sources */,
@@ -304,6 +311,7 @@
 				FA046F0728F569BE002D5023 /* GlobalFunctions.swift in Sources */,
 				FAEDF41B28F9F49200094ADF /* BrushCurveGenerator.swift in Sources */,
 				FAEDF42528FC082F00094ADF /* PanSmoothIK.swift in Sources */,
+				FACE5BD5290147EF00960A48 /* DisplayLinkAnimator.swift in Sources */,
 				AAAB482928F97F82008373CB /* Array+Zip3.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
