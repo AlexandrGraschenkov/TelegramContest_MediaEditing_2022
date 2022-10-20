@@ -1,5 +1,5 @@
 //
-//  BrushCurveGenerator.swift
+//  PenCurveGenerator.swift
 //  TelegramMediaEditing
 //
 //  Created by Alexander Graschenkov on 14.10.2022.
@@ -19,21 +19,32 @@ struct PanPoint: Equatable {
 }
 
 
-class BrushCurveGenerator {
-    enum BrushType {
-        case standart
-    }
+struct PenCurveGenerator {
     let maxPixSpeed: Double = 800
     let minPixSpeed: Double = 50
-    var brushSize: CGFloat = 30
+    var penSize: CGFloat = 30
     var minBrushSizeMultiplier: CGFloat = 0.4
-    /// какой продолжительности отдается шлейф за кистью
-    var plumeDurationSec: CFTimeInterval = 0.5
     var scrollZoomScale: CGFloat = 1
+    /// какой продолжительности отдается шлейф за кистью
+    var plumePointsCount: CGFloat = 10
+    /// 0 - minPixSpeed, 1 - maxPixSpeed
+    var plumeLastSpeedPercent: CGFloat = 0.2
     
+    func finishPlumAnimation(points: [PanPoint], onLayer: CAShapeLayer, duration: Double) {
+        var selfCopy = self
+        let startPlumePointsCount = plumePointsCount
+        let startPlumeLastSpeedPercent = plumeLastSpeedPercent
+        _ = DisplayLinkAnimator.animate(duration: duration) { percent in
+//            if onLayer.superlayer == nil { return }
+            selfCopy.plumePointsCount = (1-percent) * startPlumePointsCount
+            selfCopy.plumeLastSpeedPercent = percent * (1 - startPlumeLastSpeedPercent) + startPlumeLastSpeedPercent
+            let path = selfCopy.generatePolygon(points: points)
+            onLayer.path = path.cgPath
+        }
+    }
     
-    func generateStrokePolygon(type: BrushType, points: [PanPoint]) -> UIBezierPath {
-        let traj = generateSmoothTrajectory(points: points)
+    func generateStrokePolygon(points: [PanPoint]) -> UIBezierPath {
+        let traj = generateSmoothTrajectory(points: points, plumePointsCount: plumePointsCount)
         let bezier = UIBezierPath()
         if traj.count <= 1 {
             return bezier
@@ -48,10 +59,10 @@ class BrushCurveGenerator {
         }
         return bezier
     }
-    func generatePolygon(type: BrushType, points: [PanPoint]) -> UIBezierPath {
-        let traj = generateSmoothTrajectory(points: points)
+    func generatePolygon(points: [PanPoint], withPlume: Bool = true) -> UIBezierPath {
+        let traj = generateSmoothTrajectory(points: points, plumePointsCount: withPlume ? plumePointsCount : 0)
 //        print("Points count", points.count)
-        let bezier = trajectoryToBrushPoly(traj: traj)
+        let bezier = trajectoryToPenPoly(traj: traj)
         return bezier
     }
     // MARK: - private
@@ -60,8 +71,9 @@ class BrushCurveGenerator {
         var control: CGPoint?
         var speed: Double
     }
+    private let gausDistWindow: CGFloat = 300
     
-    private func generateSmoothTrajectory(points: [PanPoint]) -> [DrawBezierInfo] {
+    private func generateSmoothTrajectory(points: [PanPoint], plumePointsCount: CGFloat) -> [DrawBezierInfo] {
         if points.count < 2 {
             return points.map({DrawBezierInfo(point: $0.point, control: $0.point, speed: minPixSpeed)})
         }
@@ -74,10 +86,15 @@ class BrushCurveGenerator {
             }
         }
         points = points.filter({$0.speed ?? 0 > 0})
+        GausianSmooth.smoothSpeed(points: &points, distWindow: gausDistWindow * scrollZoomScale)
+        if plumePointsCount > 0 {
+            let lastPlumSpeed = plumeLastSpeedPercent * (maxPixSpeed - minPixSpeed) * scrollZoomScale
+            PenPlume.makePlumeOnEndPath(points: &points, lastNPoints: plumePointsCount, lastPointOverrideSpeed: lastPlumSpeed)
+        }
+        
         if points.count < 2 {
             return points.map({DrawBezierInfo(point: $0.point, control: $0.point, speed: minPixSpeed)})
         }
-        GausianSmooth.smoothSpeed(points: &points, distWindow: 300 * scrollZoomScale)
         
         var result: [DrawBezierInfo] = []
         // reserve first point, change it later
@@ -99,104 +116,45 @@ class BrushCurveGenerator {
         return result
     }
     
-    private var debugContext: CGContext?
-    private var debugContextOffset: CGPoint?
+//    private var debugContext: CGContext?
+//    private var debugContextOffset: CGPoint?
     
-    private func trajectoryToBrushPoly(traj: [DrawBezierInfo]) -> UIBezierPath {
+    private func trajectoryToPenPoly(traj: [DrawBezierInfo]) -> UIBezierPath {
         var bezier = UIBezierPath()
         if traj.isEmpty { return bezier }
         if traj.count == 1 {
-            let size = brushSize(speed: traj[0].speed)
+            let size = penSize(speed: traj[0].speed)
             bezier = UIBezierPath(ovalIn: CGRect(mid: traj[0].point, size: CGSize(width: size, height: size)))
             return bezier
         }
         
-//        var minPoint = traj[0].point
-//        var maxPoint = traj[0].point
-//        for t in traj {
-//            minPoint.x = min(t.point.x, minPoint.x)
-//            minPoint.y = min(t.point.y, minPoint.y)
-//            maxPoint.x = max(t.point.x, maxPoint.x)
-//            maxPoint.y = max(t.point.y, maxPoint.y)
-//        }
-//        minPoint.x -= 50; minPoint.y -= 50
-//        maxPoint.x += 50; maxPoint.y += 50
-//        debugContextOffset = minPoint
-//        let contextSize = maxPoint.substract(minPoint).size
-//        UIGraphicsBeginImageContextWithOptions(contextSize, true, 0)
-//        debugContext = UIGraphicsGetCurrentContext()
-//        UIColor.white.setFill()
-//        UIColor.red.setStroke()
-//        debugContext?.fill(CGRect(origin: .zero, size: contextSize))
-//        debugContext?.translateBy(x: -minPoint.x, y: -minPoint.y)
-        
         // рисуем по правой стороне в одну сторону, и по левой в обратную
         // проходим по массиву 2 раза
-        brushStartCirleLeftRightConterClock(start: traj[0], end: traj[1], moveToStart: true, bezier: &bezier)
-        brushRightSide(traj: traj, reversed: false, bezier: &bezier)
+        penStartCirleLeftRightConterClock(start: traj[0], end: traj[1], moveToStart: true, bezier: &bezier)
+        penRightSide(traj: traj, reversed: false, bezier: &bezier)
         
-//        debugContext?.translateBy(x: 10, y: 0)
-//        debugContext?.strokeLineSegments(between: [.zero, contextSize.point])
-        
-        brushStartCirleLeftRightConterClock(start: traj[traj.count-1], end: traj[traj.count-2], moveToStart: false, bezier: &bezier)
-        brushRightSide(traj: traj, reversed: true, bezier: &bezier)
+        penStartCirleLeftRightConterClock(start: traj[traj.count-1], end: traj[traj.count-2], moveToStart: false, bezier: &bezier)
+        penRightSide(traj: traj, reversed: true, bezier: &bezier)
         
         bezier.close()
         UIGraphicsEndImageContext()
         return bezier
     }
     
-    private func brushStartCirleLeftRightConterClock(start: DrawBezierInfo, end: DrawBezierInfo, moveToStart: Bool, bezier: inout UIBezierPath) {
+    private func penStartCirleLeftRightConterClock(start: DrawBezierInfo, end: DrawBezierInfo, moveToStart: Bool, bezier: inout UIBezierPath) {
         let dirNorm = end.point.substract(start.point).norm
-        let startSize = brushSize(speed: start.speed)
+        let startSize = penSize(speed: start.speed)
         let angl = atan2(dirNorm.y, dirNorm.x)
-//        if moveToStart {
-//            let leftNorm = dirNorm.rot270
-//            let startPoint = start.point.add(leftNorm.mulitply(startSize))
-//            bezier.move(to: startPoint)
-//        }
         bezier.addArc(withCenter: start.point, radius: startSize, startAngle: angl+CGFloat.pi*0.5, endAngle: angl+CGFloat.pi*1.5, clockwise: true)
     }
     
-    private func generateNormals(traj: [DrawBezierInfo], toRight: Bool) -> [CGPoint] {
-        // angle of neigbor lines can be differ
-        // so first calculate mean angle for each point
-        // insead of angle use normal directed to right
-        var normalArr: [CGPoint] = []
-        normalArr.reserveCapacity(traj.count)
-        for idx in 0..<traj.count {
-            let i1 = max(0, idx - 1)
-            let i2 = min(traj.count-1, idx + 1)
-            let dir: CGPoint = traj[i2].point.substract(traj[i1].point)
-            let normDir = toRight ? dir.norm.rot90 : dir.norm.rot270
-            normalArr.append(normDir)
-        }
-        return normalArr
-    }
-    
-    private func generateNormals(points: [CGPoint], toRight: Bool) -> [CGPoint] {
-        // angle of neigbor lines can be differ
-        // so first calculate mean angle for each point
-        // insead of angle use normal directed to right
-        var normalArr: [CGPoint] = []
-        normalArr.reserveCapacity(points.count)
-        for idx in 0..<points.count {
-            let i1 = max(0, idx - 1)
-            let i2 = min(points.count-1, idx + 1)
-            let dir: CGPoint = points[i2].substract(points[i1])
-            let normDir = toRight ? dir.norm.rot90 : dir.norm.rot270
-            normalArr.append(normDir)
-        }
-        return normalArr
-    }
-    
-    private func brushRightSide(traj: [DrawBezierInfo], reversed: Bool, bezier: inout UIBezierPath) {
-        var debugBezier = UIBezierPath()
+    private func penRightSide(traj: [DrawBezierInfo], reversed: Bool, bezier: inout UIBezierPath) {
+//        var debugBezier = UIBezierPath()
         var prev: DrawBezierInfo?
         
 //        stride(from: 0, to: traj.count, by: 1)
 //        stride(from: traj.count-1, to: -1, by: 1)
-        debugContext?.setFillColor(UIColor.blue.cgColor)
+//        debugContext?.setFillColor(UIColor.blue.cgColor)
         for idx in (reversed ? stride(from: traj.count-1, to: -1, by: -1) : stride(from: 0, to: traj.count, by: 1)) {
             let curr = traj[idx]
             guard let prevVal = prev else {
@@ -204,8 +162,8 @@ class BrushCurveGenerator {
 //                debugBezier.move(to: curr.control ?? curr.point)
                 continue
             }
-            let fromSize = brushSize(speed: prevVal.speed)
-            let toSize = brushSize(speed: curr.speed)
+            let fromSize = penSize(speed: prevVal.speed)
+            let toSize = penSize(speed: curr.speed)
             
             let from = prevVal.point
             let to = curr.point
@@ -217,10 +175,10 @@ class BrushCurveGenerator {
                 bezier.addLine(to: to.add(norm.mulitply(toSize)))
 //                    debugBezier.addLine(to: to)
             }
-            if let debugContext = debugContext, reversed {
-                let img = debugContext.makeImage().map({UIImage(cgImage: $0)})
-                print(img?.size)
-            }
+//            if let debugContext = debugContext, reversed {
+//                let img = debugContext.makeImage().map({UIImage(cgImage: $0)})
+//                print(img?.size)
+//            }
             prev = curr
         }
     }
@@ -236,9 +194,9 @@ class BrushCurveGenerator {
             return p
         }
         let calcWidth: (CGFloat)->(CGFloat) = { fromWidth * (1-$0) + toWidth * $0 }
-        let maxPixErr: CGFloat = 0.6
+        let maxPixErr: CGFloat = 0.4
         let maxPixErrSqr = pow(maxPixErr, 2)
-        let cosValThresh: CGFloat = 0.7
+        let cosValThresh: CGFloat = 0.8
         
         var pointsT: [(p:CGPoint, t:CGFloat)] = [(from, 0), (to, 1)]
         var idx: Int = 1
@@ -298,11 +256,11 @@ class BrushCurveGenerator {
         }
     }
     
-    private func brushSize(speed: Double) -> CGFloat {
+    private func penSize(speed: Double) -> CGFloat {
         return speed
             .percent(min: maxPixSpeed*scrollZoomScale, max: minPixSpeed*scrollZoomScale)
             .clamp(0, 1)
-            .percentToRange(min: minBrushSizeMultiplier * brushSize, max: brushSize)
+            .percentToRange(min: minBrushSizeMultiplier * penSize, max: penSize)
     }
     
     

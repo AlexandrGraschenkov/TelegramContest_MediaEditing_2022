@@ -79,13 +79,15 @@ class PanSmoothIK: NSObject {
         let lineLenght = calcLineLength(points: lastPoints)
         let dt = lastPoints.last!.time - lastPoints.first!.time
         let speed = dt > 0.00001 ? lineLenght / dt : 0
-        let maxBrushOffset = log(speed+1)*18*scale // just gogle it to understand formula
+        // larger speed => larger offset dist
+        let maxPanOffset = log(speed/2/scale+1) * 2 * scale // just gogle it to understand formula of log
+//        print(speed, maxPanOffset, log(speed/2/scale+1) * 2)
         let dist = smoothPoints.last!.point.distance(p: point.point)
-        if dist < maxDistOffset {
+        if dist < maxPanOffset {
             return
         }
         var offset = smoothPoints.last!.point.substract(point.point)
-        offset = offset.norm.mulitply(maxDistOffset)
+        offset = offset.norm.mulitply(maxPanOffset)
         let newPoint = point.point.add(offset)
         if newPoint.distance(p: smoothPoints.last!.point) < 14 {
             return
@@ -100,11 +102,11 @@ class PanSmoothIK: NSObject {
     }
     
     fileprivate func updateDebug2() {
-        let bezier = UIBezierPath()
-        for p in smoothPoints {
-            bezier.append(UIBezierPath(ovalIn: CGRect(mid: p.point, size: CGSize(width: 5*scale, height: 5*scale))))
-        }
-        debugLayer2.path = bezier.cgPath
+//        let bezier = UIBezierPath()
+//        for p in smoothPoints {
+//            bezier.append(UIBezierPath(ovalIn: CGRect(mid: p.point, size: CGSize(width: 5*scale, height: 5*scale))))
+//        }
+//        debugLayer2.path = bezier.cgPath
     }
     
     fileprivate func calcLineLength(points: [PanPoint]) -> CGFloat {

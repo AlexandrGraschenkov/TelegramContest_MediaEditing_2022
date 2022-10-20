@@ -19,8 +19,8 @@ final class EditVC: UIViewController {
     var asset: PHAsset!
     var scroll: ZoomScrollView!
     var mediaContainer: UIView!
-    lazy var brush: BrushDrawer = {
-        let brush = BrushDrawer()
+    lazy var pen: PenDrawer = {
+        let brush = PenDrawer()
         brush.setup(content: mediaContainer)
         return brush
     }()
@@ -31,7 +31,7 @@ final class EditVC: UIViewController {
         assert(asset != nil)
         setupMediaContainer()
         setupUI()
-        brush.active = true
+        pen.active = true
     }
     
     fileprivate func setupUI() {
@@ -47,7 +47,20 @@ final class EditVC: UIViewController {
         toolbar.translatesAutoresizingMaskIntoConstraints = true
         toolbar.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         view.addSubview(toolbar)
-        toolbar.actionHandler = { action in
+        toolbar.actionHandler = {[unowned self] action in
+            switch action {
+            case .toolChanged(let type):
+                self.pen.active = type == .pen
+            case .colorChange(let color):
+                if self.pen.active {
+                    self.pen.color = color
+                }
+            case .lineWidthChanged(let width):
+                self.pen.penSize = width
+            default:
+                // TODO
+                break
+            }
             print("Toolbar did trigger action \(action)")
         }
     }

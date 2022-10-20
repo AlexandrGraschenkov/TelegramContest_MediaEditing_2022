@@ -1,5 +1,5 @@
 //
-//  BrushDrawer.swift
+//  PenDrawer.swift
 //  TelegramMediaEditing
 //
 //  Created by Alexander Graschenkov on 14.10.2022.
@@ -7,13 +7,15 @@
 
 import UIKit
 
-class BrushDrawer: NSObject {
+class PenDrawer: NSObject {
     var active: Bool = false {
         didSet {
             if oldValue == active { return }
             pan?.isEnabled = active
         }
     }
+    var color: UIColor = .white
+    var penSize: CGFloat = 10
     
     func setup(content: UIView) {
         pan = UIPanGestureRecognizer(target: self, action: #selector(onPan(pan:)))
@@ -50,8 +52,8 @@ class BrushDrawer: NSObject {
             if let content = content {
                 scale = content.bounds.width / content.frame.width
             }
-            brushGen.brushSize = 20*scale
-            brushGen.scrollZoomScale = scale
+            penGen.penSize = penSize*scale
+            penGen.scrollZoomScale = scale
             smoothTime.scale = scale
             smoothTime.debugView = content
             smoothTime.start()
@@ -63,7 +65,6 @@ class BrushDrawer: NSObject {
             drawPath = smoothTime.points
             updateDrawLayer()
         case .ended:
-            smoothTime.update(point: pp)
             smoothTime.end()
             drawPath = smoothTime.points
             
@@ -81,32 +82,17 @@ class BrushDrawer: NSObject {
     fileprivate weak var content: UIView?
     fileprivate var drawBezier: UIBezierPath?
     fileprivate var drawPath: [PanPoint] = []
-    fileprivate var currentDrawLayer: CAShapeLayer?
-    fileprivate var currentDrawDebugLayer: CAShapeLayer?
-    fileprivate var brushLayers: [CAShapeLayer] = []
-    fileprivate var brushGen = BrushCurveGenerator()
+    fileprivate var penLayers: [CAShapeLayer] = []
+    fileprivate var penGen = PenCurveGenerator()
+    fileprivate let splitOpt = PenSplitOptimizer()
     
     fileprivate func updateDrawLayer() {
-        let bezier = brushGen.generatePolygon(type: .standart, points: drawPath)
-        if currentDrawLayer == nil {
-            var scale: CGFloat = 1.0
-            if let content = content {
-                scale = content.bounds.width / content.frame.width
-            }
+        if !splitOpt.isPrepared {
             let layer = CAShapeLayer()
-            let stroke = false
-            if stroke {
-                layer.strokeColor = UIColor.white.cgColor
-                layer.lineWidth = scale * 10
-                layer.lineCap = .round
-                layer.lineJoin = .round
-                layer.fillColor = nil
-            } else {
-                layer.strokeColor = nil
-                layer.fillColor = UIColor.white.cgColor
-            }
+            layer.strokeColor = nil
+            layer.fillColor = color.cgColor
             content?.layer.addSublayer(layer)
-            currentDrawLayer = layer
+            splitOpt.start(layer: layer, penGen: penGen)
             
 //            currentDrawDebugLayer = CAShapeLayer()
 //            currentDrawDebugLayer?.strokeColor = UIColor.red.cgColor
@@ -114,25 +100,32 @@ class BrushDrawer: NSObject {
 //            currentDrawDebugLayer?.fillColor = nil
 //            content?.layer.addSublayer(currentDrawDebugLayer!)
         }
-        currentDrawLayer?.path = bezier.cgPath
-        var debugPath = brushGen.generateStrokePolygon(type: .standart, points: drawPath)
+        splitOpt.updatePath(points: drawPath)
+//        let bezier = penGen.generatePolygon(type: .standart, points: drawPath)
+//        currentDrawLayer?.path = bezier.cgPath
+//        var debugPath = penGen.generateStrokePolygon(type: .standart, points: drawPath)
 //        if drawPath.count > 1 {
 //            debugPath.move(to: drawPath[0].point)
 //            for point in drawPath {
 //                debugPath.addLine(to: point.point)
 //            }
 //        }
-        currentDrawDebugLayer?.path = debugPath.cgPath
+//        currentDrawDebugLayer?.path = debugPath.cgPath
     }
     
     fileprivate func finishDraw(canceled: Bool) {
         if canceled {
-            currentDrawLayer?.removeFromSuperlayer()
+            splitOpt.shapeArr.forEach({$0.removeFromSuperlayer()})
         } else {
-            brushLayers.append(currentDrawLayer!)
+            penLayers.append(contentsOf: splitOpt.shapeArr)
+            
+            let suffCount = drawPath.count - splitOpt.frozenCount
+            // generate last layer without plume
+            splitOpt.finish(updateLayer: false, points: drawPath)
+            // run pretty animation with plume shrinks
+            penGen.finishPlumAnimation(points: drawPath.suffix(suffCount), onLayer: splitOpt.shapeArr.last!, duration: 0.24)
         }
-        currentDrawLayer = nil
-        currentDrawDebugLayer = nil
+//        currentDrawDebugLayer = nil
     }
 }
 
