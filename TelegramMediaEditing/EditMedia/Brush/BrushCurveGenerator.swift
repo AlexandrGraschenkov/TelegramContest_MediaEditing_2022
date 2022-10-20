@@ -100,7 +100,7 @@ struct BrushCurveGenerator {
         GausianSmooth.smoothSpeed(points: &points, distWindow: gausDistWindow * scrollZoomScale)
         if plumePointsCount > 0 {
             let lastPlumSpeed = plumeLastSpeedPercent * (maxPixSpeed - minPixSpeed) * scrollZoomScale
-            BrushPlum.makePlumeOnEndPath(points: &points, lastNPoints: plumePointsCount, lastPointOverrideSpeed: lastPlumSpeed)
+            BrushPlume.makePlumeOnEndPath(points: &points, lastNPoints: plumePointsCount, lastPointOverrideSpeed: lastPlumSpeed)
         }
         
         if points.count < 2 {

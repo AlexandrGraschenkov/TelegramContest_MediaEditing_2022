@@ -39,7 +39,7 @@
 		FA4BF3D628F6A80100592051 /* UIImage+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */; };
 		FA4BF3D828F6AAC700592051 /* ZoomScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */; };
 		FA4BF3DB28F6B42400592051 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = FA4BF3DA28F6B42400592051 /* Lottie */; };
-		FACE5BD3290057C600960A48 /* BrushPlum.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD2290057C600960A48 /* BrushPlum.swift */; };
+		FACE5BD3290057C600960A48 /* BrushPlume.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD2290057C600960A48 /* BrushPlume.swift */; };
 		FACE5BD5290147EF00960A48 /* DisplayLinkAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */; };
 		FAEDF41828F9B7BF00094ADF /* BrushDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41728F9B7BF00094ADF /* BrushDrawer.swift */; };
 		FAEDF41B28F9F49200094ADF /* BrushCurveGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */; };
@@ -81,7 +81,7 @@
 		FA4BF3D328F6A4E800592051 /* EditVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditVC.swift; sourceTree = "<group>"; };
 		FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ex.swift"; sourceTree = "<group>"; };
 		FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomScrollView.swift; sourceTree = "<group>"; };
-		FACE5BD2290057C600960A48 /* BrushPlum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrushPlum.swift; sourceTree = "<group>"; };
+		FACE5BD2290057C600960A48 /* BrushPlume.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrushPlume.swift; sourceTree = "<group>"; };
 		FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayLinkAnimator.swift; sourceTree = "<group>"; };
 		FAEDF41728F9B7BF00094ADF /* BrushDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrushDrawer.swift; sourceTree = "<group>"; };
 		FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrushCurveGenerator.swift; sourceTree = "<group>"; };
@@ -197,7 +197,7 @@
 				FAEDF41A28F9F49200094ADF /* BrushCurveGenerator.swift */,
 				FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */,
 				FAEDF42428FC082F00094ADF /* PanSmoothIK.swift */,
-				FACE5BD2290057C600960A48 /* BrushPlum.swift */,
+				FACE5BD2290057C600960A48 /* BrushPlume.swift */,
 			);
 			path = Brush;
 			sourceTree = "<group>";
@@ -288,7 +288,7 @@
 				FAEDF41828F9B7BF00094ADF /* BrushDrawer.swift in Sources */,
 				AAAB482328F96A8F008373CB /* EditToolbar.swift in Sources */,
 				AAAB484328FC58FC008373CB /* PopupMenu.swift in Sources */,
-				FACE5BD3290057C600960A48 /* BrushPlum.swift in Sources */,
+				FACE5BD3290057C600960A48 /* BrushPlume.swift in Sources */,
 				AAA335CE28F6CE6F00B86B89 /* ImageCell.swift in Sources */,
 				AAA335CC28F6CCE100B86B89 /* GalleryViewController.swift in Sources */,
 				FAEDF42328FB3D7900094ADF /* GausianSmooth.swift in Sources */,
