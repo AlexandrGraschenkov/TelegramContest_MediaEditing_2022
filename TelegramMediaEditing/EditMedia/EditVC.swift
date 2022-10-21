@@ -61,7 +61,7 @@ final class EditVC: UIViewController {
                 // TODO
                 break
             }
-            print("Toolbar did trigger action \(action)")
+//            print("Toolbar did trigger action \(action)")
         }
     }
     
