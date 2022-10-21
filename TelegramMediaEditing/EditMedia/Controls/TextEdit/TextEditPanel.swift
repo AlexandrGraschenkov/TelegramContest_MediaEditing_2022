@@ -92,10 +92,10 @@ final class TextPanel: UIView {
         
         
         let rightGradient = GradientView(frame: CGRect(x: fontsView.frame.maxX - 16, y: fontsView.y, width: 16, height: fontsView.height))
-        leftGradient.startPoint = .init(x: 0, y: 0.5)
-        leftGradient.endPoint = .init(x: 1, y: 0.5)
-        leftGradient.colors = [.clear, .black]
-        leftGradient.autoresizingMask = [.flexibleLeftMargin]
+        rightGradient.startPoint = .init(x: 0, y: 0.5)
+        rightGradient.endPoint = .init(x: 1, y: 0.5)
+        rightGradient.colors = [.clear, .black]
+        rightGradient.autoresizingMask = [.flexibleLeftMargin]
         self.rightGradient = rightGradient
         
         addSubview(leftGradient)

@@ -41,7 +41,6 @@ final class EditVC: UIViewController {
         scroll.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(scroll)
         scroll.setup(content: mediaContainer)
-        addCloseButton()
         
         let toolbar = EditorToolbar(frame: CGRect(x: 0, y: view.bounds.height - 196, width: view.bounds.width, height: 196))
         toolbar.translatesAutoresizingMaskIntoConstraints = true
@@ -59,34 +58,32 @@ final class EditVC: UIViewController {
                 self.pen.penSize = width
             case .textEditBegan(let overlay):
                 self.addTextView(overlay: overlay)
+            case .close:
+                dismiss(animated: true)
             default:
-                // TODO
+                // TODO:
                 break
             }
         }
     }
     
-    private func addCloseButton() {
-        let button = UIButton()
-        button.setTitle("Close", for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = true
-        view.addSubview(button)
-        button.addTarget(self, action: #selector(close), for: .touchUpInside)
-        button.x = 15
-        button.y = 32
-        button.sizeToFit()
-        button.autoresizingMask = [.flexibleBottomMargin, .flexibleRightMargin]
-    }
+//    private func addCloseButton() {
+//        let button = UIButton()
+//        button.setTitle("Close", for: .normal)
+//        button.translatesAutoresizingMaskIntoConstraints = true
+//        view.addSubview(button)
+//        button.addTarget(self, action: #selector(close), for: .touchUpInside)
+//        button.x = 15
+//        button.y = 32
+//        button.sizeToFit()
+//        button.autoresizingMask = [.flexibleBottomMargin, .flexibleRightMargin]
+//    }
     
     private func addTextView(overlay: TextViewEditingOverlay) {
         view.addSubview(overlay)
         overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     }
     
-    @objc
-    private func close() {
-        dismiss(animated: true)
-    }
     fileprivate func setupMediaContainer() {
         let size = CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight))
         switch asset.mediaType {

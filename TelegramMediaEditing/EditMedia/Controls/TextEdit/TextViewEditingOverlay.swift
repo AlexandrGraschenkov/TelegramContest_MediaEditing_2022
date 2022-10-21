@@ -16,6 +16,8 @@ struct ImageEditingTextState {
 }
     
 protocol TextViewEditingOverlayDelegate: AnyObject {
+    func textEditingOverlayDidCancel(_ overlay: TextViewEditingOverlay)
+    func textEditingOverlay(_ overlay: TextViewEditingOverlay, doneEditingText: UITextView)
 }
 
 final class TextViewEditingOverlay: UIView {
@@ -23,6 +25,7 @@ final class TextViewEditingOverlay: UIView {
     private let doneButton = UIButton()
     private var textViewCenteringContainer: UIView!
     private let contentContainer = UIView()
+    private let blurView = UIVisualEffectView()
     
     weak var delegate: TextViewEditingOverlayDelegate?
     
@@ -79,7 +82,6 @@ final class TextViewEditingOverlay: UIView {
 
         addSubview(panelContainer)
         panelContainer.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
-        let blurView = UIVisualEffectView()
         if #available(iOS 13.0, *) {
             blurView.effect = UIBlurEffect(style: .systemThickMaterial)
         } else {
@@ -90,7 +92,7 @@ final class TextViewEditingOverlay: UIView {
         panelContainer.insertSubview(blurView, at: 0)
         
         addSubview(contentContainer)
-        contentContainer.frame = .init(x: 0, y: safeArea.top, width: width, height: panelContainer.y - safeArea.top)
+        contentContainer.frame = .init(x: 0, y: safeArea.top + 45, width: width, height: panelContainer.y - safeArea.top)
         contentContainer.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
         colourPicker.onColourChange = { [weak self] color in
@@ -106,6 +108,8 @@ final class TextViewEditingOverlay: UIView {
             height: 55
         )
         textViewCenteringContainer.autoresizingMask = [.flexibleWidth, .flexibleTopMargin, .flexibleBottomMargin, .flexibleLeftMargin, .flexibleRightMargin]
+        
+        configureButtons()
         
         let textView = UITextView(frame: textViewCenteringContainer.bounds)
         textView.tintColor = .white
@@ -127,7 +131,7 @@ final class TextViewEditingOverlay: UIView {
                 guard let self = self else { return }
                 let shift = self.height - max(0, self.convert(keyboardFrame, from: self.window).origin.y)
                 self.panelContainer.y = self.bounds.height - shift - self.panelContainer.height
-                self.contentContainer.height = self.panelContainer.y - safeArea.top
+                self.contentContainer.height = self.panelContainer.y - safeArea.top - 45
             }
         }
         
@@ -139,7 +143,7 @@ final class TextViewEditingOverlay: UIView {
             self?.animateWithKeyboard(notification: notification) { _ in
                 guard let self = self else { return }
                 self.panelContainer.y = self.bounds.height - self.panelContainer.height - safeArea.bottom
-                self.contentContainer.height = self.panelContainer.y - safeArea.top
+                self.contentContainer.height = self.panelContainer.y - safeArea.top - 45
             }
         }
         
@@ -155,8 +159,39 @@ final class TextViewEditingOverlay: UIView {
         })
     }
     
-    @objc private func tapGRDidFire(_ sender: UITapGestureRecognizer) {
-        done()
+    private func configureButtons() {
+        let safeArea = UIApplication.shared.tm_keyWindow.safeAreaInsets
+
+        for btn in [cancelButton, doneButton] {
+            addSubview(btn)
+            btn.y = 10 + safeArea.top
+            btn.setTitleColor(.white, for: .normal)
+        }
+        
+        cancelButton.addAction { [weak self] in
+            self?.textView.resignFirstResponder()
+            self?.blurView.removeFromSuperview()
+            delay(0.3) {
+                guard let self = self else { return }
+                self.delegate?.textEditingOverlayDidCancel(self)
+                self.removeFromSuperview()
+            }
+        }
+        
+        cancelButton.setTitle("Cancel", for: .normal)
+        cancelButton.titleLabel?.font = .systemFont(ofSize: 17)
+        cancelButton.sizeToFit()
+        cancelButton.x = 12
+        cancelButton.autoresizingMask = [.flexibleRightMargin]
+        
+        doneButton.addAction { [weak self] in
+            self?.done()
+        }
+        doneButton.setTitle("Done", for: .normal)
+        doneButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
+        doneButton.sizeToFit()
+        doneButton.x = bounds.width - doneButton.width - 12
+        doneButton.autoresizingMask = [.flexibleLeftMargin]
     }
     
     override func didMoveToWindow() {
@@ -172,7 +207,8 @@ final class TextViewEditingOverlay: UIView {
     
     private func actualDone() {
         guard !textView.text.isEmpty else { return }
-        removeFromSuperview()
+        blurView.removeFromSuperview()
+        delegate?.textEditingOverlay(self, doneEditingText: textView)
     }
     
     fileprivate func currentAttributes() -> [NSAttributedString.Key : Any] {
