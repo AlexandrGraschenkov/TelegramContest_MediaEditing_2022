@@ -19,6 +19,11 @@ final class EditVC: UIViewController {
     var asset: PHAsset!
     var scroll: ZoomScrollView!
     var mediaContainer: UIView!
+    lazy var pen: PenDrawer = {
+        let brush = PenDrawer()
+        brush.setup(content: mediaContainer)
+        return brush
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,6 +31,7 @@ final class EditVC: UIViewController {
         assert(asset != nil)
         setupMediaContainer()
         setupUI()
+        pen.active = true
     }
     
     fileprivate func setupUI() {
@@ -41,12 +47,21 @@ final class EditVC: UIViewController {
         toolbar.translatesAutoresizingMaskIntoConstraints = true
         toolbar.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         view.addSubview(toolbar)
-        toolbar.actionHandler = { [weak self] action in
+        toolbar.actionHandler = { [unowned self] action in
             switch action {
+            case .toolChanged(let type):
+                self.pen.active = type == .pen
+            case .colorChange(let color):
+                if self.pen.active {
+                    self.pen.color = color
+                }
+            case .lineWidthChanged(let width):
+                self.pen.penSize = width
             case .textEditBegan(let overlay):
-                self?.addTextView(overlay: overlay)
+                self.addTextView(overlay: overlay)
             default:
-                print("Toolbar did trigger action \(action)")
+                // TODO
+                break
             }
         }
     }
@@ -78,6 +93,7 @@ final class EditVC: UIViewController {
         case .image:
             let imgView = UIImageView(frame: CGRect(origin: .zero, size: size))
             imgView.image = cacheImg
+            imgView.clipsToBounds = true
             PHImageManager.default().fetchFullImage(asset: asset) { img in
                 imgView.image = img
             }

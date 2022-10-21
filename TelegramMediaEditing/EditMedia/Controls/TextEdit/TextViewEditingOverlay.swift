@@ -75,7 +75,11 @@ final class TextViewEditingOverlay: UIView {
         addSubview(panelContainer)
         panelContainer.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         let blurView = UIVisualEffectView()
-        blurView.effect = UIBlurEffect(style: .systemThickMaterial)
+        if #available(iOS 13.0, *) {
+            blurView.effect = UIBlurEffect(style: .systemThickMaterial)
+        } else {
+            blurView.effect = UIBlurEffect(style: .dark)
+        }
         blurView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         blurView.frame = panelContainer.bounds
         panelContainer.insertSubview(blurView, at: 0)

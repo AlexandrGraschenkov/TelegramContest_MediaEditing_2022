@@ -1,8 +1,8 @@
 //
 //  SceneDelegate.swift
-//  TelegramMediaEditing
+//  BezierTest
 //
-//  Created by Alexander Graschenkov on 11.10.2022.
+//  Created by Alexander Graschenkov on 17.10.2022.
 //
 
 import UIKit
@@ -16,11 +16,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let windowScene = (scene as? UIWindowScene) else { return }
-        window = UIWindow(frame: windowScene.coordinateSpace.bounds)
-        window?.windowScene = windowScene
-        window?.rootViewController = GalleryViewController()//TestViewController()
-        window?.makeKeyAndVisible()
+        guard let _ = (scene as? UIWindowScene) else { return }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

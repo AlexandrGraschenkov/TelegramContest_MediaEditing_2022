@@ -127,7 +127,7 @@ final class ToolView: UIView {
     
     var lineWidth: CGFloat? {
         didSet {
-            let ratio = bounds.width / 20
+            let ratio = bounds.width / 30
             lineView?.height = (lineWidth ?? 1) * ratio
         }
     }
