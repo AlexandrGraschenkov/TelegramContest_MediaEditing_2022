@@ -14,6 +14,11 @@ final class ColourPickerButton: UIView {
     
     var onColourChange: ((UIColor) -> Void)?
     
+    var selectedColour: UIColor {
+        get { centerView.backgroundColor ?? .white }
+        set { centerView.backgroundColor = newValue }
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setup()

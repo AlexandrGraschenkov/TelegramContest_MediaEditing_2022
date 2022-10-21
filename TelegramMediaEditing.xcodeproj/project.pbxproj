@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		AA77710F28FC891600CF73C0 /* PassthroughView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA77710E28FC891600CF73C0 /* PassthroughView.swift */; };
+		AA79DE9F28FF4BF400905FEF /* TextEditPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DE9E28FF4BF400905FEF /* TextEditPanel.swift */; };
+		AA79DEA228FF4EF400905FEF /* GradientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEA128FF4EF400905FEF /* GradientView.swift */; };
+		AA79DEA429000CB000905FEF /* TextViewEditingOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEA329000CB000905FEF /* TextViewEditingOverlay.swift */; };
 		AAA335CC28F6CCE100B86B89 /* GalleryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA335CB28F6CCE100B86B89 /* GalleryViewController.swift */; };
 		AAA335CE28F6CE6F00B86B89 /* ImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA335CD28F6CE6F00B86B89 /* ImageCell.swift */; };
 		AAAB481E28F70891008373CB /* PhotoPermissionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB481D28F70891008373CB /* PhotoPermissionOverlay.swift */; };
@@ -44,6 +47,9 @@
 
 /* Begin PBXFileReference section */
 		AA77710E28FC891600CF73C0 /* PassthroughView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassthroughView.swift; sourceTree = "<group>"; };
+		AA79DE9E28FF4BF400905FEF /* TextEditPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEditPanel.swift; sourceTree = "<group>"; };
+		AA79DEA128FF4EF400905FEF /* GradientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientView.swift; sourceTree = "<group>"; };
+		AA79DEA329000CB000905FEF /* TextViewEditingOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewEditingOverlay.swift; sourceTree = "<group>"; };
 		AAA335CB28F6CCE100B86B89 /* GalleryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryViewController.swift; sourceTree = "<group>"; };
 		AAA335CD28F6CE6F00B86B89 /* ImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCell.swift; sourceTree = "<group>"; };
 		AAAB481D28F70891008373CB /* PhotoPermissionOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPermissionOverlay.swift; sourceTree = "<group>"; };
@@ -91,6 +97,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AA79DE9D28FF4BE800905FEF /* TextEdit */ = {
+			isa = PBXGroup;
+			children = (
+				AA79DE9E28FF4BF400905FEF /* TextEditPanel.swift */,
+				AA79DEA329000CB000905FEF /* TextViewEditingOverlay.swift */,
+			);
+			path = TextEdit;
+			sourceTree = "<group>";
+		};
 		AAA335CA28F6CCC100B86B89 /* Gallery */ = {
 			isa = PBXGroup;
 			children = (
@@ -104,6 +119,7 @@
 		AAAB482128F96A82008373CB /* Controls */ = {
 			isa = PBXGroup;
 			children = (
+				AA79DE9D28FF4BE800905FEF /* TextEdit */,
 				AAAB482228F96A8F008373CB /* EditToolbar.swift */,
 				AAAB483828FB533D008373CB /* BackOrCancelButton.swift */,
 				AAAB482D28F9A99D008373CB /* ToolView.swift */,
@@ -116,6 +132,7 @@
 				AAAB484028FC4E54008373CB /* ToolShapeSelector.swift */,
 				AAAB484228FC58FC008373CB /* PopupMenu.swift */,
 				AA77710E28FC891600CF73C0 /* PassthroughView.swift */,
+				AA79DEA128FF4EF400905FEF /* GradientView.swift */,
 			);
 			path = Controls;
 			sourceTree = "<group>";
@@ -274,10 +291,13 @@
 				AAAB482C28F982BB008373CB /* UIEdgeInsets+Ex.swift in Sources */,
 				FA046EE928F54B23002D5023 /* ViewController.swift in Sources */,
 				AAAB484628FC76AB008373CB /* ColourPickerButton.swift in Sources */,
+				AA79DE9F28FF4BF400905FEF /* TextEditPanel.swift in Sources */,
 				AAAB483928FB533D008373CB /* BackOrCancelButton.swift in Sources */,
 				AAAB482628F96B76008373CB /* UIControl+Ex.swift in Sources */,
+				AA79DEA228FF4EF400905FEF /* GradientView.swift in Sources */,
 				AAAB483728FB14D8008373CB /* TestVC.swift in Sources */,
 				FA046EE528F54B23002D5023 /* AppDelegate.swift in Sources */,
+				AA79DEA429000CB000905FEF /* TextViewEditingOverlay.swift in Sources */,
 				AAAB482E28F9A99D008373CB /* ToolView.swift in Sources */,
 				AAAB481E28F70891008373CB /* PhotoPermissionOverlay.swift in Sources */,
 				AAAB484128FC4E54008373CB /* ToolShapeSelector.swift in Sources */,

@@ -15,6 +15,14 @@ enum EditToolbarAction {
     case lineWidthChanged(CGFloat)
     case toolShapeChanged(ToolShape)
     case colorChange(UIColor)
+    case textEditBegan(TextViewEditingOverlay)
+    case textEditEnded
+}
+
+enum EditMode {
+    case base
+    case toolEdit
+    case textEdit
 }
 
 final class EditorToolbar: UIView {
@@ -28,6 +36,29 @@ final class EditorToolbar: UIView {
     private let colorPickerControl = ColourPickerButton()
     private let modeSwitcher = CorneredSegmentedControl()
     private var toolsContainer: ToolsContainer!
+    
+    private lazy var slider: ToolSlider = {
+        let slider = ToolSlider(frame: CGRect(x: 46.5, y: 0, width: bounds.width - 150, height: bottomControlsContainer.height))
+        slider.translatesAutoresizingMaskIntoConstraints = true
+        slider.autoresizingMask = [.flexibleWidth]
+        slider.valuesRange = 2...15
+        return slider
+    }()
+    
+    private lazy var shapeSelector: ToolShapeSelector = {
+        let selector = ToolShapeSelector(frame: CGRect(x: self.bottomControlsContainer.width - 75, y: 0, width: 75, height: bottomControlsContainer.height))
+        selector.autoresizingMask = [.flexibleLeftMargin]
+        selector.shape = .circle
+        return selector
+    }()
+    
+    private lazy var textPanel: TextPanel = {
+        let panel = TextPanel(frame: CGRect(x: colorPickerControl.frame.maxX, y: 0, width: plusButton.x - colorPickerControl.frame.maxX, height: topControlsContainer.height))
+        panel.autoresizingMask = [.flexibleWidth]
+        return panel
+    }()
+    
+    private var mode: EditMode = .base
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -58,7 +89,7 @@ final class EditorToolbar: UIView {
             width: self.width,
             height: 44
         )
-        bottomControlsContainer.y = self.height - bottomControlsContainer.height - 8 - UIApplication.shared.tm_keyWindow.safeAreaInsets.bottom
+        bottomControlsContainer.y = self.height - bottomControlsContainer.height - 2.5 - UIApplication.shared.tm_keyWindow.safeAreaInsets.bottom
         bottomControlsContainer.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         
         addSubview(topControlsContainer)
@@ -89,7 +120,7 @@ final class EditorToolbar: UIView {
         cancelButton.removeTarget(nil, action: nil, for: .allEvents)
         cancelButton.addAction { [weak self] in
             guard let self = self else { return }
-            if self.isInEditMode {
+            if self.mode == .toolEdit {
                 self.animateFromEditMode(animationDuration: 0.3)
             } else {
                 self.actionHandler?(.close)
@@ -130,6 +161,13 @@ final class EditorToolbar: UIView {
         modeSwitcher.width = width - cancelButton.width - saveButton.width - 10
         modeSwitcher.center = .init(x: bottomControlsContainer.width / 2, y: bottomControlsContainer.height / 2)
         modeSwitcher.autoresizingMask = [.flexibleWidth]
+        modeSwitcher.onSelect = { [weak self] index in
+            if index == 0 {
+                self?.animateFromTextMode()
+            } else {
+                self?.animateToTextMode()
+            }
+        }
     }
     
     private func setupToolsContainer() {
@@ -142,23 +180,10 @@ final class EditorToolbar: UIView {
         bringSubviewToFront(topControlsContainer)
     }
     
-    private var isInEditMode = false
-    private lazy var slider: ToolSlider = {
-        let slider = ToolSlider(frame: CGRect(x: 46.5, y: 0, width: bounds.width - 150, height: bottomControlsContainer.height))
-        slider.translatesAutoresizingMaskIntoConstraints = true
-        slider.autoresizingMask = [.flexibleWidth]
-        slider.valuesRange = 2...15
-        return slider
-    }()
-    
-    private lazy var shapeSelector: ToolShapeSelector = {
-        let selector = ToolShapeSelector(frame: CGRect(x: self.bottomControlsContainer.width - 75, y: 0, width: 75, height: bottomControlsContainer.height))
-        selector.autoresizingMask = [.flexibleLeftMargin]
-        selector.shape = .circle
-        return selector
-    }()
-    
     private func animateToEditMode(animationDuration: TimeInterval, toolView: ToolView) {
+        guard self.mode == .base else { return }
+
+        self.mode = .toolEdit
         let buttonsToScale: [UIView] = [colorPickerControl, plusButton]
 
         UIView.performWithoutAnimation {
@@ -194,11 +219,12 @@ final class EditorToolbar: UIView {
             },
             completion: { _ in
                 buttonsToScale.forEach { $0.isHidden = true }
-                self.isInEditMode = true
         })
     }
     
     private func animateFromEditMode(animationDuration: TimeInterval) {
+        guard self.mode == .toolEdit else { return }
+        self.mode = .base
         let buttonsToScale: [UIView] = [colorPickerControl, plusButton]
         cancelButton.setMode(.cancel, animationDuration: animationDuration)
         self.toolsContainer.finishEditing(animationDuration: animationDuration)
@@ -216,8 +242,48 @@ final class EditorToolbar: UIView {
             },
             completion: { _ in
                 self.slider.removeFromSuperview()
-                self.isInEditMode = false
         })
+    }
+    
+    private func animateToTextMode() {
+        guard self.mode == .base else { return }
+        self.mode = .textEdit
+        
+        plusButton.removeFromSuperview()
+        let overlay = TextViewEditingOverlay(panelView: textPanel, colourPicker: colorPickerControl, panelContainer: topControlsContainer, state: .init(text: "", font: .systemFont(ofSize: 32, weight: .bold), color: .white, style: .regular, alignment: .center), frame: UIScreen.main.bounds)
+        
+        self.actionHandler?(.textEditBegan(overlay))
+
+        UIView.animate(
+            withDuration: 0.2,
+            delay: 0,
+            options: [],
+            animations: {
+                self.toolsContainer.alpha = 0
+            },
+            completion: { _ in
+                self.toolsContainer.removeFromSuperview()
+            }
+        )
+    }
+    
+    private func animateFromTextMode() {
+        guard self.mode == .base else { return }
+        self.mode = .textEdit
+        self.actionHandler?(.textEditEnded)
+        addSubview(toolsContainer)
+
+        UIView.animate(
+            withDuration: 0.2,
+            delay: 0,
+            options: [],
+            animations: {
+                self.toolsContainer.alpha = 1
+            },
+            completion: { _ in
+                
+            }
+        )
     }
 }
 

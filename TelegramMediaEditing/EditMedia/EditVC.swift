@@ -41,8 +41,13 @@ final class EditVC: UIViewController {
         toolbar.translatesAutoresizingMaskIntoConstraints = true
         toolbar.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         view.addSubview(toolbar)
-        toolbar.actionHandler = { action in
-            print("Toolbar did trigger action \(action)")
+        toolbar.actionHandler = { [weak self] action in
+            switch action {
+            case .textEditBegan(let overlay):
+                self?.addTextView(overlay: overlay)
+            default:
+                print("Toolbar did trigger action \(action)")
+            }
         }
     }
     
@@ -56,6 +61,11 @@ final class EditVC: UIViewController {
         button.y = 32
         button.sizeToFit()
         button.autoresizingMask = [.flexibleBottomMargin, .flexibleRightMargin]
+    }
+    
+    private func addTextView(overlay: TextViewEditingOverlay) {
+        view.addSubview(overlay)
+        overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     }
     
     @objc
