@@ -10,7 +10,7 @@ import UIKit
 final class ColourPickerButton: UIView {
     private var ringView: UIView!
     private var centerView: ColourPickerCirlce!
-    private let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+    private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
     
     var onColourChange: ((UIColor) -> Void)?
     
@@ -30,8 +30,12 @@ final class ColourPickerButton: UIView {
         addSubview(centerView)
         
         let longPressGR = UILongPressGestureRecognizer()
-        longPressGR.addTarget(self, action: #selector(onLongPress))
+        longPressGR.addTarget(self, action: #selector(onLongPressOrPan))
         addGestureRecognizer(longPressGR)
+        
+        let panGR = UIPanGestureRecognizer()
+        panGR.addTarget(self, action: #selector(onLongPressOrPan))
+        addGestureRecognizer(panGR)
     }
     
     override func layoutSubviews() {
@@ -41,16 +45,19 @@ final class ColourPickerButton: UIView {
     }
     
     @objc
-    private func onLongPress(recongiser: UILongPressGestureRecognizer) {
+    private func onLongPressOrPan(recongiser: UIGestureRecognizer) {
         switch recongiser.state {
         case .began:
             insertGradientView(recogniser: recongiser)
-            feedbackGenerator.impactOccurred()
+            if recongiser is UILongPressGestureRecognizer {
+                feedbackGenerator.impactOccurred()
+            }
         case .failed, .ended, .cancelled:
             removeGradient()
-            break
         case .possible:
-            feedbackGenerator.prepare()
+            if recongiser is UILongPressGestureRecognizer {
+                feedbackGenerator.prepare()
+            }
         case .changed:
             guard let activeGradientView = activeGradientView, let pickerView = pickerView else {
                 return
@@ -58,12 +65,12 @@ final class ColourPickerButton: UIView {
             let location = recongiser.location(in: activeGradientView)
             var center = location
             if !activeGradientView.bounds.contains(location) {
-                center.x = max(0, min(activeGradientView.bounds.width, location.x))
-                center.y = max(0, min(activeGradientView.bounds.height, location.y))
+                center.x = max(0, min(activeGradientView.bounds.width-1, location.x))
+                center.y = max(0, min(activeGradientView.bounds.height-1, location.y))
             }
-            UIView.animate(withDuration: 0.05, delay: 0, options: [.beginFromCurrentState], animations: {
-                pickerView.center = center
-            }, completion: nil)
+//            UIView.animate(withDuration: 0.05, delay: 0, options: [.beginFromCurrentState, .curveEaseOut], animations: {
+            pickerView.center = pickerView.superview!.convert(center.add(self.pickerViewOffset), from: activeGradientView)
+//            }, completion: nil)
             
             let pickedColor = activeGradientView.getColor(at: center) ?? .clear
             pickerView.backgroundColor = pickedColor
@@ -77,135 +84,100 @@ final class ColourPickerButton: UIView {
     }
     
     private var activeGradientView: UIImageView?
+    private var activeGradientContainer: UIView?
     private var pickerView: ColourPickerCirlce?
+    private let pickerViewOffset: CGPoint = .init(x: 0, y: -60)
     
-    private func insertGradientView(recogniser: UILongPressGestureRecognizer) {
+    private func insertGradientView(recogniser: UIGestureRecognizer) {
         guard let hostView = superview?.superview?.superview else { return }
         
         let gradient = UIImageView(image: UIImage(named: "spectrum_square")!)
         gradient.translatesAutoresizingMaskIntoConstraints = true
+        let gradientContainer = UIView()
+        gradientContainer.translatesAutoresizingMaskIntoConstraints = true
+        gradientContainer.layer.masksToBounds = true
+        gradientContainer.layer.cornerRadius = self.width / 2
         let selfFrame = self.frameIn(view: hostView)
         
         let width = hostView.width * 0.8
         let height = width / 1.1
-        gradient.frame = CGRect(x: selfFrame.minX, y: selfFrame.maxY - height, width: width, height: height)
+        gradientContainer.frame = CGRect(x: selfFrame.minX, y: selfFrame.maxY - height, width: width, height: height)
+        gradient.frame = gradientContainer.bounds
+        gradientContainer.addSubview(gradient)
         
         gradient.clipsToBounds = true
-        hostView.addSubview(gradient)
+        hostView.addSubview(gradientContainer)
         activeGradientView = gradient
+        activeGradientContainer = gradientContainer
         
         let pickerCircle = ColourPickerCirlce()
-        pickerCircle.frame = centerView.frameIn(view: gradient)
+        pickerCircle.frame = centerView.frameIn(view: hostView).inset(by: UIEdgeInsets.all(-10)).offsetBy(dx: pickerViewOffset.x, dy: pickerViewOffset.y)
+        pickerCircle.transform = CGAffineTransform.init(scaleX: 0.4, y: 0.4)
+        pickerCircle.alpha = 0
         pickerView = pickerCircle
 
         pickerCircle.translatesAutoresizingMaskIntoConstraints = true
-        gradient.addSubview(pickerCircle)
+        hostView.addSubview(pickerCircle)
         UIView.animate(
-            withDuration: 0.1,
+            withDuration: 0.2,
             delay: 0,
             options: [],
             animations: {
-                pickerCircle.frame = pickerCircle.frame.inset(top: -10, left: -10, bottom: -10, right: -10)},
+                pickerCircle.transform = .identity
+                pickerCircle.alpha = 1
+            },
             completion: nil)
         transitionToGradientView(gradient: gradient)
     }
     
     private func transitionToGradientView(gradient: UIView) {
-        let layerMask = CAShapeLayer()
-        layerMask.frame = gradient.bounds
+        let viewMask = UIView(frame: centerView.convert(centerView.bounds, to: gradient).insetBy(dx: 2, dy: 2))
+        viewMask.layer.cornerRadius = viewMask.width/2
+        viewMask.layer.masksToBounds = true
+        viewMask.backgroundColor = .black
+        gradient.mask = viewMask
         
-        gradient.layer.mask = layerMask
-        
-        let endMask = UIBezierPath.roundedRectShape(in: gradient.bounds, topLeft: self.width / 2, topRight: self.width / 2, bottomRight: self.width / 2, bottomLeft: self.width / 2).cgPath
-        
-        let startMask = UIBezierPath.roundedRectShape(in: CGRect(x: 0, y: gradient.height - self.width, width: self.width, height: self.width), topLeft: self.width / 2, topRight: self.width / 2, bottomRight: self.width / 2, bottomLeft: self.width / 2).cgPath
-        
-        
-        let midMask = UIBezierPath.roundedRectShape(in: CGRect(x: 0, y: gradient.height / 2, width: gradient.width / 2, height: gradient.height / 2), topLeft: self.width / 2, topRight: gradient.width / 2, bottomRight: self.width / 2, bottomLeft: self.width / 2).cgPath
-        
-        layerMask.path = startMask
-
-        
-        let anim = CABasicAnimation(keyPath: "path")
-        anim.duration = 0.1
-        anim.autoreverses = false
-        anim.isRemovedOnCompletion = true
-        anim.fillMode = .forwards
-        anim.fromValue = startMask
-        anim.toValue = midMask
-        layerMask.add(anim, forKey: "animateLayer1")
-        
-        let anim2 = CABasicAnimation(keyPath: "path")
-        anim2.beginTime = CACurrentMediaTime() + 0.1
-        anim2.duration = 0.1
-        anim2.autoreverses = false
-        anim2.isRemovedOnCompletion = false
-        anim2.fillMode = .forwards
-        anim2.fromValue = midMask
-        anim2.toValue = endMask
-        
-        layerMask.add(anim2, forKey: "animateLayer2")
+        let fromRadius = viewMask.bounds.size.diameter / 2
+        let toRadius = gradient.bounds.size.diameter / 2
+        let scale = 3 * toRadius / fromRadius
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut]) {
+            viewMask.transform = CGAffineTransform(scaleX: scale, y: scale)
+        } completion: { _ in
+        }
     }
     
     private func removeGradient() {
-        guard let gradient = self.activeGradientView, let layerMask = self.activeGradientView?.layer.mask as? CAShapeLayer else { return }
-        let endMask = UIBezierPath.roundedRectShape(in: gradient.bounds, topLeft: self.width / 2, topRight: self.width / 2, bottomRight: self.width / 2, bottomLeft: self.width / 2).cgPath
+        guard let gradient = self.activeGradientView, let viewMask = gradient.mask else { return }
         
-        let startMask = UIBezierPath.roundedRectShape(in: CGRect(x: 0, y: gradient.height - self.width, width: self.width, height: self.width), topLeft: self.width / 2, topRight: self.width / 2, bottomRight: self.width / 2, bottomLeft: self.width / 2).cgPath
-        
-        
-        let midMask = UIBezierPath.roundedRectShape(in: CGRect(x: 0, y: gradient.height / 2, width: gradient.width / 2, height: gradient.height / 2), topLeft: self.width / 2, topRight: gradient.width / 2, bottomRight: self.width / 2, bottomLeft: self.width / 2).cgPath
-
-        layerMask.path = endMask
-        layerMask.removeAnimation(forKey: "animateLayer1")
-        layerMask.removeAnimation(forKey: "animateLayer2")
-
-        let anim = CABasicAnimation(keyPath: "path")
-        anim.duration = 0.1
-        anim.autoreverses = false
-        anim.isRemovedOnCompletion = true
-        anim.fillMode = .forwards
-        anim.fromValue = endMask
-        anim.toValue = midMask
-        layerMask.add(anim, forKey: "animateLayer1")
-        
-        let anim2 = CABasicAnimation(keyPath: "path")
-        anim2.beginTime = CACurrentMediaTime() + 0.1
-        anim2.delegate = self
-        anim2.duration = 0.1
-        anim2.autoreverses = false
-        anim2.isRemovedOnCompletion = false
-        anim2.fillMode = .forwards
-        anim2.fromValue = midMask
-        anim2.toValue = startMask
-        
-        layerMask.add(anim2, forKey: "animateLayer2")
+        let circle = pickerView
+        pickerView = nil
+        let gradientOverlay = UIView(frame: gradient.bounds)
+        gradientOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        gradientOverlay.backgroundColor = centerView.backgroundColor
+        gradientOverlay.alpha = 0
+        gradient.addSubview(gradientOverlay)
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut]) {
+            viewMask.transform = .identity
+            circle?.transform = .init(scaleX: 0.2, y: 0.2)
+            circle?.alpha = 0
+            gradientOverlay.alpha = 1
+        } completion: { _ in
+            self.activeGradientContainer?.removeFromSuperview()
+            viewMask.removeFromSuperview()
+            circle?.removeFromSuperview()
+            gradientOverlay.removeFromSuperview()
+        }
     }
 }
 
 extension ColourPickerButton: CAAnimationDelegate {
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
-        activeGradientView?.removeFromSuperview()
+        activeGradientContainer?.removeFromSuperview()
     }
 }
 
-extension UIBezierPath {
-    static func roundedRectShape(in rect: CGRect, topLeft: CGFloat, topRight: CGFloat, bottomRight: CGFloat, bottomLeft: CGFloat) -> UIBezierPath {
-        let minX = rect.minX
-        let minY = rect.minY
-        let maxX = rect.maxX
-        let maxY = rect.maxY
-        let path = UIBezierPath()
-        path.move(to: CGPoint(x: minX + topLeft, y: minY))
-        path.addLine(to: CGPoint(x: maxX - topRight, y: minY))
-        path.addArc(withCenter: CGPoint(x: maxX - topRight, y: minY + topRight), radius: topRight, startAngle:CGFloat(3 * Double.pi / 2), endAngle: 0, clockwise: true)
-        path.addLine(to: CGPoint(x: maxX, y: maxY - bottomRight))
-        path.addArc(withCenter: CGPoint(x: maxX - bottomRight, y: maxY - bottomRight), radius: bottomRight, startAngle: 0, endAngle: CGFloat(Double.pi / 2), clockwise: true)
-        path.addLine(to: CGPoint(x: minX + bottomLeft, y: maxY))
-        path.addArc(withCenter: CGPoint(x: minX + bottomLeft, y: maxY - bottomLeft), radius: bottomLeft, startAngle: CGFloat(Double.pi / 2), endAngle: CGFloat(Double.pi), clockwise: true)
-        path.addLine(to: CGPoint(x: minX, y: minY + topLeft))
-        path.addArc(withCenter: CGPoint(x: minX + topLeft, y: minY + topLeft), radius: topLeft, startAngle: CGFloat(Double.pi), endAngle: CGFloat(3 * Double.pi / 2), clockwise: true)
-        path.close()
-        return path
+fileprivate extension CGSize {
+    var diameter: CGFloat {
+        return sqrt(pow(width, 2) + pow(height, 2))
     }
 }
