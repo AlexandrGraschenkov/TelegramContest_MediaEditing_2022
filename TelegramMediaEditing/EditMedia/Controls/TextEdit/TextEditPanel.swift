@@ -51,9 +51,15 @@ final class TextPanel: UIView {
         }
         
         styleButton.autoresizingMask = [.flexibleRightMargin]
-        styleButton.addAction {
-            
+        styleButton.addAction { [weak self] in
+            guard let self = self else { return }
+            let styles: [TextStyle] = [.regular, .outlined, .framed]
+            let index = styles.firstIndex(of: self.styleButton.textStyle)!
+            let nextIndex = (index + 1) % styles.count
+            self.styleButton.setStyle(styles[nextIndex], animated: true)
+            onChange()
         }
+        styleButton.setStyle(.regular, animated: true)
         
         alignmentButton.x = styleButton.frame.maxX
         alignmentButton.autoresizingMask = [.flexibleRightMargin]
@@ -97,19 +103,32 @@ final class TextPanel: UIView {
     }
 }
 
-enum TextStyle {
+enum TextStyle: Equatable {
     case regular
     case outlined
     case framed
 }
 
 final class TextStyleButton: UIButton {
-    var textStyle: TextStyle = .regular {
-        didSet {
-            switch textStyle {
-            case .framed:
-                
-            }
+    private(set) var textStyle: TextStyle = .regular
+    func setStyle(_ textStyle: TextStyle, animated: Bool) {
+        let imageName: String
+        switch textStyle {
+        case .regular:
+            imageName = "regular_text_style"
+        case .framed:
+            imageName = "framed_text_style"
+        case .outlined:
+            imageName = "outlined_text_style"
+        }
+        let change = {
+            self.setImage(.init(named: imageName), for: .normal)
+        }
+        self.textStyle = textStyle
+        if animated {
+            UIView.animate(withDuration: 0.2, animations: change)
+        } else {
+            change()
         }
     }
 }

@@ -108,6 +108,7 @@ final class TextViewEditingOverlay: UIView {
         textViewCenteringContainer.autoresizingMask = [.flexibleWidth, .flexibleTopMargin, .flexibleBottomMargin, .flexibleLeftMargin, .flexibleRightMargin]
         
         let textView = UITextView(frame: textViewCenteringContainer.bounds)
+        textView.tintColor = .white
         textView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         textViewCenteringContainer.addSubview(textView)
         textView.delegate = self
@@ -182,15 +183,15 @@ final class TextViewEditingOverlay: UIView {
         let color = currentColor ?? .black
         
         switch panelView.styleButton.textStyle {
-        case .regular, .framed:
+        case .regular, .framed, .outlined:
             attributes = [.font : panelView.selectedFont.withSize(32),
                           .foregroundColor : color,
                           .paragraphStyle: paragraphStyle]
-        case .outlined:
-            // TODO: implement this
-            attributes = [.font : panelView.selectedFont.withSize(32),
-                          .foregroundColor : UIColor.white,
-                          .paragraphStyle : paragraphStyle]
+//        case .outlined:
+//            // TODO: implement this
+//            attributes = [.font : panelView.selectedFont.withSize(32),
+//                          .foregroundColor : UIColor.white,
+//                          .paragraphStyle : paragraphStyle]
         }
         return attributes
     }
@@ -200,6 +201,14 @@ final class TextViewEditingOverlay: UIView {
         textView.textAlignment = self.panelView.alignmentButton.textAlignment
         textView.attributedText = NSAttributedString(string: textView.text, attributes: attributes)
         textView.typingAttributes = attributes
+        switch panelView.styleButton.textStyle {
+        case .regular, .outlined:
+            textHighlightLayer?.isHidden = true
+        case .framed:
+            textHighlightLayer?.fillColor = (self.currentColor?.bestBackgroundColor ?? UIColor.black).cgColor
+            textHighlightLayer?.isHidden = false
+            drawTextHighlight()
+        }
     }
     
     private func animateWithKeyboard(
@@ -234,6 +243,40 @@ final class TextViewEditingOverlay: UIView {
         
         // Start the animation
         animator.startAnimation()
+    }
+    
+    private var textHighlightLayer: CAShapeLayer?
+    
+    private func drawTextHighlight() {
+        let textLayer = textView.layer
+        let textContainerInset = textView.textContainerInset
+        let uiInset: CGFloat = -10//CGFloat(insetSlider.value)
+        let radius: CGFloat = 6 * UIScreen.main.scale
+        let highlightLayer: CAShapeLayer
+        if let textHighlightLayer = textHighlightLayer {
+            highlightLayer = textHighlightLayer
+        } else {
+            let layer = CAShapeLayer()
+            layer.frame = textViewCenteringContainer.bounds
+            layer.fillColor = (self.currentColor?.bestBackgroundColor ?? UIColor.black).cgColor
+            textViewCenteringContainer.layer.insertSublayer(layer, at: 0)
+            textHighlightLayer = layer
+            highlightLayer = layer
+        }
+        let layout = textView.layoutManager
+        let range = NSMakeRange(0, layout.numberOfGlyphs)
+        var rects: [CGRect] = []
+        layout.enumerateLineFragments(forGlyphRange: range) { (_, usedRect, _, _, _) in
+            if usedRect.width > 0 && usedRect.height > 0 {
+                var rect = usedRect
+                rect.origin.x += textContainerInset.left
+                rect.origin.y += textContainerInset.top
+                rect = highlightLayer.convert(rect, from: textLayer)
+                rect = rect.insetBy(dx: uiInset, dy: uiInset)
+                rects.append(rect)
+            }
+        }
+        highlightLayer.path = CGPath.makeUnion(of: rects, cornerRadius: radius)
     }
 }
 
@@ -271,6 +314,9 @@ extension TextViewEditingOverlay: UITextViewDelegate {
             textViewCenteringContainer.height = textSize.height
             textViewCenteringContainer.transform = .init(scaleX: scale, y: scale)
             textViewCenteringContainer.y = 0
+        }
+        if panelView.styleButton.textStyle == .framed {
+            drawTextHighlight()
         }
     }
 }
