@@ -183,15 +183,18 @@ final class TextViewEditingOverlay: UIView {
         let color = currentColor ?? .black
         
         switch panelView.styleButton.textStyle {
-        case .regular, .framed, .outlined:
+        case .regular, .framed:
             attributes = [.font : panelView.selectedFont.withSize(32),
                           .foregroundColor : color,
                           .paragraphStyle: paragraphStyle]
-//        case .outlined:
-//            // TODO: implement this
-//            attributes = [.font : panelView.selectedFont.withSize(32),
-//                          .foregroundColor : UIColor.white,
-//                          .paragraphStyle : paragraphStyle]
+        case .outlined:
+            // TODO: implement this
+            attributes = [.font : panelView.selectedFont.withSize(32),
+                          .foregroundColor : color,
+                          .paragraphStyle: paragraphStyle,
+                          .strokeWidth: -panelView.selectedFont.pointSize / 5,
+                          .strokeColor: color.bestBackgroundColor
+            ]
         }
         return attributes
     }
