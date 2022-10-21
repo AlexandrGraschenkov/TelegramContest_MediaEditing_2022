@@ -150,14 +150,21 @@ final class ColourPickerButton: UIView {
         
         let circle = pickerView
         pickerView = nil
+        let gradientOverlay = UIView(frame: gradient.bounds)
+        gradientOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        gradientOverlay.backgroundColor = centerView.backgroundColor
+        gradientOverlay.alpha = 0
+        gradient.addSubview(gradientOverlay)
         UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut]) {
             viewMask.transform = .identity
             circle?.transform = .init(scaleX: 0.2, y: 0.2)
             circle?.alpha = 0
+            gradientOverlay.alpha = 1
         } completion: { _ in
             self.activeGradientContainer?.removeFromSuperview()
             viewMask.removeFromSuperview()
             circle?.removeFromSuperview()
+            gradientOverlay.removeFromSuperview()
         }
     }
 }
