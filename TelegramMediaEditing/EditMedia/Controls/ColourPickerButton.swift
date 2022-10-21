@@ -10,7 +10,7 @@ import UIKit
 final class ColourPickerButton: UIView {
     private var ringView: UIView!
     private var centerView: ColourPickerCirlce!
-    private let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+    private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
     
     var onColourChange: ((UIColor) -> Void)?
     
@@ -49,10 +49,11 @@ final class ColourPickerButton: UIView {
         switch recongiser.state {
         case .began:
             insertGradientView(recogniser: recongiser)
-            feedbackGenerator.impactOccurred()
+            if recongiser is UILongPressGestureRecognizer {
+                feedbackGenerator.impactOccurred()
+            }
         case .failed, .ended, .cancelled:
             removeGradient()
-            break
         case .possible:
             if recongiser is UILongPressGestureRecognizer {
                 feedbackGenerator.prepare()
@@ -110,7 +111,7 @@ final class ColourPickerButton: UIView {
         activeGradientContainer = gradientContainer
         
         let pickerCircle = ColourPickerCirlce()
-        pickerCircle.frame = centerView.frameIn(view: gradient).inset(by: UIEdgeInsets.all(-10)).offsetBy(dx: pickerViewOffset.x, dy: pickerViewOffset.y)
+        pickerCircle.frame = centerView.frameIn(view: hostView).inset(by: UIEdgeInsets.all(-10)).offsetBy(dx: pickerViewOffset.x, dy: pickerViewOffset.y)
         pickerCircle.transform = CGAffineTransform.init(scaleX: 0.4, y: 0.4)
         pickerCircle.alpha = 0
         pickerView = pickerCircle
