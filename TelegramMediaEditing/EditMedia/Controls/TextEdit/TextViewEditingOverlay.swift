@@ -26,7 +26,7 @@ final class TextViewEditingOverlay: UIView {
     
     weak var delegate: TextViewEditingOverlayDelegate?
     
-    private var state: ImageEditingTextState?
+    private let state: ImageEditingTextState?
     
     private var currentColor: UIColor? {
         didSet {
@@ -56,6 +56,11 @@ final class TextViewEditingOverlay: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func updateText() {
+        updateTextViewAttributes()
+        textViewDidChange(textView)
     }
     
     private func setup(panelOriginalContainer: UIView) {
@@ -145,11 +150,7 @@ final class TextViewEditingOverlay: UIView {
             if let text = state.text {
                 self.textView.text = text
             }
-            self.panelView.alignmentButton.textAlignment = state.alignment
-            self.panelView.styleButton.textStyle = state.style
-            self.panelView.selectedFont = state.font
             self.updateTextViewAttributes()
-            self.colourPicker.selectedColour = state.color
         })
     }
     

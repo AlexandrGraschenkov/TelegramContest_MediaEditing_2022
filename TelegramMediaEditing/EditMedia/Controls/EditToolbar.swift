@@ -55,7 +55,7 @@ final class EditorToolbar: UIView {
     
     private lazy var textPanel: TextPanel = {
         let panel = TextPanel(frame: CGRect(x: colorPickerControl.frame.maxX, y: 0, width: plusButton.x - colorPickerControl.frame.maxX, height: topControlsContainer.height))
-        panel.autoresizingMask = [.flexibleWidth]
+        panel.autoresizingMask = [.flexibleWidth, .flexibleTopMargin, .flexibleBottomMargin]
         return panel
     }()
     
@@ -251,7 +251,27 @@ final class EditorToolbar: UIView {
         self.mode = .textEdit
         
         plusButton.removeFromSuperview()
-        let overlay = TextViewEditingOverlay(panelView: textPanel, colourPicker: colorPickerControl, panelContainer: topControlsContainer, state: .init(text: "", font: .systemFont(ofSize: 32, weight: .bold), color: .white, style: .regular, alignment: .center), frame: UIScreen.main.bounds)
+        topControlsContainer.addSubview(textPanel)
+        textPanel.isGradientVisible = false
+        textPanel.width = topControlsContainer.width - textPanel.x
+        
+        let overlay = TextViewEditingOverlay(
+            panelView: textPanel,
+            colourPicker: colorPickerControl,
+            panelContainer: topControlsContainer,
+            state: .init(
+                text: "",
+                font: textPanel.selectedFont,
+                color: .white,
+                style: .regular,
+                alignment: .center
+            ),
+            frame: UIScreen.main.bounds
+        )
+        
+        textPanel.onAnyAttributeChange = { [weak overlay] in
+            overlay?.updateText()
+        }
         
         self.actionHandler?(.textEditBegan(overlay))
 

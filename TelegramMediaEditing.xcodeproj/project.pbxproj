@@ -11,6 +11,9 @@
 		AA79DE9F28FF4BF400905FEF /* TextEditPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DE9E28FF4BF400905FEF /* TextEditPanel.swift */; };
 		AA79DEA228FF4EF400905FEF /* GradientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEA128FF4EF400905FEF /* GradientView.swift */; };
 		AA79DEA429000CB000905FEF /* TextViewEditingOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEA329000CB000905FEF /* TextViewEditingOverlay.swift */; };
+		AA79DEAB290320BE00905FEF /* FontsSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEAA290320BE00905FEF /* FontsSelector.swift */; };
+		AA79DEAD2903363B00905FEF /* TextAlignmentButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEAC2903363B00905FEF /* TextAlignmentButton.swift */; };
+		AA79DEAF2903418200905FEF /* UITextView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEAE2903418200905FEF /* UITextView+Ex.swift */; };
 		AAA335CC28F6CCE100B86B89 /* GalleryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA335CB28F6CCE100B86B89 /* GalleryViewController.swift */; };
 		AAA335CE28F6CE6F00B86B89 /* ImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA335CD28F6CE6F00B86B89 /* ImageCell.swift */; };
 		AAAB481E28F70891008373CB /* PhotoPermissionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB481D28F70891008373CB /* PhotoPermissionOverlay.swift */; };
@@ -56,6 +59,9 @@
 		AA79DE9E28FF4BF400905FEF /* TextEditPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEditPanel.swift; sourceTree = "<group>"; };
 		AA79DEA128FF4EF400905FEF /* GradientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientView.swift; sourceTree = "<group>"; };
 		AA79DEA329000CB000905FEF /* TextViewEditingOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewEditingOverlay.swift; sourceTree = "<group>"; };
+		AA79DEAA290320BE00905FEF /* FontsSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontsSelector.swift; sourceTree = "<group>"; };
+		AA79DEAC2903363B00905FEF /* TextAlignmentButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextAlignmentButton.swift; sourceTree = "<group>"; };
+		AA79DEAE2903418200905FEF /* UITextView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextView+Ex.swift"; sourceTree = "<group>"; };
 		AAA335CB28F6CCE100B86B89 /* GalleryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryViewController.swift; sourceTree = "<group>"; };
 		AAA335CD28F6CE6F00B86B89 /* ImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCell.swift; sourceTree = "<group>"; };
 		AAAB481D28F70891008373CB /* PhotoPermissionOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPermissionOverlay.swift; sourceTree = "<group>"; };
@@ -113,7 +119,10 @@
 			isa = PBXGroup;
 			children = (
 				AA79DE9E28FF4BF400905FEF /* TextEditPanel.swift */,
+				AA79DEAA290320BE00905FEF /* FontsSelector.swift */,
 				AA79DEA329000CB000905FEF /* TextViewEditingOverlay.swift */,
+				AA79DEAC2903363B00905FEF /* TextAlignmentButton.swift */,
+				AA79DEAE2903418200905FEF /* UITextView+Ex.swift */,
 			);
 			path = TextEdit;
 			sourceTree = "<group>";
@@ -312,6 +321,7 @@
 				AAA335CE28F6CE6F00B86B89 /* ImageCell.swift in Sources */,
 				AAA335CC28F6CCE100B86B89 /* GalleryViewController.swift in Sources */,
 				FAEDF42328FB3D7900094ADF /* GausianSmooth.swift in Sources */,
+				AA79DEAF2903418200905FEF /* UITextView+Ex.swift in Sources */,
 				FA046F0128F55953002D5023 /* Extensions.swift in Sources */,
 				AAAB483128F9C876008373CB /* ToolsContainer.swift in Sources */,
 				AAAB483328FAD13A008373CB /* CorneredSegmentedControl.swift in Sources */,
@@ -331,8 +341,10 @@
 				AAAB481E28F70891008373CB /* PhotoPermissionOverlay.swift in Sources */,
 				AAAB484128FC4E54008373CB /* ToolShapeSelector.swift in Sources */,
 				FA046EFF28F558DF002D5023 /* UIView+Ex.swift in Sources */,
+				AA79DEAB290320BE00905FEF /* FontsSelector.swift in Sources */,
 				FA046F0728F569BE002D5023 /* GlobalFunctions.swift in Sources */,
 				FACE5BD7290151DE00960A48 /* PenSplitOptimizer.swift in Sources */,
+				AA79DEAD2903363B00905FEF /* TextAlignmentButton.swift in Sources */,
 				FAEDF41B28F9F49200094ADF /* PenCurveGenerator.swift in Sources */,
 				FAEDF42528FC082F00094ADF /* PanSmoothIK.swift in Sources */,
 				FACE5BD5290147EF00960A48 /* DisplayLinkAnimator.swift in Sources */,
