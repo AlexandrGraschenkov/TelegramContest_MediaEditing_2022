@@ -49,7 +49,9 @@ final class OutlineableTextView: UITextView {
             layer.shadowOpacity = 1
 
 //            let shift = (glyphRect.height - glyphPath.boundingBox.height) / 2
-            layer.frame = CGRect(x: glyphRect.minX + textContainerInset.left, y: glyphRect.minY + textContainerInset.top - 7, width: glyphRect.width, height: glyphRect.height)
+            
+            let shift = font!.pointSize * 0.219 // TODO: figure out why it's shifted and come up with universal solution for all fonts
+            layer.frame = CGRect(x: glyphRect.minX + textContainerInset.left, y: glyphRect.minY + textContainerInset.top - shift, width: glyphRect.width, height: glyphRect.height)
             outlinedChars.append(layer)
         }
     }

@@ -26,6 +26,7 @@ final class TextViewEditingOverlay: UIView {
     private var textViewCenteringContainer: UIView!
     private let contentContainer = UIView()
     private let blurView = UIVisualEffectView()
+    private var slider: ToolSlider!
     
     weak var delegate: TextViewEditingOverlayDelegate?
     
@@ -122,6 +123,28 @@ final class TextViewEditingOverlay: UIView {
         textView.spellCheckingType = .no
         textView.autocorrectionType = .no
         
+        self.slider = ToolSlider(frame: CGRect(origin: .zero, size: CGSize(width: 256, height: 56)))
+        slider.valuesRange = 20...60
+        slider.currentValue = state!.font.pointSize
+        addSubview(slider)
+        slider.center.y = textViewCenteringContainer.center.y - textViewCenteringContainer.height / 2
+        slider.transform = CGAffineTransform(rotationAngle: -CGFloat.pi / 2)
+        slider.center.x = 0
+        slider.onChange = { [weak self] _ in
+            guard let self = self else { return }
+            self.sliderHideAnimationId = nil
+            UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseIn], animations: {
+                self.slider.center.x = 28
+            }, completion: nil)
+
+            self.updateTextViewAttributes()
+            self.textViewDidChange(self.textView)
+            self.scheduleSliderHide()
+        }
+        slider.onEndInteraction = { [weak self] in
+            self?.scheduleSliderHide()
+        }
+        
         NotificationCenter.default.addObserver(
             forName: UIApplication.keyboardWillShowNotification,
             object: nil,
@@ -211,6 +234,25 @@ final class TextViewEditingOverlay: UIView {
         delegate?.textEditingOverlay(self, doneEditingText: textView)
     }
     
+    private var sliderHideAnimationId: UUID?
+    private func scheduleSliderHide() {
+        let id = UUID()
+        self.sliderHideAnimationId = id
+        delay(0.5) {
+            if self.sliderHideAnimationId == id {
+                UIView.animate(
+                    withDuration: 0.2,
+                    delay: 0,
+                    options: [.curveEaseOut],
+                    animations: {
+                        self.slider.center.x = 0
+                    },
+                    completion: nil
+                )
+            }
+        }
+    }
+    
     fileprivate func currentAttributes() -> [NSAttributedString.Key : Any] {
         let attributes: [NSAttributedString.Key : Any]
         let paragraphStyle = NSMutableParagraphStyle()
@@ -220,16 +262,13 @@ final class TextViewEditingOverlay: UIView {
         
         switch panelView.styleButton.textStyle {
         case .regular, .framed:
-            attributes = [.font : panelView.selectedFont.withSize(32),
+            attributes = [.font : panelView.selectedFont.withSize(slider.currentValue),
                           .foregroundColor : color,
                           .paragraphStyle: paragraphStyle]
         case .outlined:
-            // TODO: implement this
-            attributes = [.font : panelView.selectedFont.withSize(32),
+            attributes = [.font : panelView.selectedFont.withSize(slider.currentValue),
                           .foregroundColor : color,
                           .paragraphStyle: paragraphStyle,
-//                          .strokeWidth: -panelView.selectedFont.pointSize / 5,
-//                          .strokeColor: color.bestBackgroundColor
             ]
         }
         return attributes
