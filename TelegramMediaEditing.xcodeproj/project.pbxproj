@@ -15,6 +15,7 @@
 		AA79DEAD2903363B00905FEF /* TextAlignmentButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEAC2903363B00905FEF /* TextAlignmentButton.swift */; };
 		AA79DEB1290343E200905FEF /* RectsUnion.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEB0290343E200905FEF /* RectsUnion.swift */; };
 		AA79DEB329034CCD00905FEF /* UIColor+Pair.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEB229034CCD00905FEF /* UIColor+Pair.swift */; };
+		AA79DEB72903E80400905FEF /* OutlineableTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEB62903E80400905FEF /* OutlineableTextView.swift */; };
 		AAA335CC28F6CCE100B86B89 /* GalleryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA335CB28F6CCE100B86B89 /* GalleryViewController.swift */; };
 		AAA335CE28F6CE6F00B86B89 /* ImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA335CD28F6CE6F00B86B89 /* ImageCell.swift */; };
 		AAAB481E28F70891008373CB /* PhotoPermissionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB481D28F70891008373CB /* PhotoPermissionOverlay.swift */; };
@@ -64,6 +65,7 @@
 		AA79DEAC2903363B00905FEF /* TextAlignmentButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextAlignmentButton.swift; sourceTree = "<group>"; };
 		AA79DEB0290343E200905FEF /* RectsUnion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RectsUnion.swift; sourceTree = "<group>"; };
 		AA79DEB229034CCD00905FEF /* UIColor+Pair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Pair.swift"; sourceTree = "<group>"; };
+		AA79DEB62903E80400905FEF /* OutlineableTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutlineableTextView.swift; sourceTree = "<group>"; };
 		AAA335CB28F6CCE100B86B89 /* GalleryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryViewController.swift; sourceTree = "<group>"; };
 		AAA335CD28F6CE6F00B86B89 /* ImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCell.swift; sourceTree = "<group>"; };
 		AAAB481D28F70891008373CB /* PhotoPermissionOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPermissionOverlay.swift; sourceTree = "<group>"; };
@@ -126,6 +128,7 @@
 				AA79DEAC2903363B00905FEF /* TextAlignmentButton.swift */,
 				AA79DEB0290343E200905FEF /* RectsUnion.swift */,
 				AA79DEB229034CCD00905FEF /* UIColor+Pair.swift */,
+				AA79DEB62903E80400905FEF /* OutlineableTextView.swift */,
 			);
 			path = TextEdit;
 			sourceTree = "<group>";
@@ -316,6 +319,7 @@
 				FA39D93A28F7FE1900CBA7A4 /* PHImageManager+Ex.swift in Sources */,
 				FA046F0528F56996002D5023 /* PHPhotoLibrary+Ex.swift in Sources */,
 				AAAB483528FAD161008373CB /* ColourPickerCirlce.swift in Sources */,
+				AA79DEB72903E80400905FEF /* OutlineableTextView.swift in Sources */,
 				FA4BF3D628F6A80100592051 /* UIImage+Ex.swift in Sources */,
 				FAEDF41828F9B7BF00094ADF /* PenDrawer.swift in Sources */,
 				AAAB482328F96A8F008373CB /* EditToolbar.swift in Sources */,

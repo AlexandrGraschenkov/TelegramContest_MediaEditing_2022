@@ -40,7 +40,7 @@ final class TextViewEditingOverlay: UIView {
     private let panelView: TextPanel
     private let colourPicker: ColourPickerButton
     private var panelContainer: UIView!
-    private var textView: UITextView!
+    private var textView: OutlineableTextView!
     
     init(
         panelView: TextPanel,
@@ -111,7 +111,7 @@ final class TextViewEditingOverlay: UIView {
         
         configureButtons()
         
-        let textView = UITextView(frame: textViewCenteringContainer.bounds)
+        let textView = OutlineableTextView(frame: textViewCenteringContainer.bounds)
         textView.tintColor = .white
         textView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         textViewCenteringContainer.addSubview(textView)
@@ -228,8 +228,8 @@ final class TextViewEditingOverlay: UIView {
             attributes = [.font : panelView.selectedFont.withSize(32),
                           .foregroundColor : color,
                           .paragraphStyle: paragraphStyle,
-                          .strokeWidth: -panelView.selectedFont.pointSize / 5,
-                          .strokeColor: color.bestBackgroundColor
+//                          .strokeWidth: -panelView.selectedFont.pointSize / 5,
+//                          .strokeColor: color.bestBackgroundColor
             ]
         }
         return attributes
@@ -241,9 +241,14 @@ final class TextViewEditingOverlay: UIView {
         textView.attributedText = NSAttributedString(string: textView.text, attributes: attributes)
         textView.typingAttributes = attributes
         switch panelView.styleButton.textStyle {
-        case .regular, .outlined:
+        case .regular:
+            textView.removeOutline()
             textHighlightLayer?.isHidden = true
+        case .outlined:
+            textView.outline()
+            textView.outlineColor = (self.currentColor?.bestBackgroundColor ?? UIColor.black)
         case .framed:
+            textView.removeOutline()
             textHighlightLayer?.fillColor = (self.currentColor?.bestBackgroundColor ?? UIColor.black).cgColor
             textHighlightLayer?.isHidden = false
             drawTextHighlight()
@@ -356,6 +361,8 @@ extension TextViewEditingOverlay: UITextViewDelegate {
         }
         if panelView.styleButton.textStyle == .framed {
             drawTextHighlight()
+        } else if panelView.styleButton.textStyle == .outlined {
+            self.textView.outline()
         }
     }
 }
