@@ -100,8 +100,12 @@
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
+                <outlet property="bLabel" destination="3VF-Qc-83w" id="Ehs-rg-AVE"/>
                 <outlet property="bSlider" destination="6HZ-ky-lsY" id="XW3-2b-L8Z"/>
+                <outlet property="gLabel" destination="7tk-KG-mh2" id="x7Q-Mv-iKj"/>
                 <outlet property="gSlider" destination="OA6-Ma-BMB" id="CoS-1p-Wy2"/>
+                <outlet property="hexLabel" destination="AwL-x3-6pi" id="7ZR-TK-RKu"/>
+                <outlet property="rLabel" destination="jq5-rQ-BaA" id="FrV-5P-N1v"/>
                 <outlet property="rSlider" destination="3r6-Bx-bK2" id="lW7-jT-UeD"/>
             </connections>
             <point key="canvasLocation" x="125" y="10"/>

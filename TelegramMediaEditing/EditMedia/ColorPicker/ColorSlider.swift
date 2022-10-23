@@ -9,6 +9,9 @@ import UIKit
 
 final class ColorSlider: UISlider {
 
+    var thumbColor: UIColor = .white {
+        didSet { thumbColorView?.backgroundColor = thumbColor }
+    }
     var fromColor: UIColor = .red {
         didSet { updateGradientColors() }
     }
@@ -45,7 +48,7 @@ final class ColorSlider: UISlider {
     
     fileprivate var setupDone: Bool = false
     fileprivate var gradient: GradientView!
-    fileprivate var thumbColor: UIView!
+    fileprivate var thumbColorView: UIView!
     fileprivate var prevHeight: CGFloat = 0
     fileprivate lazy var defaultThumbImg: UIImage = UIImage(named: "slider_thumb_black")!
     
@@ -68,7 +71,7 @@ final class ColorSlider: UISlider {
         backgroundColor = .clear
     }
     fileprivate func setupThumb() {
-        if thumbColor != nil { return }
+        if thumbColorView != nil { return }
         // insert into thumb colorfull circle
         // it allow us keep all logic from UISlider
         var sub: [UIView] = [] // find thumb img view
@@ -87,20 +90,33 @@ final class ColorSlider: UISlider {
             return
         }
         
-        thumbColor = UIView(frame: thumbImgView.bounds.insetBy(dx: 4, dy: 4))
-        thumbColor.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        thumbColor.layer.cornerRadius = thumbColor.height / 2
-        thumbColor.backgroundColor = UIColor.green
-        thumbColor.layer.masksToBounds = true
-        thumbColor.isUserInteractionEnabled = false
-        thumbImgView.addSubview(thumbColor)
+        thumbColorView = UIView(frame: thumbImgView.bounds.insetBy(dx: 4, dy: 4))
+        thumbColorView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        thumbColorView.layer.cornerRadius = thumbColorView.height / 2
+        thumbColorView.backgroundColor = thumbColor
+        thumbColorView.layer.masksToBounds = true
+        thumbColorView.isUserInteractionEnabled = false
+        thumbImgView.addSubview(thumbColorView)
     }
     
     fileprivate func updateGradientColors() {
         gradient.colors = [fromColor, toColor]
     }
+    @objc
+    private func sliderTapped(touch: UITouch) {
+        let point = touch.location(in: self)
+        let rect = bounds.insetBy(dx: sliderHeight/2 + thumbInset, dy: thumbInset)
+        
+        let percentage = Float((point.x - rect.minX) / rect.width)
+        let delta = percentage * (maximumValue - minimumValue)
+        let newValue = minimumValue + delta
+        if newValue != value {
+            setValue(newValue, animated: true)
+        }
+    }
     
     override func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
+        sliderTapped(touch: touch)
         return true
     }
 }

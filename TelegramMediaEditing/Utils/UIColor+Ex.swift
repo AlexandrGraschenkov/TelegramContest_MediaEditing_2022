@@ -90,7 +90,20 @@ struct ColorInfo: Equatable {
     func equalRgb(other: ColorInfo) -> Bool {
         return r == other.r && g == other.g && b == other.b
     }
+    func toColorOverride(r: CGFloat? = nil, g: CGFloat? = nil, b: CGFloat? = nil, a: CGFloat? = nil) -> UIColor {
+        return UIColor(red: r ?? self.r,
+                       green: g ?? self.g,
+                       blue: b ?? self.b,
+                       alpha: a ?? self.a)
+    }
+    var hex: String {
+        return String(format: "%02lX%02lX%02lX",
+                      Int(round(r * 255)),
+                      Int(round(g * 255)),
+                      Int(round(b * 255)))
+    }
 }
+
 extension UIColor {
     var colorInfo: ColorInfo {
         var info = ColorInfo(r: 0, g: 0, b: 0, a: 0)
