@@ -14,6 +14,11 @@ final class ColourPickerButton: UIView {
     
     var onColourChange: ((UIColor) -> Void)?
     
+    var selectedColour: UIColor {
+        get { centerView.backgroundColor ?? .white }
+        set { centerView.backgroundColor = newValue }
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
@@ -40,8 +45,10 @@ final class ColourPickerButton: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        ringView.frame = bounds
-        centerView.frame = bounds.inset(by: .all(5))
+        let contentSize = CGSize.square(side: 33)
+        let inset = (width - contentSize.width) / 2
+        ringView.frame = bounds.inset(by: .all(inset))
+        centerView.frame = ringView.frame.inset(by: .all(5))
     }
     
     @objc

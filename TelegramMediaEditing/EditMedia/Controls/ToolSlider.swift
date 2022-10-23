@@ -23,6 +23,7 @@ final class ToolSlider: UIView {
     }
     
     var onChange: ((CGFloat) -> Void)?
+    var onEndInteraction: VoidBlock?
     
     private lazy var slider = UISlider(frame: self.bounds)
     
@@ -37,6 +38,7 @@ final class ToolSlider: UIView {
     
     private func setup() {
         let imageView = UIImageView(image: UIImage(named: "slider_bg")!)
+        imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = true
         imageView.frame = bounds
         imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -44,8 +46,13 @@ final class ToolSlider: UIView {
         
         let slider = UISlider(frame: bounds)
         slider.addAction(for: .valueChanged) { [weak self] in
-            self?.onChange?(CGFloat(self?.slider.value ?? 0))
+            guard let self = self else { return }
+            let value = CGFloat(self.slider.value)
+            self.currentValue = value
+            self.onChange?(value)
         }
+        slider.addTarget(self, action: #selector(onTouchUp), for: .touchUpInside)
+        slider.addTarget(self, action: #selector(onTouchUp), for: .touchUpOutside)
         addSubview(slider)
         slider.setMaximumTrackImage(UIImage(), for: .normal)
         slider.setMinimumTrackImage(UIImage(), for: .normal)
@@ -53,14 +60,10 @@ final class ToolSlider: UIView {
         slider.translatesAutoresizingMaskIntoConstraints = true
         slider.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.slider = slider
-        
-//
-//        let movingPart = UIView(frame: CGRect(x: 0, y: (height - 28) / 2, width: 28, height: 28))
-//        movingPart.translatesAutoresizingMaskIntoConstraints = true
-//        addSubview(movingPart)
-//
-//        let panGR = UIPanGestureRecognizer()
-//        addGestureRecognizer(panGR)
-        
+    }
+    
+    @objc
+    private func onTouchUp() {
+        self.onEndInteraction?()
     }
 }
