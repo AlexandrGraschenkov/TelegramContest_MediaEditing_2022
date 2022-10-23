@@ -164,7 +164,7 @@ final class EditorToolbar: UIView {
         modeSwitcher.autoresizingMask = [.flexibleWidth]
         modeSwitcher.onSelect = { [weak self] index in
             if index == 0 {
-                self?.animateFromTextMode(isCanceled: false)
+                self?.cancelTextMode()
             } else {
                 self?.animateToTextMode()
             }
@@ -292,37 +292,49 @@ final class EditorToolbar: UIView {
     private func textModeHiddenKeyboard(overlay: TextViewEditingOverlay) {
         textPanel.isGradientVisible = true
         plusButton.isHidden = false
+        plusButton.alpha = 0
         topControlsContainer.removeFromSuperview()
-        topControlsContainer.backgroundColor = .black
         addSubview(topControlsContainer)
-        topControlsContainer.frame = .init(
+        self.topControlsContainer.frame = .init(
             x: 0,
             y: 0,
             width: self.width,
             height: 44
         )
-        topControlsContainer.y = bottomControlsContainer.y - 4 - topControlsContainer.height
-        textPanel.width = plusButton.x - textPanel.x
-        overlay.removeFromSuperview()
+        self.topControlsContainer.y = self.bottomControlsContainer.y - 4 - self.topControlsContainer.height
+        topControlsContainer.alpha = 0
+        
+        UIView.animate(withDuration: 0.2, delay: 0, options: [], animations: {
+            self.topControlsContainer.backgroundColor = .black
+            self.topControlsContainer.alpha = 1
+
+            self.plusButton.alpha = 1
+            self.textPanel.width = self.plusButton.x - self.textPanel.x
+            overlay.alpha = 0
+        }, completion: { _ in
+            overlay.removeFromSuperview()
+        })
         
     }
     
-    private func animateFromTextMode(isCanceled: Bool) {
+    private func cancelTextMode() {
         guard self.mode == .textEdit else { return }
         self.mode = .base
-        textPanel.removeFromSuperview()
         toolsContainer.alpha = 0
         addSubview(toolsContainer)
+        self.modeSwitcher.select(0, animated: true)
 
         UIView.animate(
             withDuration: 0.2,
             delay: 0,
             options: [],
             animations: {
+                self.textPanel.alpha = 0
                 self.toolsContainer.alpha = 1
             },
             completion: { _ in
-
+                self.textPanel.removeFromSuperview()
+                self.textPanel.alpha = 1
             }
         )
     }
@@ -349,6 +361,6 @@ extension EditorToolbar: TextViewEditingOverlayDelegate {
     
     func textEditingOverlayDidCancel(_ overlay: TextViewEditingOverlay) {
         textModeHiddenKeyboard(overlay: overlay)
-        animateFromTextMode(isCanceled: true)
+        cancelTextMode()
     }
 }

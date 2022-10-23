@@ -25,8 +25,36 @@ final class TextPanel: UIView {
     
     var isGradientVisible: Bool = true {
         didSet {
-            leftGradient.isHidden = !isGradientVisible
-            rightGradient.isHidden = !isGradientVisible
+            let gradients = [leftGradient, rightGradient]
+            if isGradientVisible {
+                gradients.forEach {
+                    $0?.alpha = 0
+                    $0?.isHidden = false
+                }
+                UIView.animate(
+                    withDuration: 0.2,
+                    delay: 0,
+                    options: [],
+                    animations: {
+                        self.fontsView.insets = .tm_insets(top: 0, left: self.leftGradient.width, bottom: 0, right: self.rightGradient.width)
+                        gradients.forEach { $0?.alpha = 1 }
+                    },
+                    completion: nil
+                )
+            } else {
+                UIView.animate(
+                    withDuration: 0.2,
+                    delay: 0,
+                    options: [],
+                    animations: {
+                        self.fontsView.insets = .zero
+                        gradients.forEach { $0?.alpha = 0 }
+                    },
+                    completion: { _ in
+                        gradients.forEach { $0?.isHidden = true }
+                    }
+                )
+            }
         }
     }
     

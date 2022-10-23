@@ -194,10 +194,9 @@ final class TextViewEditingOverlay: UIView {
         cancelButton.addAction { [weak self] in
             self?.textView.resignFirstResponder()
             self?.blurView.removeFromSuperview()
-            delay(0.3) {
+            delay(0.1) {
                 guard let self = self else { return }
                 self.delegate?.textEditingOverlayDidCancel(self)
-                self.removeFromSuperview()
             }
         }
         
@@ -225,7 +224,7 @@ final class TextViewEditingOverlay: UIView {
     private func done() {
         guard !textView.text.isEmpty else { return }
         textView.resignFirstResponder()
-        delay(0.35, closure: actualDone)
+        delay(0.1, closure: actualDone)
     }
     
     private func actualDone() {

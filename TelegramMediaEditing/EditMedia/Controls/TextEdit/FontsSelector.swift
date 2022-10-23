@@ -8,6 +8,24 @@
 import UIKit
 
 final class FontsSelector: UIView {
+    
+    var onFontSelect: ((UIFont) -> Void)?
+    var insets: UIEdgeInsets {
+        get {
+            layout.sectionInset
+        }
+        set {
+            layout.sectionInset = newValue
+        }
+    }
+
+    var selectedFont: UIFont? {
+        guard let indexPath = collectionView.indexPathsForSelectedItems?.first, allFonts.indices.contains(indexPath.item) else {
+            return nil
+        }
+        return allFonts[indexPath.item]
+    }
+    
     private var collectionView: UICollectionView!
     
     override init(frame: CGRect) {
@@ -19,15 +37,6 @@ final class FontsSelector: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    var onFontSelect: ((UIFont) -> Void)?
-    
-    var selectedFont: UIFont? {
-        guard let indexPath = collectionView.indexPathsForSelectedItems?.first, allFonts.indices.contains(indexPath.item) else {
-            return nil
-        }
-        return allFonts[indexPath.item]
-    }
-    
     private let allFonts: [UIFont] = [
         .init(name: "Helvetica-Bold", size: 32),
         .init(name: "Menlo-Bold", size: 32),
@@ -36,13 +45,16 @@ final class FontsSelector: UIView {
         .init(name: "CourierNewPS-BoldMT", size: 32),
     ].compactMap { $0 }
     
-    private func setup() {
+    private let layout: UICollectionViewFlowLayout = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         layout.minimumInteritemSpacing = 12
         layout.minimumLineSpacing = 12
-        
+        return layout
+    }()
+    
+    private func setup() {
         let collectionView = UICollectionView(frame: self.bounds, collectionViewLayout: layout)
         collectionView.dataSource = self
         collectionView.delegate = self
