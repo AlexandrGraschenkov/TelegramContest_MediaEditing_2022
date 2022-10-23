@@ -182,3 +182,11 @@ extension UIView {
         pinCenterY(to: otherView)
     }
 }
+
+public extension UIView {
+    static func loadFromXib<T>(name: String? = nil) -> T {
+        let nibName = name ?? "\(self)"
+        let nib = UINib(nibName: nibName, bundle: Bundle(for: self))
+        return nib.instantiate(withOwner: self, options: nil).first as! T
+    }
+}

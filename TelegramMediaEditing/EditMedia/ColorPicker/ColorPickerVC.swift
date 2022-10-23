@@ -99,6 +99,11 @@ final class ColorPickerVC: UIViewController {
             colorPickerElem = ColorSpectrumView(frame: colorPickerContainer.bounds)
             colorPickerElem.autoresizingMask = [.flexibleWidth, .flexibleHeight]
             colorPickerContainer.addSubview(colorPickerElem)
+        case 2:
+            colorPickerElem = ColorSlidersView.loadFromXib()
+            colorPickerElem.frame = colorPickerContainer.bounds
+            colorPickerElem.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            colorPickerContainer.addSubview(colorPickerElem)
         default:
             break
         }
