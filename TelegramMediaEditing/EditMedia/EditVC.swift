@@ -41,13 +41,12 @@ final class EditVC: UIViewController {
         scroll.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(scroll)
         scroll.setup(content: mediaContainer)
-        addCloseButton()
         
         let toolbar = EditorToolbar(frame: CGRect(x: 0, y: view.bounds.height - 196, width: view.bounds.width, height: 196))
         toolbar.translatesAutoresizingMaskIntoConstraints = true
         toolbar.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         view.addSubview(toolbar)
-        toolbar.actionHandler = {[unowned self] action in
+        toolbar.actionHandler = { [unowned self] action in
             switch action {
             case .toolChanged(let type):
                 self.pen.active = type == .pen
@@ -57,29 +56,30 @@ final class EditVC: UIViewController {
                 }
             case .lineWidthChanged(let width):
                 self.pen.penSize = width
-                
             case .openColorPicker:
                 self.openColorPicker()
-                
+            case .textEditBegan(let overlay):
+                self.addTextView(overlay: overlay)
+            case .close:
+                dismiss(animated: true)
             default:
-                // TODO
+                // TODO:
                 break
             }
-//            print("Toolbar did trigger action \(action)")
         }
     }
     
-    private func addCloseButton() {
-        let button = UIButton()
-        button.setTitle("Close", for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = true
-        view.addSubview(button)
-        button.addTarget(self, action: #selector(close), for: .touchUpInside)
-        button.x = 15
-        button.y = 32
-        button.sizeToFit()
-        button.autoresizingMask = [.flexibleBottomMargin, .flexibleRightMargin]
-    }
+//    private func addCloseButton() {
+//        let button = UIButton()
+//        button.setTitle("Close", for: .normal)
+//        button.translatesAutoresizingMaskIntoConstraints = true
+//        view.addSubview(button)
+//        button.addTarget(self, action: #selector(close), for: .touchUpInside)
+//        button.x = 15
+//        button.y = 32
+//        button.sizeToFit()
+//        button.autoresizingMask = [.flexibleBottomMargin, .flexibleRightMargin]
+//    }
     
     private func openColorPicker() {
         let picker = ColorPickerVC()
@@ -91,6 +91,11 @@ final class EditVC: UIViewController {
     private func close() {
         dismiss(animated: true)
     }
+    private func addTextView(overlay: TextViewEditingOverlay) {
+        view.addSubview(overlay)
+        overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+    }
+    
     fileprivate func setupMediaContainer() {
         let size = CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight))
         switch asset.mediaType {
