@@ -57,6 +57,10 @@ final class EditVC: UIViewController {
                 }
             case .lineWidthChanged(let width):
                 self.pen.penSize = width
+                
+            case .openColorPicker:
+                self.openColorPicker()
+                
             default:
                 // TODO
                 break
@@ -75,6 +79,12 @@ final class EditVC: UIViewController {
         button.y = 32
         button.sizeToFit()
         button.autoresizingMask = [.flexibleBottomMargin, .flexibleRightMargin]
+    }
+    
+    private func openColorPicker() {
+        let picker = ColorPickerVC()
+//        present(nav, animated: true, completion: nil)
+        present(picker, animated: false)
     }
     
     @objc

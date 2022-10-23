@@ -137,4 +137,7 @@ extension FloatingPoint {
     func percentToRange(min: Self, max: Self) -> Self {
         return (max - min)*self + min
     }
+    func round(scale: Self) -> Self {
+        return (self * scale).rounded() / scale
+    }
 }

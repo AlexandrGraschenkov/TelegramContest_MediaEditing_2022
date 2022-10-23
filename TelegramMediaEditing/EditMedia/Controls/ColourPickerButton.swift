@@ -13,6 +13,7 @@ final class ColourPickerButton: UIView {
     private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
     
     var onColourChange: ((UIColor) -> Void)?
+    var onPress: (() -> Void)?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -36,6 +37,10 @@ final class ColourPickerButton: UIView {
         let panGR = UIPanGestureRecognizer()
         panGR.addTarget(self, action: #selector(onLongPressOrPan))
         addGestureRecognizer(panGR)
+        
+        let tapGR = UITapGestureRecognizer()
+        tapGR.addTarget(self, action: #selector(onTap(tap:)))
+        addGestureRecognizer(tapGR)
     }
     
     override func layoutSubviews() {
@@ -45,24 +50,33 @@ final class ColourPickerButton: UIView {
     }
     
     @objc
-    private func onLongPressOrPan(recongiser: UIGestureRecognizer) {
-        switch recongiser.state {
+    func onTap(tap: UITapGestureRecognizer) {
+//        let state = tap.state
+//        print(state)
+        if tap.state == .ended {
+            onPress?()
+        }
+    }
+    
+    @objc
+    private func onLongPressOrPan(recongizer: UIGestureRecognizer) {
+        switch recongizer.state {
         case .began:
-            insertGradientView(recogniser: recongiser)
-            if recongiser is UILongPressGestureRecognizer {
+            insertGradientView(recogniser: recongizer)
+            if recongizer is UILongPressGestureRecognizer {
                 feedbackGenerator.impactOccurred()
             }
         case .failed, .ended, .cancelled:
             removeGradient()
         case .possible:
-            if recongiser is UILongPressGestureRecognizer {
+            if recongizer is UILongPressGestureRecognizer {
                 feedbackGenerator.prepare()
             }
         case .changed:
             guard let activeGradientView = activeGradientView, let pickerView = pickerView else {
                 return
             }
-            let location = recongiser.location(in: activeGradientView)
+            let location = recongizer.location(in: activeGradientView)
             var center = location
             if !activeGradientView.bounds.contains(location) {
                 center.x = max(0, min(activeGradientView.bounds.width-1, location.x))
@@ -167,12 +181,6 @@ final class ColourPickerButton: UIView {
             circle?.removeFromSuperview()
             gradientOverlay.removeFromSuperview()
         }
-    }
-}
-
-extension ColourPickerButton: CAAnimationDelegate {
-    func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
-        activeGradientContainer?.removeFromSuperview()
     }
 }
 

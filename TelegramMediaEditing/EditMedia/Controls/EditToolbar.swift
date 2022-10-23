@@ -15,6 +15,7 @@ enum EditToolbarAction {
     case lineWidthChanged(CGFloat)
     case toolShapeChanged(ToolShape)
     case colorChange(UIColor)
+    case openColorPicker
 }
 
 final class EditorToolbar: UIView {
@@ -62,6 +63,9 @@ final class EditorToolbar: UIView {
         colorPickerControl.onColourChange = { [weak self] color in
             self?.actionHandler?(.colorChange(color))
             self?.toolsContainer.selectedTool?.tintColor = color
+        }
+        colorPickerControl.onPress = { [weak self] in
+            self?.actionHandler?(.openColorPicker)
         }
 
         modeSwitcher.select(0, animated: false)

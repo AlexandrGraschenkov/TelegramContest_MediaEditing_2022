@@ -81,3 +81,20 @@ extension UIColor {
         }
     }
 }
+
+struct ColorInfo: Equatable {
+    var r: CGFloat
+    var g: CGFloat
+    var b: CGFloat
+    var a: CGFloat
+    func equalRgb(other: ColorInfo) -> Bool {
+        return r == other.r && g == other.g && b == other.b
+    }
+}
+extension UIColor {
+    var colorInfo: ColorInfo {
+        var info = ColorInfo(r: 0, g: 0, b: 0, a: 0)
+        getRed(&info.r, green: &info.g, blue: &info.b, alpha: &info.a)
+        return info
+    }
+}
