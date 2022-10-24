@@ -34,6 +34,7 @@ final class ColorPickerVC: UIViewController {
     @IBOutlet weak var opacitySlider: ColorSlider!
     @IBOutlet weak var opacityLabel: ValueLabel!
     @IBOutlet weak var finalColorView: UIView!
+    @IBOutlet weak var favoriteView: FavoriteColorsView!
     fileprivate var needAnimateOnAppear = true
     fileprivate var colorPickerElem: ColorSelectorProtocol!
     fileprivate lazy var gridPicker: ColorGridView = {

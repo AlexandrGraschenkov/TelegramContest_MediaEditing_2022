@@ -13,6 +13,7 @@
             <connections>
                 <outlet property="colorPickerContainer" destination="3GJ-0Y-5QV" id="pud-NW-gRn"/>
                 <outlet property="colorPickerType" destination="EhN-cX-flE" id="g9s-Hd-ogS"/>
+                <outlet property="favoriteView" destination="b8R-NY-sSq" id="J1n-4b-ESz"/>
                 <outlet property="finalColorView" destination="Hhc-YF-DKc" id="I5W-ne-tvt"/>
                 <outlet property="mainContainer" destination="9gU-sW-1Im" id="VL9-yo-VGg"/>
                 <outlet property="opacityLabel" destination="78y-bk-QHa" id="bax-Fl-UJu"/>
@@ -109,8 +110,8 @@
                                     <constraint firstAttribute="width" constant="82" id="TRz-LC-x9N"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="b8R-NY-sSq">
-                                <rect key="frame" x="124" y="540.5" width="273" height="82"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="b8R-NY-sSq" customClass="FavoriteColorsView" customModule="TelegramMediaEditing" customModuleProvider="target">
+                                <rect key="frame" x="110" y="540.5" width="287" height="82"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="82" id="2QE-1s-dNA"/>
@@ -122,7 +123,7 @@
                             <constraint firstItem="bRw-DO-4jj" firstAttribute="top" secondItem="IgV-K4-Csq" secondAttribute="bottom" constant="24" id="4kv-X0-3EG"/>
                             <constraint firstItem="3GJ-0Y-5QV" firstAttribute="top" secondItem="zqc-Mh-hvR" secondAttribute="top" constant="103" id="8la-3w-Q0a"/>
                             <constraint firstItem="LFE-04-kvj" firstAttribute="leading" secondItem="zqc-Mh-hvR" secondAttribute="leading" constant="16" id="AFg-CL-Pfc"/>
-                            <constraint firstItem="b8R-NY-sSq" firstAttribute="leading" secondItem="Hhc-YF-DKc" secondAttribute="trailing" constant="26" id="Cs7-o5-5p4"/>
+                            <constraint firstItem="b8R-NY-sSq" firstAttribute="leading" secondItem="Hhc-YF-DKc" secondAttribute="trailing" constant="12" id="Cs7-o5-5p4"/>
                             <constraint firstItem="bRw-DO-4jj" firstAttribute="leading" secondItem="zqc-Mh-hvR" secondAttribute="leading" constant="16" id="ICg-El-x1N"/>
                             <constraint firstAttribute="trailing" secondItem="3GJ-0Y-5QV" secondAttribute="trailing" constant="16" id="Jmy-Hi-K5H"/>
                             <constraint firstItem="b8R-NY-sSq" firstAttribute="top" secondItem="bRw-DO-4jj" secondAttribute="bottom" constant="22" id="MEi-EI-df5"/>

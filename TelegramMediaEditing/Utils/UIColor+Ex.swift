@@ -82,7 +82,7 @@ extension UIColor {
     }
 }
 
-struct ColorComponents: Equatable {
+struct ColorComponents: Equatable, Codable {
     var r: CGFloat
     var g: CGFloat
     var b: CGFloat
