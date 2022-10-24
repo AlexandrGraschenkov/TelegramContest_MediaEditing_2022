@@ -25,6 +25,7 @@ final class FavoriteColorsView: UIView {
     var onAddColor: (()->(UIColor))?
     let elemSize: CGFloat = 30
     let elemSpace: CGFloat = 22
+    let animDuration: Double = 0.25
     var lineCount: Int {
         return Int((bounds.width - elemSize) / (elemSize + elemSpace)) + 1
     }
@@ -48,11 +49,11 @@ final class FavoriteColorsView: UIView {
            let comps = try? JSONDecoder().decode([ColorComponents].self, from: data) {
             colors = comps.map({$0.toColorOverride()})
         }
-        colors = [UIColor.red, UIColor.blue, UIColor.cyan.withAlphaComponent(0.5)]
         
         colorViews = colors.map({color in
             let b = ColorCircleButt(frame: CGRect(x: 0, y: 0, width: elemSize, height: elemSize))
             b.color = color
+            b.addTarget(self, action: #selector(colorPressed(butt:)), for: .touchUpInside)
             self.addSubview(b)
             return b
         })
@@ -74,7 +75,50 @@ final class FavoriteColorsView: UIView {
     
     @objc private func addColorPressed() {
         // TODO
-        print("Add color")
+        guard let newColor = onAddColor?() else {
+            return
+        }
+        
+        let newComp = newColor.components
+        if let updateIdx = colors.firstIndex(where: {$0.components == newComp}) {
+            // already in collection, just reorder if needed
+            if updateIdx == 0 {
+                animatePop(view: colorViews[0])
+            } else {
+                let v = colorViews.remove(at: updateIdx)
+                colorViews.insert(v, at: 0)
+                let c = colors.remove(at: updateIdx)
+                colors.insert(c, at: 0)
+                UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut]) {
+                    self.layoutColorViews()
+                }
+                saveColors()
+            }
+            return
+        }
+        
+        colors.insert(newColor, at: 0)
+        let newFrame = colorViews.first?.frame ?? addColorButt.frame
+        let newView = ColorCircleButt(frame: newFrame)
+        newView.color = newColor
+        newView.addTarget(self, action: #selector(colorPressed(butt:)), for: .touchUpInside)
+        colorViews.insert(newView, at: 0)
+        addSubview(newView)
+        while colorViews.count > maxCount {
+            colors.removeLast()
+            let v = colorViews.removeLast()
+            animateRemove(view: v)
+        }
+        
+        UIView.animate(withDuration: animDuration, delay: 0, options: [.curveEaseInOut]) {
+            self.layoutColorViews()
+        }
+        animateAdd(view: newView)
+        saveColors()
+    }
+    
+    @objc private func colorPressed(butt: ColorCircleButt) {
+        onSelectColor?(butt.color)
     }
     
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
@@ -96,6 +140,43 @@ final class FavoriteColorsView: UIView {
         
         prevSize = bounds.size
         layoutColorViews()
+    }
+    
+    private func animatePop(view: UIView) {
+        
+        UIView.animate(withDuration: animDuration*0.2, delay: 0, options: [.curveEaseInOut]) {
+            view.transform = .init(scaleX: 0.7, y: 0.7)
+        } completion: { _ in
+            UIView.animate(withDuration: self.animDuration, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: -1, options: [.beginFromCurrentState]) {
+                view.transform = .identity
+            }
+        }
+    }
+    
+    private func animateAdd(view: UIView) {
+        view.transform = .init(scaleX: 0.5, y: 0.5)
+        view.alpha = 0
+        UIView.animate(withDuration: animDuration, delay: 0, options: [.curveEaseInOut]) {
+            view.alpha = 1
+            view.transform = .identity
+        }
+    }
+    
+    private func animateRemove(view: UIView) {
+        UIView.animate(withDuration: animDuration, delay: 0, options: [.curveEaseInOut]) {
+            view.transform = .init(scaleX: 0.5, y: 0.5)
+            view.alpha = 0
+        } completion: { _ in
+            view.removeFromSuperview()
+        }
+    }
+    
+    private func saveColors() {
+        let comps = colors.map({ $0.components })
+        if let data = try? JSONEncoder().encode(comps) {
+            UserDefaults.standard.setValue(data, forKey: "favorite_colors")
+            UserDefaults.standard.synchronize()
+        }
     }
 }
 

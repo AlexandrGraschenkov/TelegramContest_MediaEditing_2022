@@ -189,6 +189,14 @@ extension UIView {
             return UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
         }
     }
+    
+    var isInsideAnimationBlock: Bool {
+        let act = action(for: layer, forKey: "position")
+        if act is NSNull {
+            return false
+        }
+        return act != nil
+    }
 }
 
 public extension UIView {

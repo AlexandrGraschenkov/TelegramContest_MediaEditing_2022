@@ -80,6 +80,21 @@ final class ColorPickerVC: UIViewController {
         
         mainContainer.isHidden = true
         view.backgroundColor = UIColor(white: 0, alpha: 0)
+        
+        favoriteView.onAddColor = {[weak self] ()->(UIColor) in
+            return self?.color ?? UIColor.gray
+        }
+        
+        favoriteView.onSelectColor = {[weak self] (newColor: UIColor)->() in
+            self?.color = newColor
+            UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseInOut]) {
+                self?.colorPickerElem.color = newColor
+                self?.colorUpdated()
+                self?.opacitySlider.setValue(Float(newColor.components.a), animated: true)
+                self?.opacityLabelUpdate()
+            }
+
+        }
     }
     
     func setupFinalBg() {

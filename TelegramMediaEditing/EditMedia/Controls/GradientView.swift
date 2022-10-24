@@ -42,4 +42,13 @@ final class GradientView: UIView {
         let layer = self.layer as! CAGradientLayer
         layer.colors = self.colors.map(\.cgColor)
     }
+    
+    override func action(for layer: CALayer, forKey event: String) -> CAAction? {
+        if event == "colors" && isInsideAnimationBlock {
+            let tr = CATransition()
+            tr.type = .fade
+            return tr
+        }
+        return super.action(for: layer, forKey: event)
+    }
 }

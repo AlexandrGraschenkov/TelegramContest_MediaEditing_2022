@@ -58,9 +58,15 @@ final class ColorSlidersView: UIView, ColorSelectorProtocol {
     }
     
     fileprivate func updateColorOutside() {
-        rSlider.value = Float(colorComponents.r)
-        gSlider.value = Float(colorComponents.g)
-        bSlider.value = Float(colorComponents.b)
+        if isInsideAnimationBlock {
+            rSlider.setValue(Float(colorComponents.r), animated: true)
+            gSlider.setValue(Float(colorComponents.g), animated: true)
+            bSlider.setValue(Float(colorComponents.b), animated: true)
+        } else {
+            rSlider.value = Float(colorComponents.r)
+            gSlider.value = Float(colorComponents.g)
+            bSlider.value = Float(colorComponents.b)
+        }
         updateSliderGradients()
     }
     
