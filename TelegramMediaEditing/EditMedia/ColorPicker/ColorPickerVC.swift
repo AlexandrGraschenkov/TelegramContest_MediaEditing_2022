@@ -26,9 +26,14 @@ final class ColorPickerVC: UIViewController {
         super.init(coder: coder)
     }
     
+    var color: UIColor = .white
+    
     @IBOutlet weak var mainContainer: UIView!
     @IBOutlet weak var colorPickerContainer: UIView!
     @IBOutlet weak var colorPickerType: UISegmentedControl!
+    @IBOutlet weak var opacitySlider: ColorSlider!
+    @IBOutlet weak var opacityLabel: ValueLabel!
+    @IBOutlet weak var finalColorView: UIView!
     fileprivate var needAnimateOnAppear = true
     fileprivate var colorPickerElem: ColorSelectorProtocol!
     fileprivate lazy var gridPicker: ColorGridView = {
@@ -47,7 +52,7 @@ final class ColorPickerVC: UIViewController {
         return v
     }()
     fileprivate let defaultBgAlpha: CGFloat = 0.2
-    fileprivate var firstPanOffset: CGPoint? = nil
+    fileprivate var firstDismissPanOffset: CGPoint? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,18 +62,40 @@ final class ColorPickerVC: UIViewController {
         } else {
             // Don't care
         }
-        view.backgroundColor = UIColor(white: 0, alpha: 0)
         mainContainer.layer.cornerRadius = 10
         mainContainer.layer.masksToBounds = true
         mainContainer.height += 20 + view.safeInsets.bottom
         mainContainer.y -= view.safeInsets.bottom
-//        mainContainer.transform = .init(translationX: 0, y: mainContainer.height)
         
-//        colorPickerContainer.layer.cornerRadius = 8
-//        colorPickerContainer.layer.masksToBounds = true
+        finalColorView.layer.cornerRadius = 10
+        finalColorView.layer.masksToBounds = true
+        setupFinalBg() // set chassboard under final color
+        
+        opacitySlider.value = Float(color.components.a)
+        opacitySlider.setupWithOpacity()
+        opacitySlider.thumbColor = UIColor.clear
+        colorUpdated()
+        opacityLabelUpdate()
+        
         let pan = UIPanGestureRecognizer(target: self, action: #selector(dismissPan(pan: )))
         view.addGestureRecognizer(pan)
         updateColorPicker()
+        
+        mainContainer.transform = .init(translationX: 0, y: mainContainer.height)
+        view.backgroundColor = UIColor(white: 0, alpha: 0)
+    }
+    
+    func setupFinalBg() {
+        let finalBg = UIImageView(frame: finalColorView.frame)
+        finalBg.autoresizingMask = finalColorView.autoresizingMask
+        finalBg.image = UIImage(named: "chessboard_bg")?.resizableImage(withCapInsets: UIEdgeInsets(), resizingMode: .tile)
+        finalBg.layer.borderColor = UIColor(white: 0.6, alpha: 1).cgColor
+        finalBg.layer.borderWidth = 1
+        finalBg.layer.cornerRadius = finalColorView.layer.cornerRadius
+        finalBg.layer.masksToBounds = true
+        finalBg.alpha = 0.5
+        
+        finalColorView.superview?.insertSubview(finalBg, belowSubview: finalColorView)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -80,7 +107,6 @@ final class ColorPickerVC: UIViewController {
     }
     
     func animateAppear() {
-        mainContainer.transform = .init(translationX: 0, y: mainContainer.height)
         UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut, .allowUserInteraction]) {
             self.view.backgroundColor = UIColor(white: 0, alpha: self.defaultBgAlpha)
             self.mainContainer.transform = .identity
@@ -101,11 +127,11 @@ final class ColorPickerVC: UIViewController {
         let offset = pan.translation(in: view)
         switch pan.state {
         case .began, .changed:
-            firstPanOffset = firstPanOffset ?? offset
-            if abs(firstPanOffset!.y) < abs(firstPanOffset!.x) {
+            firstDismissPanOffset = firstDismissPanOffset ?? offset
+            if abs(firstDismissPanOffset!.y) < abs(firstDismissPanOffset!.x) {
                 pan.isEnabled = false
                 delay(0.1) { pan.isEnabled = true }
-                firstPanOffset = nil
+                firstDismissPanOffset = nil
                 return
             }
             
@@ -147,9 +173,15 @@ final class ColorPickerVC: UIViewController {
     @IBAction func colorPickerSegmentChanged(_ segment: UISegmentedControl) {
         updateColorPicker()
     }
+    @IBAction func opacityChanged(_ slider: ColorSlider) {
+        color = color.components.toColorOverride(a: CGFloat(slider.value))
+        colorUpdated()
+        opacityLabelUpdate()
+    }
     
     private func updateColorPicker() {
         if let prevView = colorPickerElem {
+            prevView.onColorSelect = nil
             prevView.removeFromSuperview()
         }
         
@@ -164,8 +196,27 @@ final class ColorPickerVC: UIViewController {
             break
         }
         
+        colorPickerElem.color = color
         colorPickerElem.frame = colorPickerContainer.bounds
         colorPickerElem.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         colorPickerContainer.addSubview(colorPickerElem)
+        colorPickerElem.onColorSelect = { [weak self] color in
+            guard let self = self else { return }
+            self.color = color.components.toColorOverride(a: CGFloat(self.opacitySlider.value))
+            self.colorUpdated()
+        }
+    }
+    
+    private func colorUpdated() {
+        let comp = color.components
+        opacitySlider.gradientColors = .init(from: comp.toColorOverride(a: 0),
+                                             to: comp.toColorOverride(a: 1))
+        opacitySlider.thumbStroke = comp.isLightColor ? .black : .white
+        finalColorView.backgroundColor = color
+    }
+    
+    private func opacityLabelUpdate() {
+        let percent = Int(round(opacitySlider.value * 100))
+        opacityLabel.text = "\(percent)%"
     }
 }

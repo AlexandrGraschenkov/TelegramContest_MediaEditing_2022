@@ -83,6 +83,7 @@ final class EditVC: UIViewController {
     
     private func openColorPicker() {
         let picker = ColorPickerVC()
+        picker.color = pen.color
 //        present(nav, animated: true, completion: nil)
         present(picker, animated: false)
     }

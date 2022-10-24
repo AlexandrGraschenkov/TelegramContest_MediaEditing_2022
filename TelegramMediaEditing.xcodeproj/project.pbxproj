@@ -58,6 +58,7 @@
 		FADCE20F290536EC00E92CD9 /* ColorSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADCE20E290536EC00E92CD9 /* ColorSlider.swift */; };
 		FADCE211290540F300E92CD9 /* ValueLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADCE210290540F300E92CD9 /* ValueLabel.swift */; };
 		FADCE2132905424400E92CD9 /* ColorSlidersView.xib in Resources */ = {isa = PBXBuildFile; fileRef = FADCE2122905424400E92CD9 /* ColorSlidersView.xib */; };
+		FADCE2192906AFE400E92CD9 /* FavoriteColorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADCE2182906AFE400E92CD9 /* FavoriteColorsView.swift */; };
 		FAEDF41828F9B7BF00094ADF /* PenDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41728F9B7BF00094ADF /* PenDrawer.swift */; };
 		FAEDF41B28F9F49200094ADF /* PenCurveGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41A28F9F49200094ADF /* PenCurveGenerator.swift */; };
 		FAEDF42328FB3D7900094ADF /* GausianSmooth.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */; };
@@ -117,6 +118,7 @@
 		FADCE20E290536EC00E92CD9 /* ColorSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorSlider.swift; sourceTree = "<group>"; };
 		FADCE210290540F300E92CD9 /* ValueLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueLabel.swift; sourceTree = "<group>"; };
 		FADCE2122905424400E92CD9 /* ColorSlidersView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ColorSlidersView.xib; sourceTree = "<group>"; };
+		FADCE2182906AFE400E92CD9 /* FavoriteColorsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteColorsView.swift; sourceTree = "<group>"; };
 		FAEDF41728F9B7BF00094ADF /* PenDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenDrawer.swift; sourceTree = "<group>"; };
 		FAEDF41A28F9F49200094ADF /* PenCurveGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenCurveGenerator.swift; sourceTree = "<group>"; };
 		FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GausianSmooth.swift; sourceTree = "<group>"; };
@@ -265,6 +267,7 @@
 				FADCE2122905424400E92CD9 /* ColorSlidersView.xib */,
 				FADCE20E290536EC00E92CD9 /* ColorSlider.swift */,
 				FADCE210290540F300E92CD9 /* ValueLabel.swift */,
+				FADCE2182906AFE400E92CD9 /* FavoriteColorsView.swift */,
 			);
 			path = ColorPicker;
 			sourceTree = "<group>";
@@ -366,6 +369,7 @@
 				AAA335CC28F6CCE100B86B89 /* GalleryViewController.swift in Sources */,
 				FAEDF42328FB3D7900094ADF /* GausianSmooth.swift in Sources */,
 				FA046F0128F55953002D5023 /* Extensions.swift in Sources */,
+				FADCE2192906AFE400E92CD9 /* FavoriteColorsView.swift in Sources */,
 				AAAB483128F9C876008373CB /* ToolsContainer.swift in Sources */,
 				AAAB483328FAD13A008373CB /* CorneredSegmentedControl.swift in Sources */,
 				AAAB483B28FB6022008373CB /* ToolSlider.swift in Sources */,

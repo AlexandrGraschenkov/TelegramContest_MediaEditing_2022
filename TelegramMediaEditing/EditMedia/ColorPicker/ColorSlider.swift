@@ -12,14 +12,15 @@ final class ColorSlider: UISlider {
     enum ThumbStroke {
         case white, black
     }
+    struct Gradient {
+        var from: UIColor
+        var to: UIColor
+    }
     
     var thumbColor: UIColor = .white {
         didSet { thumbColorView?.backgroundColor = thumbColor }
     }
-    var fromColor: UIColor = .red {
-        didSet { updateGradientColors() }
-    }
-    var toColor: UIColor = .blue {
+    var gradientColors: Gradient = .init(from: .red, to: .blue) {
         didSet { updateGradientColors() }
     }
     var thumbStroke: ThumbStroke = .white {
@@ -28,8 +29,22 @@ final class ColorSlider: UISlider {
     var sliderHeight: CGFloat = 36
     var thumbInset: CGFloat = 1
     
+    func setupWithOpacity() {
+        if bgChessboard != nil { return }
+        
+        let imgView = UIImageView(frame: bounds)
+        imgView.image = UIImage(named: "chessboard_bg")?.resizableImage(withCapInsets: UIEdgeInsets(), resizingMode: .tile)
+        imgView.layer.cornerRadius = bounds.height / 2
+        imgView.layer.masksToBounds = true
+        imgView.alpha = 0.5
+        insertSubview(imgView, at: 0)
+        
+        bgChessboard = imgView
+    }
+    
     override func layoutSubviews() {
         super.layoutSubviews()
+        bgChessboard?.frame = bounds
         if height == prevHeight {
             return
         }
@@ -38,6 +53,7 @@ final class ColorSlider: UISlider {
         setupThumb()
         
         gradient.layer.cornerRadius = prevHeight / 2
+        bgChessboard?.layer.cornerRadius = prevHeight / 2
     }
     
     override func trackRect(forBounds bounds: CGRect) -> CGRect {
@@ -55,6 +71,7 @@ final class ColorSlider: UISlider {
     
     fileprivate var setupDone: Bool = false
     fileprivate var gradient: GradientView!
+    fileprivate var bgChessboard: UIImageView?
     fileprivate var thumbColorView: UIView!
     fileprivate var prevHeight: CGFloat = 0
     
@@ -72,7 +89,11 @@ final class ColorSlider: UISlider {
         gradient.startPoint = CGPoint(x: 0, y: 0.5)
         gradient.endPoint = CGPoint(x: 1, y: 0.5)
         gradient.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-        insertSubview(gradient, at: 0)
+        if let bgChessboard = bgChessboard {
+            insertSubview(gradient, aboveSubview: bgChessboard)
+        } else {
+            insertSubview(gradient, at: 0)
+        }
         updateGradientColors()
         
         backgroundColor = .clear
@@ -87,7 +108,7 @@ final class ColorSlider: UISlider {
         let thumbFrame = thumbRect(forBounds: bounds, trackRect: trackRect(forBounds: bounds), value: value)
         while !sub.isEmpty {
             let v = sub.popLast()
-            if let v = v as? UIImageView, v.frame == thumbFrame {
+            if let v = v as? UIImageView, v.frame.size == thumbFrame.size, v.frame.minY == thumbFrame.minY {
                 thumbImgView = v
                 break
             }
@@ -109,7 +130,7 @@ final class ColorSlider: UISlider {
     }
     
     fileprivate func updateGradientColors() {
-        gradient.colors = [fromColor, toColor]
+        gradient?.colors = [gradientColors.from, gradientColors.to]
     }
     @objc
     private func sliderTapped(touch: UITouch) {
@@ -130,6 +151,8 @@ final class ColorSlider: UISlider {
     }
     
     fileprivate func updateThumbStrokeAnimated() {
+        guard let thumbColorView = thumbColorView else { return }
+        
         let toColor: UIColor = thumbStroke == .white ? .white : .black
         let presentationLayer = thumbColorView.layer.presentation() as? CAShapeLayer ?? thumbColorView.layer
         let anim = CABasicAnimation(keyPath: "borderColor")

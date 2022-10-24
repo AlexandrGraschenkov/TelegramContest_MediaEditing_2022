@@ -91,11 +91,11 @@ final class ColorGridView: UIView, ColorSelectorProtocol {
     }
     fileprivate func trySelect(color: UIColor) {
         var idx: Index? = nil
-        let info = color.colorInfo
+        let comp = color.components
         for r in 0..<colors.count {
             for c in 0..<colors[r].count {
-                let info2 = colors[r][c].colorInfo
-                if info.equalRgb(other: info2) {
+                let comp2 = colors[r][c].components
+                if comp.equalRgb(other: comp2) {
                     idx = Index(row: r, col: c)
                     break
                 }
