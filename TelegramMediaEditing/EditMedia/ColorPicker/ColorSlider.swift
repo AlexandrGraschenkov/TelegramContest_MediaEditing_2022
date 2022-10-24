@@ -37,6 +37,7 @@ final class ColorSlider: UISlider {
         imgView.layer.cornerRadius = bounds.height / 2
         imgView.layer.masksToBounds = true
         imgView.alpha = 0.5
+        imgView.isUserInteractionEnabled = false
         insertSubview(imgView, at: 0)
         
         bgChessboard = imgView
@@ -86,6 +87,7 @@ final class ColorSlider: UISlider {
         states.forEach({setMinimumTrackImage(UIImage(), for: $0)})
         
         gradient = GradientView(frame: bounds)
+        gradient.isUserInteractionEnabled = false
         gradient.startPoint = CGPoint(x: 0, y: 0.5)
         gradient.endPoint = CGPoint(x: 1, y: 0.5)
         gradient.autoresizingMask = [.flexibleHeight, .flexibleWidth]

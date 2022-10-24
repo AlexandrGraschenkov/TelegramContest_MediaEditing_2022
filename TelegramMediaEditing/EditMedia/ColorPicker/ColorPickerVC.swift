@@ -62,10 +62,6 @@ final class ColorPickerVC: UIViewController {
         } else {
             // Don't care
         }
-        mainContainer.layer.cornerRadius = 10
-        mainContainer.layer.masksToBounds = true
-        mainContainer.height += 20 + view.safeInsets.bottom
-        mainContainer.y -= view.safeInsets.bottom
         
         finalColorView.layer.cornerRadius = 10
         finalColorView.layer.masksToBounds = true
@@ -81,7 +77,7 @@ final class ColorPickerVC: UIViewController {
         view.addGestureRecognizer(pan)
         updateColorPicker()
         
-        mainContainer.transform = .init(translationX: 0, y: mainContainer.height)
+        mainContainer.isHidden = true
         view.backgroundColor = UIColor(white: 0, alpha: 0)
     }
     
@@ -96,6 +92,7 @@ final class ColorPickerVC: UIViewController {
         finalBg.alpha = 0.5
         
         finalColorView.superview?.insertSubview(finalBg, belowSubview: finalColorView)
+        finalBg.pinEdges(to: finalColorView)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -107,6 +104,8 @@ final class ColorPickerVC: UIViewController {
     }
     
     func animateAppear() {
+        mainContainer.transform = .init(translationX: 0, y: mainContainer.height)
+        mainContainer.isHidden = false
         UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut, .allowUserInteraction]) {
             self.view.backgroundColor = UIColor(white: 0, alpha: self.defaultBgAlpha)
             self.mainContainer.transform = .identity
@@ -143,6 +142,7 @@ final class ColorPickerVC: UIViewController {
             let progress = 1 - y.percent(min: 0, max: mainContainer.height).clamp(0, 1)
             view.backgroundColor = UIColor(white: 0, alpha: defaultBgAlpha*progress)
         case .ended:
+            firstDismissPanOffset = nil
             let vel = pan.velocity(in: view)
             var needDismiss = vel.y > 0
             if abs(vel.y) < 100 {
@@ -158,6 +158,7 @@ final class ColorPickerVC: UIViewController {
                 }
             }
         case .cancelled, .failed:
+            firstDismissPanOffset = nil
             mainContainer.transform = .identity
             view.backgroundColor = UIColor(white: 0, alpha: defaultBgAlpha)
             

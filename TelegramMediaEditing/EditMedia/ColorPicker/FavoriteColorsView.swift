@@ -5,4 +5,9 @@
 //  Created by Alexander Graschenkov on 24.10.2022.
 //
 
-import Foundation
+import UIKit
+
+
+class FavoriteColorsView: UIView {
+    
+}
