@@ -46,6 +46,8 @@ final class ColorPickerVC: UIViewController {
         v.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         return v
     }()
+    fileprivate let defaultBgAlpha: CGFloat = 0.2
+    fileprivate var firstPanOffset: CGPoint? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,13 +60,14 @@ final class ColorPickerVC: UIViewController {
         view.backgroundColor = UIColor(white: 0, alpha: 0)
         mainContainer.layer.cornerRadius = 10
         mainContainer.layer.masksToBounds = true
-        mainContainer.height += 10 + view.safeInsets.bottom
+        mainContainer.height += 20 + view.safeInsets.bottom
         mainContainer.y -= view.safeInsets.bottom
 //        mainContainer.transform = .init(translationX: 0, y: mainContainer.height)
         
 //        colorPickerContainer.layer.cornerRadius = 8
 //        colorPickerContainer.layer.masksToBounds = true
-        
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(dismissPan(pan: )))
+        view.addGestureRecognizer(pan)
         updateColorPicker()
     }
     
@@ -79,7 +82,7 @@ final class ColorPickerVC: UIViewController {
     func animateAppear() {
         mainContainer.transform = .init(translationX: 0, y: mainContainer.height)
         UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut, .allowUserInteraction]) {
-            self.view.backgroundColor = UIColor(white: 0, alpha: 0.2)
+            self.view.backgroundColor = UIColor(white: 0, alpha: self.defaultBgAlpha)
             self.mainContainer.transform = .identity
         } completion: { _ in
         }
@@ -94,6 +97,48 @@ final class ColorPickerVC: UIViewController {
         }
     }
     
+    @objc func dismissPan(pan: UIPanGestureRecognizer) {
+        let offset = pan.translation(in: view)
+        switch pan.state {
+        case .began, .changed:
+            firstPanOffset = firstPanOffset ?? offset
+            if abs(firstPanOffset!.y) < abs(firstPanOffset!.x) {
+                pan.isEnabled = false
+                delay(0.1) { pan.isEnabled = true }
+                firstPanOffset = nil
+                return
+            }
+            
+            var y = offset.y
+            if y < 0 {
+                y = -3*log(1-y)
+            }
+            mainContainer.transform = CGAffineTransform(translationX: 0, y: y)
+            let progress = 1 - y.percent(min: 0, max: mainContainer.height).clamp(0, 1)
+            view.backgroundColor = UIColor(white: 0, alpha: defaultBgAlpha*progress)
+        case .ended:
+            let vel = pan.velocity(in: view)
+            var needDismiss = vel.y > 0
+            if abs(vel.y) < 100 {
+                needDismiss = offset.y > mainContainer.height * 0.3
+            }
+            if needDismiss {
+                animateDissapear()
+            } else {
+                UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseInOut, .allowUserInteraction]) {
+                    self.mainContainer.transform = .identity
+                    self.view.backgroundColor = UIColor(white: 0, alpha: self.defaultBgAlpha)
+                } completion: { _ in
+                }
+            }
+        case .cancelled, .failed:
+            mainContainer.transform = .identity
+            view.backgroundColor = UIColor(white: 0, alpha: defaultBgAlpha)
+            
+        default: break
+        }
+    }
+    
     @objc
     @IBAction func closePressed() {
         animateDissapear()
@@ -103,7 +148,7 @@ final class ColorPickerVC: UIViewController {
         updateColorPicker()
     }
     
-    func updateColorPicker() {
+    private func updateColorPicker() {
         if let prevView = colorPickerElem {
             prevView.removeFromSuperview()
         }
@@ -124,21 +169,3 @@ final class ColorPickerVC: UIViewController {
         colorPickerContainer.addSubview(colorPickerElem)
     }
 }
-
-extension ColorPickerVC: UIViewControllerTransitioningDelegate {
-    
-    func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
-        return HalfSizePresentationController(presentedViewController: presented, presenting: presentingViewController)
-    }
-//    func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
-//        return HalfSizePresentationController(presentedViewController: presented, presenting: presentingViewController)
-//    }
-}
-
-class HalfSizePresentationController: UIPresentationController {
-    override var frameOfPresentedViewInContainerView: CGRect {
-        guard let bounds = containerView?.bounds else { return .zero }
-        return CGRect(x: 0, y: bounds.height / 2, width: bounds.width, height: bounds.height / 2)
-    }
-}
-

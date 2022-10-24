@@ -141,6 +141,6 @@ final class ColorSlider: UISlider {
         anim.toValue = toColor.cgColor
         thumbColorView.layer.add(anim, forKey: "borderColor")
         
-        thumbColorView.layer.borderColor = toColor.cgColor
+//        thumbColorView.layer.borderColor = toColor.cgColor
     }
 }
