@@ -31,6 +31,21 @@ final class ColorPickerVC: UIViewController {
     @IBOutlet weak var colorPickerType: UISegmentedControl!
     fileprivate var needAnimateOnAppear = true
     fileprivate var colorPickerElem: ColorSelectorProtocol!
+    fileprivate lazy var gridPicker: ColorGridView = {
+        let v = ColorGridView(frame: colorPickerContainer.bounds)
+        v.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        return v
+    }()
+    fileprivate lazy var spectrumPicker: ColorSpectrumView = {
+        let v = ColorSpectrumView(frame: colorPickerContainer.bounds)
+        v.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        return v
+    }()
+    fileprivate lazy var sliderPicker: ColorSlidersView = {
+        let v: ColorSlidersView = ColorSlidersView.fromXib()
+        v.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        return v
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,12 +56,15 @@ final class ColorPickerVC: UIViewController {
             // Don't care
         }
         view.backgroundColor = UIColor(white: 0, alpha: 0)
-        mainContainer.layer.cornerRadius = 20
+        mainContainer.layer.cornerRadius = 10
         mainContainer.layer.masksToBounds = true
+        mainContainer.height += 10 + view.safeInsets.bottom
+        mainContainer.y -= view.safeInsets.bottom
 //        mainContainer.transform = .init(translationX: 0, y: mainContainer.height)
         
-        colorPickerContainer.layer.cornerRadius = 8
-        colorPickerContainer.layer.masksToBounds = true
+//        colorPickerContainer.layer.cornerRadius = 8
+//        colorPickerContainer.layer.masksToBounds = true
+        
         updateColorPicker()
     }
     
@@ -92,21 +110,18 @@ final class ColorPickerVC: UIViewController {
         
         switch colorPickerType.selectedSegmentIndex {
         case 0:
-            colorPickerElem = ColorGridView(frame: colorPickerContainer.bounds)
-            colorPickerElem.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-            colorPickerContainer.addSubview(colorPickerElem)
+            colorPickerElem = gridPicker
         case 1:
-            colorPickerElem = ColorSpectrumView(frame: colorPickerContainer.bounds)
-            colorPickerElem.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-            colorPickerContainer.addSubview(colorPickerElem)
+            colorPickerElem = spectrumPicker
         case 2:
-            colorPickerElem = ColorSlidersView.loadFromXib()
-            colorPickerElem.frame = colorPickerContainer.bounds
-            colorPickerElem.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-            colorPickerContainer.addSubview(colorPickerElem)
+            colorPickerElem = sliderPicker
         default:
             break
         }
+        
+        colorPickerElem.frame = colorPickerContainer.bounds
+        colorPickerElem.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        colorPickerContainer.addSubview(colorPickerElem)
     }
 }
 

@@ -24,5 +24,6 @@ class ValueLabel: UILabel {
         layer.cornerRadius = 8
         layer.masksToBounds = true
         textAlignment = .center
+        font = UIFont.systemFont(ofSize: 17, weight: .medium)
     }
 }

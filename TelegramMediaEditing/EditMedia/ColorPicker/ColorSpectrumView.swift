@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class ColorSpectrumView: UIImageView, ColorSelectorProtocol {
+final class ColorSpectrumView: UIView, ColorSelectorProtocol {
     var color: UIColor = UIColor.white
     
     var onColorSelect: ((UIColor) -> ())?
@@ -19,20 +19,26 @@ final class ColorSpectrumView: UIImageView, ColorSelectorProtocol {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        if image == nil {
+        if imgView == nil {
             setup()
         }
     }
 
     // MARK: - private
+    private var imgView: UIImageView!
     private var centerInitalied = false
     private lazy var centerView: ColourPickerCirlce = {
-        let v = ColourPickerCirlce(frame: CGRect(mid: bounds.mid, size: CGSize(width: 50, height: 50)))
+        let v = ColourPickerCirlce(frame: CGRect(mid: bounds.mid, size: CGSize(width: 40, height: 40)))
         v.backgroundColor = color
         return v
     }()
     private func setup() {
-        image = UIImage(named: "spectrum_square")!
+        imgView = UIImageView(frame: bounds)
+        imgView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        imgView.image = UIImage(named: "spectrum_square")!
+        imgView.layer.cornerRadius = 8
+        imgView.layer.masksToBounds = true
+        addSubview(imgView)
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(onGesture(_:)))
         addGestureRecognizer(tap)
@@ -52,7 +58,7 @@ final class ColorSpectrumView: UIImageView, ColorSelectorProtocol {
         
         switch gesture.state {
         case .began:
-            superview?.superview?.addSubview(centerView)
+            addSubview(centerView)
             centerView.alpha = 0
             centerView.transform = CGAffineTransform(scaleX: 0.3, y: 0.3)
             UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseInOut]) {
@@ -75,7 +81,7 @@ final class ColorSpectrumView: UIImageView, ColorSelectorProtocol {
             let imgLoc = CGPoint(x: loc.x.clamp(0, bounds.width-1),
                                  y: loc.y.clamp(0, bounds.height-1))
             
-            color = self.getColor(at: imgLoc) ?? .black
+            color = imgView.getColor(at: imgLoc) ?? .black
             centerView.backgroundColor = color
             centerView.center = convert(imgLoc, to: centerView.superview).add(CGPoint(x: 0, y: -60))
             

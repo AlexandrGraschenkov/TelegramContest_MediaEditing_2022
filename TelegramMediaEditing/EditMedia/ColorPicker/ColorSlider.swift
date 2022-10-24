@@ -9,6 +9,10 @@ import UIKit
 
 final class ColorSlider: UISlider {
 
+    enum ThumbStroke {
+        case white, black
+    }
+    
     var thumbColor: UIColor = .white {
         didSet { thumbColorView?.backgroundColor = thumbColor }
     }
@@ -17,6 +21,9 @@ final class ColorSlider: UISlider {
     }
     var toColor: UIColor = .blue {
         didSet { updateGradientColors() }
+    }
+    var thumbStroke: ThumbStroke = .white {
+        didSet { if oldValue != thumbStroke { updateThumbStrokeAnimated() } }
     }
     var sliderHeight: CGFloat = 36
     var thumbInset: CGFloat = 1
@@ -50,14 +57,14 @@ final class ColorSlider: UISlider {
     fileprivate var gradient: GradientView!
     fileprivate var thumbColorView: UIView!
     fileprivate var prevHeight: CGFloat = 0
-    fileprivate lazy var defaultThumbImg: UIImage = UIImage(named: "slider_thumb_black")!
     
     fileprivate func setup() {
         if setupDone { return }
         setupDone = true
         
+        let thumbImg = UIImage(named: "slider_thumb_shadow")!
         let states: [UIControl.State] = [.normal, .disabled, .highlighted, .selected]
-        states.forEach({setThumbImage(defaultThumbImg, for: $0)})
+        states.forEach({setThumbImage(thumbImg, for: $0)})
         states.forEach({setMaximumTrackImage(UIImage(), for: $0)})
         states.forEach({setMinimumTrackImage(UIImage(), for: $0)})
         
@@ -90,9 +97,11 @@ final class ColorSlider: UISlider {
             return
         }
         
-        thumbColorView = UIView(frame: thumbImgView.bounds.insetBy(dx: 4, dy: 4))
+        thumbColorView = UIView(frame: thumbImgView.bounds.insetBy(dx: 2, dy: 2))
         thumbColorView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         thumbColorView.layer.cornerRadius = thumbColorView.height / 2
+        thumbColorView.layer.borderColor = thumbStroke == .white ? UIColor.white.cgColor : UIColor.black.cgColor
+        thumbColorView.layer.borderWidth = 3
         thumbColorView.backgroundColor = thumbColor
         thumbColorView.layer.masksToBounds = true
         thumbColorView.isUserInteractionEnabled = false
@@ -118,5 +127,20 @@ final class ColorSlider: UISlider {
     override func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
         sliderTapped(touch: touch)
         return true
+    }
+    
+    fileprivate func updateThumbStrokeAnimated() {
+        let toColor: UIColor = thumbStroke == .white ? .white : .black
+        let presentationLayer = thumbColorView.layer.presentation() as? CAShapeLayer ?? thumbColorView.layer
+        let anim = CABasicAnimation(keyPath: "borderColor")
+        anim.duration = 0.2
+        anim.autoreverses = false
+        anim.isRemovedOnCompletion = false
+        anim.fillMode = .forwards
+        anim.fromValue = presentationLayer.borderColor
+        anim.toValue = toColor.cgColor
+        thumbColorView.layer.add(anim, forKey: "borderColor")
+        
+        thumbColorView.layer.borderColor = toColor.cgColor
     }
 }

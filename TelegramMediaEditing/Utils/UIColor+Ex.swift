@@ -102,6 +102,12 @@ struct ColorInfo: Equatable {
                       Int(round(g * 255)),
                       Int(round(b * 255)))
     }
+    
+    var isLightColor: Bool {
+        // based on this https://www.w3.org/WAI/ER/WD-AERT/#color-contrast
+        let val = CGFloat(r * 299 + g * 587 + b * 114) / 1000.0
+        return val > 0.5
+    }
 }
 
 extension UIColor {

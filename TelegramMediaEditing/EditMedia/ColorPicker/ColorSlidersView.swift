@@ -65,17 +65,21 @@ final class ColorSlidersView: UIView, ColorSelectorProtocol {
     
     fileprivate func updateSliderGradients() {
         let color = colorInfo.toColorOverride(a: 1)
+        let thumbStroke: ColorSlider.ThumbStroke = colorInfo.isLightColor ? .black : .white
         rSlider.thumbColor = color
         rSlider.fromColor = colorInfo.toColorOverride(r: 0, a: 1)
         rSlider.toColor = colorInfo.toColorOverride(r: 1, a: 1)
+        rSlider.thumbStroke = thumbStroke
         
         gSlider.thumbColor = color
         gSlider.fromColor = colorInfo.toColorOverride(g: 0, a: 1)
         gSlider.toColor = colorInfo.toColorOverride(g: 1, a: 1)
+        gSlider.thumbStroke = thumbStroke
         
         bSlider.thumbColor = color
         bSlider.fromColor = colorInfo.toColorOverride(b: 0, a: 1)
         bSlider.toColor = colorInfo.toColorOverride(b: 1, a: 1)
+        bSlider.thumbStroke = thumbStroke
     }
     
     fileprivate func updateColorLabels() {

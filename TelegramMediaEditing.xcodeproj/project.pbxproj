@@ -258,12 +258,12 @@
 			isa = PBXGroup;
 			children = (
 				FACE5BD92902D13200960A48 /* ColorPickerVC.swift */,
+				FACE5BDA2902D13200960A48 /* ColorPickerVC.xib */,
 				FACE5BDD2902E75E00960A48 /* ColorGridView.swift */,
 				FADCE20A2903DFBB00E92CD9 /* ColorSpectrumView.swift */,
 				FADCE20C290430FF00E92CD9 /* ColorSlidersView.swift */,
 				FADCE2122905424400E92CD9 /* ColorSlidersView.xib */,
 				FADCE20E290536EC00E92CD9 /* ColorSlider.swift */,
-				FACE5BDA2902D13200960A48 /* ColorPickerVC.xib */,
 				FADCE210290540F300E92CD9 /* ValueLabel.swift */,
 			);
 			path = ColorPicker;

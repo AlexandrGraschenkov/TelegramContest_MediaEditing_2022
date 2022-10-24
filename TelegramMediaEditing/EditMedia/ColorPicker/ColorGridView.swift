@@ -28,6 +28,14 @@ final class ColorGridView: UIView, ColorSelectorProtocol {
         set { colorPrivate = newValue; trySelect(color: newValue) }
     }
     var onColorSelect: ((UIColor) -> ())?
+    lazy var container: UIView = {
+        let v = UIView(frame: bounds)
+        v.layer.masksToBounds = true
+        v.layer.cornerRadius = 8
+        v.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        addSubview(v)
+        return v
+    }()
     let colors: [[UIColor]] = ColorGridView.generateColorsGrid()
     
     
@@ -51,7 +59,7 @@ final class ColorGridView: UIView, ColorSelectorProtocol {
             }
         }
         if let idx = selectedIdx {
-            selectionView.frame = colorViews[idx.row][idx.col].frame
+            selectionView.frame = colorViews[idx.row][idx.col].frame.insetBy(dx: -1.5, dy: -1.5)
         }
     }
 
@@ -65,7 +73,7 @@ final class ColorGridView: UIView, ColorSelectorProtocol {
             for c in 0..<colors[r].count {
                 let v = UIView()
                 v.backgroundColor = colors[r][c]
-                addSubview(v)
+                container.addSubview(v)
                 colorViews[colorViews.count-1].append(v)
             }
         }
@@ -104,7 +112,7 @@ final class ColorGridView: UIView, ColorSelectorProtocol {
             return
         }
         selectionView.isHidden = false
-        selectionView.frame = colorViews[idx.row][idx.col].frame
+        selectionView.frame = colorViews[idx.row][idx.col].frame.insetBy(dx: -1.5, dy: -1.5)
     }
     
     @objc
