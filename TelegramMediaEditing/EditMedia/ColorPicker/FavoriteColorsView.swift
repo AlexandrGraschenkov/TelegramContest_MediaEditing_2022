@@ -43,6 +43,7 @@ final class FavoriteColorsView: UIView {
     }()
     private var colorViews: [ColorCircleButt] = []
     private var prevSize: CGSize = .zero
+    private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
     private func setup() {
         backgroundColor = .clear
         if let data = UserDefaults.standard.object(forKey: "favorite_colors") as? Data,
@@ -51,19 +52,68 @@ final class FavoriteColorsView: UIView {
         }
         
         colorViews = colors.map({color in
-            let b = ColorCircleButt(frame: CGRect(x: 0, y: 0, width: elemSize, height: elemSize))
-            b.color = color
-            b.addTarget(self, action: #selector(colorPressed(butt:)), for: .touchUpInside)
-            self.addSubview(b)
-            return b
+            return generateColorView(color: color)
         })
     }
     
-    private func layoutColorViews() {
-        var allViews: [UIView] = colorViews + [addColorButt]
-        while allViews.count > maxCount {
-            allViews.remove(at: allViews.count - 2) // don't touch add color butt
+    private func generateColorView(color: UIColor) -> ColorCircleButt {
+        let b = ColorCircleButt(frame: CGRect(x: 0, y: 0, width: elemSize, height: elemSize))
+        b.color = color
+        b.addTarget(self, action: #selector(colorPressed(butt:)), for: .touchUpInside)
+        addSubview(b)
+        
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(onLongPress(gesture:)))
+        b.addGestureRecognizer(longPress)
+        b.onDelete = {[weak self] butt in
+            guard let self = self,
+                  let idx = self.colorViews.firstIndex(of: butt) else { return }
+            self.colorViews.remove(at: idx)
+            self.colors.remove(at: idx)
+            self.animateRemove(view: butt)
+            UIView.animate(withDuration: self.animDuration, delay: 0, options: [.curveEaseInOut]) {
+                self.layoutColorViews()
+            }
+            self.saveColors()
         }
+        return b
+    }
+    
+    @objc private func onLongPress(gesture: UILongPressGestureRecognizer) {
+        guard let butt = gesture.view as? ColorCircleButt else {
+            return
+        }
+        switch gesture.state {
+        case .began:
+            let menuController = UIMenuController.shared
+            
+            guard !menuController.isMenuVisible, butt.canBecomeFirstResponder else {
+                return
+            }
+            butt.becomeFirstResponder()
+            
+            menuController.menuItems = [
+                UIMenuItem(
+                    title: "Delete",
+                    action: #selector(ColorCircleButt.deleteAction)
+                )
+            ]
+            
+            menuController.setTargetRect(butt.frame, in: self)
+            menuController.setMenuVisible(true, animated: true)
+            feedbackGenerator.impactOccurred()
+            
+        case .possible:
+            feedbackGenerator.prepare()
+        default: break
+        }
+    }
+    
+    private func layoutColorViews() {
+        var allViews: [UIView] = colorViews
+        while allViews.count > maxCount {
+            allViews.removeLast()
+        }
+        allViews += [addColorButt]
         let lineCount = self.lineCount
         let fromX = bounds.width - (CGFloat(lineCount) * elemSize + CGFloat(lineCount-1) * elemSpace)
         for (idx, v) in allViews.enumerated() {
@@ -89,7 +139,7 @@ final class FavoriteColorsView: UIView {
                 colorViews.insert(v, at: 0)
                 let c = colors.remove(at: updateIdx)
                 colors.insert(c, at: 0)
-                UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut]) {
+                UIView.animate(withDuration: animDuration, delay: 0, options: [.curveEaseInOut]) {
                     self.layoutColorViews()
                 }
                 saveColors()
@@ -98,12 +148,9 @@ final class FavoriteColorsView: UIView {
         }
         
         colors.insert(newColor, at: 0)
-        let newFrame = colorViews.first?.frame ?? addColorButt.frame
-        let newView = ColorCircleButt(frame: newFrame)
-        newView.color = newColor
-        newView.addTarget(self, action: #selector(colorPressed(butt:)), for: .touchUpInside)
+        let newView = generateColorView(color: newColor)
+        newView.frame = colorViews.first?.frame ?? addColorButt.frame
         colorViews.insert(newView, at: 0)
-        addSubview(newView)
         while colorViews.count > maxCount {
             colors.removeLast()
             let v = colorViews.removeLast()
@@ -118,6 +165,7 @@ final class FavoriteColorsView: UIView {
     }
     
     @objc private func colorPressed(butt: ColorCircleButt) {
+        feedbackGenerator.impactOccurred()
         onSelectColor?(butt.color)
     }
     
@@ -195,6 +243,7 @@ private final class ColorCircleButt: ExpandButton {
     var color: UIColor = .white {
         didSet { colorUpdate() }
     }
+    var onDelete: ((ColorCircleButt)->())?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -249,5 +298,13 @@ private final class ColorCircleButt: ExpandButton {
     fileprivate func internalSet(color: UIColor) {
         overlayColor.backgroundColor = color
         overlayColor.layer.borderColor = color.withAlphaComponent(1).cgColor
+    }
+    
+    @objc fileprivate func deleteAction() {
+        onDelete?(self)
+    }
+    
+    override var canBecomeFirstResponder: Bool {
+        return true
     }
 }
