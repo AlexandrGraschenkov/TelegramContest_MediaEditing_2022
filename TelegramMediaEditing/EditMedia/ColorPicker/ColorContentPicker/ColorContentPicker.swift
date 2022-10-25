@@ -13,6 +13,11 @@ class ColorContentPicker: UIView {
         let format = UIGraphicsImageRendererFormat()
         format.opaque = true
         format.scale = UIScreen.main.scale
+        if #available(iOS 12.0, *) {
+            format.preferredRange = .standard
+        } else {
+            format.prefersExtendedRange = false
+        }
         // TODO: maybe need to move in background?
         let renderer = UIGraphicsImageRenderer(bounds: content.bounds, format: format)
         let img = renderer.image { rendererContext in
@@ -141,44 +146,52 @@ class ColorContentPicker: UIView {
         let gridSize = grid.count
         let midElem = gridSize / 2
         
-        let img2 = img!
-        print(img2.size)
         let provider = img.cgImage!.dataProvider
         let providerData = provider!.data
         let data = CFDataGetBytePtr(providerData)!
+        let format = img?.cgImage?.bitmapInfo.componentLayout
+        let yStep = img.cgImage!.bytesPerRow
+        let xStep = img.cgImage!.bitsPerPixel / 8
+        let getColor = {(y: Int, x: Int) -> CGColor in
+            let pixelOffset = yStep * y + x * xStep
+            let r: CGFloat, g: CGFloat, b: CGFloat
+            switch format {
+            case .rgba, .rgb:
+                r = CGFloat(data[pixelOffset + 0]) / 255
+                g = CGFloat(data[pixelOffset + 1]) / 255
+                b = CGFloat(data[pixelOffset + 2]) / 255
+            case .bgr, .bgra:
+                b = CGFloat(data[pixelOffset + 0]) / 255
+                g = CGFloat(data[pixelOffset + 1]) / 255
+                r = CGFloat(data[pixelOffset + 2]) / 255
+            default:
+                r = 0; g = 0; b = 0
+            }
+            if #available(iOS 13.0, *) {
+                return CGColor(red: r, green: g, blue: b, alpha: 1)
+            } else {
+                return UIColor(red: r, green: g, blue: b, alpha: 1).cgColor
+            }
+        }
+        
         let p = center.mulitply(UIScreen.main.scale)
         let boundsScaled = CGRect(origin: activeBounds.origin.mulitply(UIScreen.main.scale),
                                   size: activeBounds.size.mulitply(UIScreen.main.scale))
         
         CATransaction.begin()
         CATransaction.setValue(true, forKey: kCATransactionDisableActions)
-        let yStep = img.cgImage!.bytesPerRow
-        let xStep = img.cgImage!.bitsPerPixel / 8
         for r in 0..<gridSize {
             for c in 0..<gridSize {
                 let y = r - midElem + Int(p.y.rounded())
                 let x = c - midElem + Int(p.x.rounded())
-                let pixelOffset = yStep * y + x * xStep
                 if !boundsScaled.contains(CGPoint(x: x, y: y)) {
                     grid[r][c].fillColor = UIColor.black.cgColor
                     continue
                 }
                 
-                if #available(iOS 13.0, *) {
-                    grid[r][c].fillColor = CGColor(red: CGFloat(data[pixelOffset]) / 255.0,
-                                                   green: CGFloat(data[pixelOffset + 1]) / 255.0,
-                                                   blue: CGFloat(data[pixelOffset + 2]) / 255.0,
-                                                   alpha: 1)
-                } else {
-                    let colorComp = ColorComponents(r: CGFloat(data[pixelOffset]) / 255.0,
-                                                    g: CGFloat(data[pixelOffset + 1]) / 255.0,
-                                                    b: CGFloat(data[pixelOffset + 2]) / 255.0,
-                                                    a: 1)
-                    grid[r][c].fillColor = colorComp.toColorOverride().cgColor
-                }
+                grid[r][c].fillColor = getColor(y, x)
                 
                 if r == midElem && c == midElem {
-                    print("Pos", y, x)
                     lastColor = UIColor(cgColor: grid[r][c].fillColor!)
                     colorOutline.fillColor = grid[r][c].fillColor
                 }

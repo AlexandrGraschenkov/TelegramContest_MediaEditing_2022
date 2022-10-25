@@ -12,6 +12,7 @@ extension UIImage {
         return CGSize(width: size.width * scale, height: size.height * scale)
     }
     
+    /// expects RGBA format
     func getColor(at point: CGPoint) -> UIColor? {
         let x = Int(point.x)
         let y = Int(point.y)
