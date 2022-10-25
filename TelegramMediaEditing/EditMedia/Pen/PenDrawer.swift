@@ -88,10 +88,15 @@ class PenDrawer: NSObject {
     
     fileprivate func updateDrawLayer() {
         if !splitOpt.isPrepared {
+            let comp = color.components
+            let parentWithOpacity = CALayer()
+            parentWithOpacity.opacity = Float(comp.a)
+            content?.layer.addSublayer(parentWithOpacity)
+            
             let layer = CAShapeLayer()
             layer.strokeColor = nil
-            layer.fillColor = color.cgColor
-            content?.layer.addSublayer(layer)
+            layer.fillColor = comp.toColorOverride(a: 1).cgColor
+            parentWithOpacity.addSublayer(layer)
             splitOpt.start(layer: layer, penGen: penGen)
             
 //            currentDrawDebugLayer = CAShapeLayer()
