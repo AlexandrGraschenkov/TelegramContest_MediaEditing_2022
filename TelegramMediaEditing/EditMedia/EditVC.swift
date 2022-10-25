@@ -20,6 +20,7 @@ final class EditVC: UIViewController {
     var scroll: ZoomScrollView!
     var mediaContainer: UIView!
     var toolbar: EditorToolbar!
+    weak var colorContentPicker: ColorContentPicker? // destroys by itself
     lazy var pen: PenDrawer = {
         let brush = PenDrawer()
         brush.setup(content: mediaContainer)
@@ -85,13 +86,32 @@ final class EditVC: UIViewController {
     private func openColorPicker() {
         let picker = ColorPickerVC()
         picker.color = pen.color
-        picker.onDismiss = { [weak self] color in
+        let onColorUpdate: (UIColor)->() = { [weak self] color in
             guard let self = self else { return }
             self.pen.color = color
             self.toolbar.selectedColor = color
         }
+        picker.onPickColorFromContent = { [weak self] in
+            guard let self = self else { return }
+            
+            let bounds = self.getMediaContainerContentFrame()
+            self.colorContentPicker = ColorContentPicker.createOn(content: self.scroll, bounds: bounds, completion: onColorUpdate)
+        }
+        picker.onDismiss = onColorUpdate
 //        present(nav, animated: true, completion: nil)
         present(picker, animated: false)
+    }
+    
+    private func getMediaContainerContentFrame() -> CGRect {
+        // intersection of counte
+        let bounds = mediaContainer.convert(mediaContainer.bounds, to: view)
+            .offsetBy(dx: scroll.x, dy: scroll.y)
+        let scrollBounds = CGRect(origin: .zero, size: scroll.bounds.size)
+        let tl = CGPoint(x: max(bounds.minX, scrollBounds.minX),
+                         y: max(bounds.minY, scrollBounds.minY))
+        let br = CGPoint(x: min(bounds.maxX, scrollBounds.maxX),
+                         y: min(bounds.maxY, scrollBounds.maxY))
+        return CGRect(origin: tl, size: br.substract(tl).size)
     }
     
     @objc
