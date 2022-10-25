@@ -28,6 +28,7 @@ final class ColorPickerVC: UIViewController {
     
     var color: UIColor = .white
     var onDismiss: ((UIColor)->())?
+    var onPickColorFromContent: (()->())?
     
     @IBOutlet weak var mainContainer: UIView!
     @IBOutlet weak var colorPickerContainer: UIView!
@@ -144,8 +145,10 @@ final class ColorPickerVC: UIViewController {
         }
     }
     
-    func animateDissapear() {
-        onDismiss?(color)
+    func animateDissapear(notifyDismiss: Bool = true) {
+        if notifyDismiss {
+            onDismiss?(color)
+        }
         UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut, .allowUserInteraction, .beginFromCurrentState]) {
             self.mainContainer.transform = .init(translationX: 0, y: self.mainContainer.height)
             self.view.backgroundColor = UIColor(white: 0, alpha: 0)
@@ -198,9 +201,13 @@ final class ColorPickerVC: UIViewController {
         }
     }
     
-    @objc
+    
     @IBAction func closePressed() {
         animateDissapear()
+    }
+    @IBAction func colorPickPressed() {
+        onPickColorFromContent?()
+        animateDissapear(notifyDismiss: false)
     }
     
     @IBAction func colorPickerSegmentChanged(_ segment: UISegmentedControl) {
