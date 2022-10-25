@@ -53,7 +53,7 @@ final class ColorPickerVC: UIViewController {
         v.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         return v
     }()
-    fileprivate let defaultBgAlpha: CGFloat = 0.2
+    fileprivate let defaultBgAlpha: CGFloat = 0.4
     fileprivate var firstDismissPanOffset: CGPoint? = nil
     
     override func viewDidLoad() {
