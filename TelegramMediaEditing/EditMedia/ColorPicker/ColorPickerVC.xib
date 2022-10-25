@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ColorPickerVC" customModule="TelegramMediaEditing" customModuleProvider="target">
+            <connections>
+                <outlet property="colorPickerContainer" destination="3GJ-0Y-5QV" id="pud-NW-gRn"/>
+                <outlet property="colorPickerType" destination="EhN-cX-flE" id="g9s-Hd-ogS"/>
+                <outlet property="favoriteView" destination="b8R-NY-sSq" id="J1n-4b-ESz"/>
+                <outlet property="finalColorView" destination="Hhc-YF-DKc" id="I5W-ne-tvt"/>
+                <outlet property="mainContainer" destination="9gU-sW-1Im" id="VL9-yo-VGg"/>
+                <outlet property="opacityLabel" destination="78y-bk-QHa" id="bax-Fl-UJu"/>
+                <outlet property="opacitySlider" destination="IgV-K4-Csq" id="lef-fB-mEJ"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9gU-sW-1Im">
+                    <rect key="frame" x="0.0" y="223.5" width="414" height="672.5"/>
+                    <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="zqc-Mh-hvR">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="672.5"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2rZ-kU-hp0">
+                                <rect key="frame" x="6" y="4" width="50" height="50"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title=""/>
+                                <buttonConfiguration key="configuration" style="plain" image="color_picker"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IRm-4r-7fc">
+                                <rect key="frame" x="356" y="4" width="50" height="50"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title=""/>
+                                <buttonConfiguration key="configuration" style="plain" image="color_close"/>
+                                <connections>
+                                    <action selector="closePressed" destination="-1" eventType="touchUpInside" id="fzA-lh-G6C"/>
+                                </connections>
+                            </button>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="EhN-cX-flE">
+                                <rect key="frame" x="16" y="58" width="381" height="32"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                <segments>
+                                    <segment title="Grid"/>
+                                    <segment title="Spectrum"/>
+                                    <segment title="Sliders"/>
+                                </segments>
+                                <connections>
+                                    <action selector="colorPickerSegmentChanged:" destination="-1" eventType="valueChanged" id="oAw-wl-RFu"/>
+                                </connections>
+                            </segmentedControl>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3GJ-0Y-5QV">
+                                <rect key="frame" x="16" y="103" width="382" height="318.5"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="3GJ-0Y-5QV" secondAttribute="height" multiplier="120:100" id="BhB-1a-Z08"/>
+                                </constraints>
+                            </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="OPACITY" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LFE-04-kvj">
+                                <rect key="frame" x="16" y="436.5" width="382" height="18"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="18" id="vMy-ei-l2r"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
+                                <color key="textColor" red="0.92156862750000001" green="0.92156862750000001" blue="0.96078431369999995" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IgV-K4-Csq" customClass="ColorSlider" customModule="TelegramMediaEditing" customModuleProvider="target">
+                                <rect key="frame" x="16" y="458.5" width="293" height="35"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="35" id="yZ0-jk-oLg"/>
+                                </constraints>
+                                <connections>
+                                    <action selector="opacityChanged:" destination="-1" eventType="valueChanged" id="VA3-GE-Tm7"/>
+                                </connections>
+                            </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="78y-bk-QHa" customClass="ValueLabel" customModule="TelegramMediaEditing" customModuleProvider="target">
+                                <rect key="frame" x="321" y="458.5" width="77" height="36"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="36" id="Kk4-F2-CWD"/>
+                                    <constraint firstAttribute="width" constant="77" id="YDe-qF-uKF"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bRw-DO-4jj">
+                                <rect key="frame" x="16" y="517.5" width="382" height="1"/>
+                                <color key="backgroundColor" red="0.28235294117647058" green="0.28235294117647058" blue="0.29019607843137252" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="1" id="NWp-TZ-Jsa"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Hhc-YF-DKc">
+                                <rect key="frame" x="16" y="540.5" width="82" height="82"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="82" id="Lgj-O9-Nod"/>
+                                    <constraint firstAttribute="width" constant="82" id="TRz-LC-x9N"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="b8R-NY-sSq" customClass="FavoriteColorsView" customModule="TelegramMediaEditing" customModuleProvider="target">
+                                <rect key="frame" x="110" y="540.5" width="287" height="82"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="82" id="2QE-1s-dNA"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="Hhc-YF-DKc" firstAttribute="leading" secondItem="zqc-Mh-hvR" secondAttribute="leading" constant="16" id="3U5-g3-So3"/>
+                            <constraint firstItem="bRw-DO-4jj" firstAttribute="top" secondItem="IgV-K4-Csq" secondAttribute="bottom" constant="24" id="4kv-X0-3EG"/>
+                            <constraint firstItem="3GJ-0Y-5QV" firstAttribute="top" secondItem="zqc-Mh-hvR" secondAttribute="top" constant="103" id="8la-3w-Q0a"/>
+                            <constraint firstItem="LFE-04-kvj" firstAttribute="leading" secondItem="zqc-Mh-hvR" secondAttribute="leading" constant="16" id="AFg-CL-Pfc"/>
+                            <constraint firstItem="b8R-NY-sSq" firstAttribute="leading" secondItem="Hhc-YF-DKc" secondAttribute="trailing" constant="12" id="Cs7-o5-5p4"/>
+                            <constraint firstItem="bRw-DO-4jj" firstAttribute="leading" secondItem="zqc-Mh-hvR" secondAttribute="leading" constant="16" id="ICg-El-x1N"/>
+                            <constraint firstAttribute="trailing" secondItem="3GJ-0Y-5QV" secondAttribute="trailing" constant="16" id="Jmy-Hi-K5H"/>
+                            <constraint firstItem="b8R-NY-sSq" firstAttribute="top" secondItem="bRw-DO-4jj" secondAttribute="bottom" constant="22" id="MEi-EI-df5"/>
+                            <constraint firstItem="IgV-K4-Csq" firstAttribute="leading" secondItem="zqc-Mh-hvR" secondAttribute="leading" constant="16" id="PJD-5R-QH7"/>
+                            <constraint firstItem="78y-bk-QHa" firstAttribute="top" secondItem="LFE-04-kvj" secondAttribute="bottom" constant="4" id="RVf-1S-yaR"/>
+                            <constraint firstItem="78y-bk-QHa" firstAttribute="leading" secondItem="IgV-K4-Csq" secondAttribute="trailing" constant="12" id="U1l-U0-b1I"/>
+                            <constraint firstItem="3GJ-0Y-5QV" firstAttribute="leading" secondItem="zqc-Mh-hvR" secondAttribute="leading" constant="16" id="cGN-Gb-GZT"/>
+                            <constraint firstItem="LFE-04-kvj" firstAttribute="top" secondItem="3GJ-0Y-5QV" secondAttribute="bottom" constant="15" id="e6N-5B-swW"/>
+                            <constraint firstAttribute="trailing" secondItem="LFE-04-kvj" secondAttribute="trailing" constant="16" id="m7j-gi-qxJ"/>
+                            <constraint firstAttribute="trailing" secondItem="bRw-DO-4jj" secondAttribute="trailing" constant="16" id="obu-1f-FA8"/>
+                            <constraint firstItem="Hhc-YF-DKc" firstAttribute="top" secondItem="bRw-DO-4jj" secondAttribute="bottom" constant="22" id="q99-9b-NhH"/>
+                            <constraint firstAttribute="trailing" secondItem="78y-bk-QHa" secondAttribute="trailing" constant="16" id="tAU-6A-aF7"/>
+                            <constraint firstAttribute="trailing" secondItem="b8R-NY-sSq" secondAttribute="trailing" constant="17" id="vFc-Of-8zL"/>
+                            <constraint firstItem="IgV-K4-Csq" firstAttribute="top" secondItem="LFE-04-kvj" secondAttribute="bottom" constant="4" id="xrh-sa-e5Q"/>
+                        </constraints>
+                    </view>
+                    <blurEffect style="regular"/>
+                </visualEffectView>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="fnl-2z-Ty3"/>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="9gU-sW-1Im" firstAttribute="bottom" secondItem="fnl-2z-Ty3" secondAttribute="bottom" constant="34" id="NwG-xL-X3h"/>
+                <constraint firstItem="9gU-sW-1Im" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="ZAP-NH-714"/>
+                <constraint firstItem="b8R-NY-sSq" firstAttribute="bottom" secondItem="fnl-2z-Ty3" secondAttribute="bottom" constant="-16" id="hsQ-ZW-wmx"/>
+                <constraint firstItem="9gU-sW-1Im" firstAttribute="trailing" secondItem="fnl-2z-Ty3" secondAttribute="trailing" id="mYt-oC-sxx"/>
+            </constraints>
+            <point key="canvasLocation" x="131.8840579710145" y="101.78571428571428"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="color_close" width="30" height="30"/>
+        <image name="color_picker" width="30" height="30"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

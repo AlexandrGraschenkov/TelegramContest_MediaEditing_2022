@@ -19,6 +19,7 @@ final class EditVC: UIViewController {
     var asset: PHAsset!
     var scroll: ZoomScrollView!
     var mediaContainer: UIView!
+    var toolbar: EditorToolbar!
     lazy var pen: PenDrawer = {
         let brush = PenDrawer()
         brush.setup(content: mediaContainer)
@@ -42,7 +43,7 @@ final class EditVC: UIViewController {
         view.addSubview(scroll)
         scroll.setup(content: mediaContainer)
         
-        let toolbar = EditorToolbar(frame: CGRect(x: 0, y: view.bounds.height - 196, width: view.bounds.width, height: 196))
+        toolbar = EditorToolbar(frame: CGRect(x: 0, y: view.bounds.height - 196, width: view.bounds.width, height: 196))
         toolbar.translatesAutoresizingMaskIntoConstraints = true
         toolbar.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         view.addSubview(toolbar)
@@ -56,6 +57,8 @@ final class EditVC: UIViewController {
                 }
             case .lineWidthChanged(let width):
                 self.pen.penSize = width
+            case .openColorPicker:
+                self.openColorPicker()
             case .textEditBegan(let overlay):
                 self.addTextView(overlay: overlay)
             case .close:
@@ -79,6 +82,22 @@ final class EditVC: UIViewController {
 //        button.autoresizingMask = [.flexibleBottomMargin, .flexibleRightMargin]
 //    }
     
+    private func openColorPicker() {
+        let picker = ColorPickerVC()
+        picker.color = pen.color
+        picker.onDismiss = { [weak self] color in
+            guard let self = self else { return }
+            self.pen.color = color
+            self.toolbar.selectedColor = color
+        }
+//        present(nav, animated: true, completion: nil)
+        present(picker, animated: false)
+    }
+    
+    @objc
+    private func close() {
+        dismiss(animated: true)
+    }
     private func addTextView(overlay: TextViewEditingOverlay) {
         view.addSubview(overlay)
         overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]

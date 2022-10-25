@@ -50,6 +50,15 @@
 		FACE5BD3290057C600960A48 /* PenPlume.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD2290057C600960A48 /* PenPlume.swift */; };
 		FACE5BD5290147EF00960A48 /* DisplayLinkAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */; };
 		FACE5BD7290151DE00960A48 /* PenSplitOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD6290151DE00960A48 /* PenSplitOptimizer.swift */; };
+		FACE5BDB2902D13200960A48 /* ColorPickerVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD92902D13200960A48 /* ColorPickerVC.swift */; };
+		FACE5BDC2902D13200960A48 /* ColorPickerVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = FACE5BDA2902D13200960A48 /* ColorPickerVC.xib */; };
+		FACE5BDE2902E75E00960A48 /* ColorGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BDD2902E75E00960A48 /* ColorGridView.swift */; };
+		FADCE20B2903DFBB00E92CD9 /* ColorSpectrumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADCE20A2903DFBB00E92CD9 /* ColorSpectrumView.swift */; };
+		FADCE20D290430FF00E92CD9 /* ColorSlidersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADCE20C290430FF00E92CD9 /* ColorSlidersView.swift */; };
+		FADCE20F290536EC00E92CD9 /* ColorSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADCE20E290536EC00E92CD9 /* ColorSlider.swift */; };
+		FADCE211290540F300E92CD9 /* ValueLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADCE210290540F300E92CD9 /* ValueLabel.swift */; };
+		FADCE2132905424400E92CD9 /* ColorSlidersView.xib in Resources */ = {isa = PBXBuildFile; fileRef = FADCE2122905424400E92CD9 /* ColorSlidersView.xib */; };
+		FADCE2192906AFE400E92CD9 /* FavoriteColorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADCE2182906AFE400E92CD9 /* FavoriteColorsView.swift */; };
 		FAEDF41828F9B7BF00094ADF /* PenDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41728F9B7BF00094ADF /* PenDrawer.swift */; };
 		FAEDF41B28F9F49200094ADF /* PenCurveGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41A28F9F49200094ADF /* PenCurveGenerator.swift */; };
 		FAEDF42328FB3D7900094ADF /* GausianSmooth.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */; };
@@ -101,6 +110,15 @@
 		FACE5BD2290057C600960A48 /* PenPlume.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenPlume.swift; sourceTree = "<group>"; };
 		FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayLinkAnimator.swift; sourceTree = "<group>"; };
 		FACE5BD6290151DE00960A48 /* PenSplitOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenSplitOptimizer.swift; sourceTree = "<group>"; };
+		FACE5BD92902D13200960A48 /* ColorPickerVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerVC.swift; sourceTree = "<group>"; };
+		FACE5BDA2902D13200960A48 /* ColorPickerVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ColorPickerVC.xib; sourceTree = "<group>"; };
+		FACE5BDD2902E75E00960A48 /* ColorGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorGridView.swift; sourceTree = "<group>"; };
+		FADCE20A2903DFBB00E92CD9 /* ColorSpectrumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorSpectrumView.swift; sourceTree = "<group>"; };
+		FADCE20C290430FF00E92CD9 /* ColorSlidersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorSlidersView.swift; sourceTree = "<group>"; };
+		FADCE20E290536EC00E92CD9 /* ColorSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorSlider.swift; sourceTree = "<group>"; };
+		FADCE210290540F300E92CD9 /* ValueLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueLabel.swift; sourceTree = "<group>"; };
+		FADCE2122905424400E92CD9 /* ColorSlidersView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ColorSlidersView.xib; sourceTree = "<group>"; };
+		FADCE2182906AFE400E92CD9 /* FavoriteColorsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteColorsView.swift; sourceTree = "<group>"; };
 		FAEDF41728F9B7BF00094ADF /* PenDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenDrawer.swift; sourceTree = "<group>"; };
 		FAEDF41A28F9F49200094ADF /* PenCurveGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenCurveGenerator.swift; sourceTree = "<group>"; };
 		FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GausianSmooth.swift; sourceTree = "<group>"; };
@@ -216,6 +234,7 @@
 		FA4BF3D228F6A41E00592051 /* EditMedia */ = {
 			isa = PBXGroup;
 			children = (
+				FACE5BD82902D11C00960A48 /* ColorPicker */,
 				AAAB482128F96A82008373CB /* Controls */,
 				FACE5BD1290026AF00960A48 /* Pen */,
 				FA4BF3D328F6A4E800592051 /* EditVC.swift */,
@@ -235,6 +254,22 @@
 				FACE5BD6290151DE00960A48 /* PenSplitOptimizer.swift */,
 			);
 			path = Pen;
+			sourceTree = "<group>";
+		};
+		FACE5BD82902D11C00960A48 /* ColorPicker */ = {
+			isa = PBXGroup;
+			children = (
+				FACE5BD92902D13200960A48 /* ColorPickerVC.swift */,
+				FACE5BDA2902D13200960A48 /* ColorPickerVC.xib */,
+				FACE5BDD2902E75E00960A48 /* ColorGridView.swift */,
+				FADCE20A2903DFBB00E92CD9 /* ColorSpectrumView.swift */,
+				FADCE20C290430FF00E92CD9 /* ColorSlidersView.swift */,
+				FADCE2122905424400E92CD9 /* ColorSlidersView.xib */,
+				FADCE20E290536EC00E92CD9 /* ColorSlider.swift */,
+				FADCE210290540F300E92CD9 /* ValueLabel.swift */,
+				FADCE2182906AFE400E92CD9 /* FavoriteColorsView.swift */,
+			);
+			path = ColorPicker;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -302,7 +337,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA046EF128F54B25002D5023 /* LaunchScreen.storyboard in Resources */,
+				FADCE2132905424400E92CD9 /* ColorSlidersView.xib in Resources */,
 				FA046EEE28F54B25002D5023 /* Assets.xcassets in Resources */,
+				FACE5BDC2902D13200960A48 /* ColorPickerVC.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -316,19 +353,23 @@
 				FA4BF3D428F6A4E800592051 /* EditVC.swift in Sources */,
 				AA77710F28FC891600CF73C0 /* PassthroughView.swift in Sources */,
 				FA4BF3D828F6AAC700592051 /* ZoomScrollView.swift in Sources */,
+				FACE5BDB2902D13200960A48 /* ColorPickerVC.swift in Sources */,
 				FA39D93A28F7FE1900CBA7A4 /* PHImageManager+Ex.swift in Sources */,
 				FA046F0528F56996002D5023 /* PHPhotoLibrary+Ex.swift in Sources */,
 				AAAB483528FAD161008373CB /* ColourPickerCirlce.swift in Sources */,
 				AA79DEB72903E80400905FEF /* OutlineableTextView.swift in Sources */,
 				FA4BF3D628F6A80100592051 /* UIImage+Ex.swift in Sources */,
 				FAEDF41828F9B7BF00094ADF /* PenDrawer.swift in Sources */,
+				FADCE20D290430FF00E92CD9 /* ColorSlidersView.swift in Sources */,
 				AAAB482328F96A8F008373CB /* EditToolbar.swift in Sources */,
+				FADCE211290540F300E92CD9 /* ValueLabel.swift in Sources */,
 				AAAB484328FC58FC008373CB /* PopupMenu.swift in Sources */,
 				FACE5BD3290057C600960A48 /* PenPlume.swift in Sources */,
 				AAA335CE28F6CE6F00B86B89 /* ImageCell.swift in Sources */,
 				AAA335CC28F6CCE100B86B89 /* GalleryViewController.swift in Sources */,
 				FAEDF42328FB3D7900094ADF /* GausianSmooth.swift in Sources */,
 				FA046F0128F55953002D5023 /* Extensions.swift in Sources */,
+				FADCE2192906AFE400E92CD9 /* FavoriteColorsView.swift in Sources */,
 				AAAB483128F9C876008373CB /* ToolsContainer.swift in Sources */,
 				AAAB483328FAD13A008373CB /* CorneredSegmentedControl.swift in Sources */,
 				AAAB483B28FB6022008373CB /* ToolSlider.swift in Sources */,
@@ -337,6 +378,7 @@
 				FA046EE928F54B23002D5023 /* ViewController.swift in Sources */,
 				AA79DEB329034CCD00905FEF /* UIColor+Pair.swift in Sources */,
 				AAAB484628FC76AB008373CB /* ColourPickerButton.swift in Sources */,
+				FADCE20F290536EC00E92CD9 /* ColorSlider.swift in Sources */,
 				AA79DE9F28FF4BF400905FEF /* TextEditPanel.swift in Sources */,
 				AAAB483928FB533D008373CB /* BackOrCancelButton.swift in Sources */,
 				AAAB482628F96B76008373CB /* UIControl+Ex.swift in Sources */,
@@ -346,10 +388,12 @@
 				AA79DEA429000CB000905FEF /* TextViewEditingOverlay.swift in Sources */,
 				AAAB482E28F9A99D008373CB /* ToolView.swift in Sources */,
 				AAAB481E28F70891008373CB /* PhotoPermissionOverlay.swift in Sources */,
+				FADCE20B2903DFBB00E92CD9 /* ColorSpectrumView.swift in Sources */,
 				AAAB484128FC4E54008373CB /* ToolShapeSelector.swift in Sources */,
 				FA046EFF28F558DF002D5023 /* UIView+Ex.swift in Sources */,
 				AA79DEAB290320BE00905FEF /* FontsSelector.swift in Sources */,
 				FA046F0728F569BE002D5023 /* GlobalFunctions.swift in Sources */,
+				FACE5BDE2902E75E00960A48 /* ColorGridView.swift in Sources */,
 				FACE5BD7290151DE00960A48 /* PenSplitOptimizer.swift in Sources */,
 				AA79DEB1290343E200905FEF /* RectsUnion.swift in Sources */,
 				AA79DEAD2903363B00905FEF /* TextAlignmentButton.swift in Sources */,

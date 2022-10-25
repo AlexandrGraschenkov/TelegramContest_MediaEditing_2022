@@ -15,6 +15,7 @@ enum EditToolbarAction {
     case lineWidthChanged(CGFloat)
     case toolShapeChanged(ToolShape)
     case colorChange(UIColor)
+    case openColorPicker
     case textEditBegan(TextViewEditingOverlay)
     case textEditEnded
 }
@@ -27,6 +28,10 @@ enum EditMode {
 
 final class EditorToolbar: UIView {
     
+    var selectedColor: UIColor {
+        get { colorPickerControl.selectedColour }
+        set { colorPickerControl.selectedColour = newValue }
+    }
     var actionHandler: ((EditToolbarAction) -> Void)?
     private var cancelButton = BackOrCancelButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
     private var saveButton = UIButton()
@@ -102,6 +107,36 @@ final class EditorToolbar: UIView {
         )
         topControlsContainer.y = bottomControlsContainer.y - 4 - topControlsContainer.height
         topControlsContainer.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
+
+        
+        setupButtons()
+        colorPickerControl.translatesAutoresizingMaskIntoConstraints = true
+        topControlsContainer.addSubview(colorPickerControl)
+        colorPickerControl.frame.size = .square(side: 33)
+        colorPickerControl.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
+        colorPickerControl.onColourChange = { [weak self] color in
+            self?.actionHandler?(.colorChange(color))
+            self?.toolsContainer.selectedTool?.tintColor = color
+        }
+        colorPickerControl.onPress = { [weak self] in
+            self?.actionHandler?(.openColorPicker)
+        }
+
+        modeSwitcher.select(0, animated: false)
+        modeSwitcher.translatesAutoresizingMaskIntoConstraints = true
+        bottomControlsContainer.addSubview(modeSwitcher)
+        modeSwitcher.height = 33
+        modeSwitcher.width = width - cancelButton.width - saveButton.width - 32
+        modeSwitcher.center = .init(x: bottomControlsContainer.width / 2, y: 33 / 2)
+        modeSwitcher.autoresizingMask = [.flexibleWidth]
+
+        let pensContainer = ToolsContainer(frame: .init(x: 0, y: 0, width: width, height: bottomControlsContainer.y))
+        pensContainer.translatesAutoresizingMaskIntoConstraints = true
+        pensContainer.delegate = self
+        addSubview(pensContainer)
+        pensContainer.autoresizingMask = [.flexibleWidth]
+        self.toolsContainer = pensContainer
+        bringSubviewToFront(topControlsContainer)
     }
     
     private func setupButtons() {
