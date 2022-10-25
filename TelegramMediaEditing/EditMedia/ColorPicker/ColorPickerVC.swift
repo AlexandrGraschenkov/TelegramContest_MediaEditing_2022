@@ -27,6 +27,7 @@ final class ColorPickerVC: UIViewController {
     }
     
     var color: UIColor = .white
+    var onDismiss: ((UIColor)->())?
     
     @IBOutlet weak var mainContainer: UIView!
     @IBOutlet weak var colorPickerContainer: UIView!
@@ -64,9 +65,10 @@ final class ColorPickerVC: UIViewController {
             // Don't care
         }
         
-        finalColorView.layer.cornerRadius = 10
-        finalColorView.layer.masksToBounds = true
-        setupFinalBg() // set chassboard under final color
+        mainContainer.layer.cornerRadius = 10
+        mainContainer.layer.masksToBounds = true
+        
+        setupFinal() // set chassboard under final color
         
         opacitySlider.value = Float(color.components.a)
         opacitySlider.setupWithOpacity()
@@ -97,18 +99,31 @@ final class ColorPickerVC: UIViewController {
         }
     }
     
-    func setupFinalBg() {
+    func setupFinal() {
+        finalColorView.layer.cornerRadius = 10
+        finalColorView.layer.masksToBounds = true
+        
+        // setup BG
         let finalBg = UIImageView(frame: finalColorView.frame)
         finalBg.autoresizingMask = finalColorView.autoresizingMask
         finalBg.image = UIImage(named: "chessboard_bg")?.resizableImage(withCapInsets: UIEdgeInsets(), resizingMode: .tile)
-        finalBg.layer.borderColor = UIColor(white: 0.6, alpha: 1).cgColor
-        finalBg.layer.borderWidth = 1
+//        finalBg.layer.borderColor = UIColor(white: 0.6, alpha: 1).cgColor
+//        finalBg.layer.borderWidth = 1
         finalBg.layer.cornerRadius = finalColorView.layer.cornerRadius
         finalBg.layer.masksToBounds = true
         finalBg.alpha = 0.5
         
         finalColorView.superview?.insertSubview(finalBg, belowSubview: finalColorView)
         finalBg.pinEdges(to: finalColorView)
+        
+        // setup border overlay for dark colors
+        let shape = CAShapeLayer()
+        shape.path = CGPath(roundedRect: finalColorView.bounds.insetBy(dx: 1, dy: 1), cornerWidth: 10, cornerHeight: 10, transform: nil)
+        shape.borderWidth = 1
+        shape.strokeColor = UIColor(white: 1, alpha: 0.1).cgColor
+        shape.fillColor = nil
+        shape.compositingFilter = "lightenBlendMode"
+        finalColorView.layer.addSublayer(shape)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -130,6 +145,7 @@ final class ColorPickerVC: UIViewController {
     }
     
     func animateDissapear() {
+        onDismiss?(color)
         UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut, .allowUserInteraction, .beginFromCurrentState]) {
             self.mainContainer.transform = .init(translationX: 0, y: self.mainContainer.height)
             self.view.backgroundColor = UIColor(white: 0, alpha: 0)

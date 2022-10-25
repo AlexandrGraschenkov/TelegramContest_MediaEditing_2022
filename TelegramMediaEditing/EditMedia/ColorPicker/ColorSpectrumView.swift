@@ -84,6 +84,7 @@ final class ColorSpectrumView: UIView, ColorSelectorProtocol {
             color = imgView.getColor(at: imgLoc) ?? .black
             centerView.backgroundColor = color
             centerView.center = convert(imgLoc, to: centerView.superview).add(CGPoint(x: 0, y: -60))
+            onColorSelect?(color)
             
         default: break
         }

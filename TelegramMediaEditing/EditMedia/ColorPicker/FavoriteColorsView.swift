@@ -75,6 +75,18 @@ final class FavoriteColorsView: UIView {
             }
             self.saveColors()
         }
+        b.onDeleteAll = {[weak self] butt in
+            guard let self = self else { return }
+            for butt in self.colorViews {
+                self.animateRemove(view: butt)
+            }
+            self.colorViews.removeAll()
+            self.colors.removeAll()
+            UIView.animate(withDuration: self.animDuration, delay: 0, options: [.curveEaseInOut]) {
+                self.layoutColorViews()
+            }
+            self.saveColors()
+        }
         return b
     }
     
@@ -95,6 +107,10 @@ final class FavoriteColorsView: UIView {
                 UIMenuItem(
                     title: "Delete",
                     action: #selector(ColorCircleButt.deleteAction)
+                ),
+                UIMenuItem(
+                    title: "Delete All",
+                    action: #selector(ColorCircleButt.deleteAllAction)
                 )
             ]
             
@@ -244,6 +260,7 @@ private final class ColorCircleButt: ExpandButton {
         didSet { colorUpdate() }
     }
     var onDelete: ((ColorCircleButt)->())?
+    var onDeleteAll: ((ColorCircleButt)->())?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -302,6 +319,10 @@ private final class ColorCircleButt: ExpandButton {
     
     @objc fileprivate func deleteAction() {
         onDelete?(self)
+    }
+    
+    @objc fileprivate func deleteAllAction() {
+        onDeleteAll?(self)
     }
     
     override var canBecomeFirstResponder: Bool {

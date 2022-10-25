@@ -28,6 +28,10 @@ enum EditMode {
 
 final class EditorToolbar: UIView {
     
+    var selectedColor: UIColor {
+        get { colorPickerControl.selectedColour }
+        set { colorPickerControl.selectedColour = newValue }
+    }
     var actionHandler: ((EditToolbarAction) -> Void)?
     private var cancelButton = BackOrCancelButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
     private var saveButton = UIButton()

@@ -9,6 +9,15 @@ import UIKit
 
 final class ColorGridView: UIView, ColorSelectorProtocol {
     
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setup()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setup()
+    }
     
     struct Index: Equatable {
         var row: Int
@@ -41,10 +50,6 @@ final class ColorGridView: UIView, ColorSelectorProtocol {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        if colorViews.isEmpty {
-            setup()
-            updateSelectedColor()
-        }
         
         let screenScale = UIScreen.main.scale
         for r in 0..<colorViews.count {
@@ -82,12 +87,21 @@ final class ColorGridView: UIView, ColorSelectorProtocol {
         selectionView.layer.cornerRadius = 2
         selectionView.layer.borderColor = UIColor.white.cgColor
         selectionView.layer.borderWidth = 3
+        
+        selectionView.layer.shadowColor = UIColor.black.cgColor
+        selectionView.layer.shadowOpacity = 0.3
+        selectionView.layer.shadowOffset = .zero
+        selectionView.layer.shadowRadius = 3
+        selectionView.layer.shouldRasterize = true
+        selectionView.layer.rasterizationScale = UIScreen.main.scale
         addSubview(selectionView)
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(onGesture(_:)))
         addGestureRecognizer(tap)
         let pan = UIPanGestureRecognizer(target: self, action: #selector(onGesture(_:)))
         addGestureRecognizer(pan)
+        
+        updateSelectedColor()
     }
     fileprivate func trySelect(color: UIColor) {
         var idx: Index? = nil
@@ -108,11 +122,33 @@ final class ColorGridView: UIView, ColorSelectorProtocol {
     }
     fileprivate func updateSelectedColor() {
         guard let idx = selectedIdx else {
-            selectionView.isHidden = true
+            selectionView.alpha = 0
             return
         }
-        selectionView.isHidden = false
-        selectionView.frame = colorViews[idx.row][idx.col].frame.insetBy(dx: -1.5, dy: -1.5)
+        let prevHidden = selectionView.alpha == 0
+        let dstFrame = colorViews[idx.row][idx.col].frame.insetBy(dx: -1.5, dy: -1.5)
+        if isInsideAnimationBlock {
+            if prevHidden {
+                // animate only alpha on new position
+                self.selectionView.frame = dstFrame
+                self.selectionView.layer.removeAllAnimations() // otherwise we animate change frame
+                UIView.animate(withDuration: 0.1, delay: 0, options: []) {
+                    self.selectionView.alpha = 1
+                }
+            } else {
+                UIView.animate(withDuration: 0.1, delay: 0, options: []) {
+                    self.selectionView.alpha = 0
+                } completion: { _ in
+                    self.selectionView.frame = dstFrame
+                    UIView.animate(withDuration: 0.1, delay: 0, options: []) {
+                        self.selectionView.alpha = 1
+                    }
+                }
+            }
+        } else {
+            selectionView.alpha = 1
+            selectionView.frame = dstFrame
+        }
     }
     
     @objc
@@ -124,7 +160,11 @@ final class ColorGridView: UIView, ColorSelectorProtocol {
             var r = Int(CGFloat(colorViews.count) * (loc.y / bounds.height))
             r = r.clamp(0, colorViews.count-1)
             c = c.clamp(0, colorViews[r].count-1)
-            selectedIdx = Index(row: r, col: c)
+            let idx = Index(row: r, col: c)
+            if selectedIdx != idx {
+                selectedIdx = idx
+                onColorSelect?(colors[r][c])
+            }
         default: break
         }
     }
@@ -133,7 +173,7 @@ final class ColorGridView: UIView, ColorSelectorProtocol {
 
 fileprivate extension ColorGridView {
     static func generateColorsGrid() -> [[UIColor]] {
-        let colorsVals = [0xFEFFFE, 0xEBEBEB, 0xD6D6D6, 0xC2C2C2, 0xADADAD, 0x999999, 0x858585, 0x707070, 0x5C5C5C, 0x474747, 0x333333, 0x000000,
+        let colorsVals = [0xFFFFFF, 0xEBEBEB, 0xD6D6D6, 0xC2C2C2, 0xADADAD, 0x999999, 0x858585, 0x707070, 0x5C5C5C, 0x474747, 0x333333, 0x000000,
                       0x00374A, 0x011D57, 0x11053B, 0x2E063D, 0x3C071B, 0x5C0701, 0x5A1C00, 0x583300, 0x563D00, 0x666100, 0x4F5504, 0x263E0F,
                       0x004D65, 0x012F7B, 0x1A0A52, 0x450D59, 0x551029, 0x831100, 0x7B2900, 0x7A4A00, 0x785800, 0x8D8602, 0x6F760A, 0x38571A,
                       0x016E8F, 0x0042A9, 0x2C0977, 0x61187C, 0x791A3D, 0xB51A00, 0xAD3E00, 0xA96800, 0xA67B01, 0xC4BC00, 0x9BA50E, 0x4E7A27,
