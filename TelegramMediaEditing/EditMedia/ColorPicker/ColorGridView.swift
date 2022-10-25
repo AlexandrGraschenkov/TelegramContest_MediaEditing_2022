@@ -89,7 +89,7 @@ final class ColorGridView: UIView, ColorSelectorProtocol {
         selectionView.layer.borderWidth = 3
         
         selectionView.layer.shadowColor = UIColor.black.cgColor
-        selectionView.layer.shadowOpacity = 0.3
+        selectionView.layer.shadowOpacity = 0.2
         selectionView.layer.shadowOffset = .zero
         selectionView.layer.shadowRadius = 3
         selectionView.layer.shouldRasterize = true

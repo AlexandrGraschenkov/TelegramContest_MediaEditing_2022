@@ -35,6 +35,8 @@ final class ColorSlidersView: UIView, ColorSelectorProtocol {
     @IBOutlet weak var gLabel: UILabel!
     @IBOutlet weak var bLabel: UILabel!
     @IBOutlet weak var hexLabel: UILabel!
+    @IBOutlet var containers: [UIView]!
+    private var lastBoundsSize: CGSize = .zero
     
     @IBAction func onSliderChange(_ slider: ColorSlider) {
         var hasChanges = false
@@ -94,5 +96,17 @@ final class ColorSlidersView: UIView, ColorSelectorProtocol {
         rLabel.text = Int(round(colorComponents.r * 255)).description
         gLabel.text = Int(round(colorComponents.g * 255)).description
         bLabel.text = Int(round(colorComponents.b * 255)).description
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        if bounds.size == lastBoundsSize { return }
+        lastBoundsSize = bounds.size
+        let totalSpace = bounds.height - containers.reduce(CGFloat(0), {$0+$1.height})
+        let space = floor(totalSpace / CGFloat(containers.count - 1))
+        for i in 1..<containers.count {
+            containers[i].y = containers[i-1].bottom + space
+        }
     }
 }

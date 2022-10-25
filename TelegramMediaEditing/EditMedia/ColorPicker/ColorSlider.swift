@@ -120,7 +120,7 @@ final class ColorSlider: UISlider {
             return
         }
         
-        thumbColorView = UIView(frame: thumbImgView.bounds.insetBy(dx: 2, dy: 2))
+        thumbColorView = UIView(frame: thumbImgView.bounds.insetBy(dx: 0.5, dy: 0.5))
         thumbColorView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         thumbColorView.layer.cornerRadius = thumbColorView.height / 2
         thumbColorView.layer.borderColor = thumbStroke == .white ? UIColor.white.cgColor : UIColor.black.cgColor
