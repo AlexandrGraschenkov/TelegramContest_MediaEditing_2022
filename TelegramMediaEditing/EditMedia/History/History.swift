@@ -28,7 +28,7 @@ class History {
         forwardButton.addTarget(self, action: #selector(forward), for: .touchUpInside)
         backwardButton.addTarget(self, action: #selector(backward), for: .touchUpInside)
         clearAllButton.addTarget(self, action: #selector(clearAll), for: .touchUpInside)
-        historyUpdated()
+        historyUpdated(animated: false)
     }
     
     func add(element: ElementGroup) {
@@ -37,7 +37,7 @@ class History {
         }
         elems.append(element)
         currentIdx += 1
-        historyUpdated()
+        historyUpdated(animated: true)
     }
     
     @objc func forward() {
@@ -46,7 +46,7 @@ class History {
             apply(element: elem)
         }
         currentIdx += 1
-        historyUpdated()
+        historyUpdated(animated: true)
     }
     
     @objc func backward() {
@@ -55,7 +55,7 @@ class History {
             apply(element: elem)
         }
         currentIdx -= 1
-        historyUpdated()
+        historyUpdated(animated: true)
     }
     
     @objc func clearAll() {
@@ -70,7 +70,7 @@ class History {
             v.removeFromSuperview()
         }
         currentIdx = 0
-        historyUpdated()
+        historyUpdated(animated: true)
     }
     
     // MARK: - private
@@ -78,10 +78,26 @@ class History {
     private weak var backwardButton: UIButton?
     private weak var clearAllButton: UIButton?
     
-    private func historyUpdated() {
-        forwardButton?.isEnabled = forwardEnabled
-        backwardButton?.isEnabled = backwardEnabled
-        clearAllButton?.isEnabled = currentIdx > 0
+    private func historyUpdated(animated: Bool) {
+        if forwardButton?.isEnabled != forwardEnabled {
+            forwardButton?.isEnabled = forwardEnabled
+            if animated {
+                forwardButton?.fadeAnimation(duration: 0.2)
+            }
+        }
+        if backwardButton?.isEnabled != backwardEnabled {
+            backwardButton?.isEnabled = backwardEnabled
+            if animated {
+                backwardButton?.fadeAnimation(duration: 0.2)
+            }
+        }
+        
+        if clearAllButton?.isEnabled != (currentIdx > 0) {
+            clearAllButton?.isEnabled = currentIdx > 0
+            if animated {
+                clearAllButton?.fadeAnimation(duration: 0.2)
+            }
+        }
     }
     
     private func apply(element: Element) {
