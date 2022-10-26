@@ -41,6 +41,36 @@ class ColorContentPicker: UIView {
         return control
     }
     
+    static func snapshot(content: UIView) -> UIImage? {
+        let scale = UIScreen.main.scale
+        var bounds = content.bounds
+        bounds.origin = bounds.origin.mulitply(scale)
+        bounds.size = bounds.size.mulitply(scale)
+        let colorspace = CGColorSpaceCreateDeviceRGB()
+        let context = CGContext(data: nil,
+                                width: Int(bounds.width),
+                                height: Int(bounds.height),
+                                bitsPerComponent: 8,
+                                bytesPerRow: Int(bounds.width) * 4,
+                                space: colorspace,
+                                bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue)
+        
+        context?.translateBy(x: 0, y: bounds.height + bounds.minY)
+        context?.scaleBy(x: 1.0, y: -1.0)
+        
+        UIGraphicsPushContext(context!)
+        content.drawHierarchy(in: bounds, afterScreenUpdates: false)
+//        content.layer.draw(in: context!)
+        UIGraphicsPopContext()
+        let drawnImage = context?.makeImage()
+        
+        if let drawnImage = drawnImage {
+            return UIImage(cgImage: drawnImage, scale: scale, orientation: .up)
+        }
+        
+        return nil
+    }
+    
     func dismiss() {
         animateDismiss()
     }
@@ -152,7 +182,7 @@ class ColorContentPicker: UIView {
         let format = img?.cgImage?.bitmapInfo.componentLayout
         let yStep = img.cgImage!.bytesPerRow
         let xStep = img.cgImage!.bitsPerPixel / 8
-        let getColor = {(y: Int, x: Int) -> CGColor in
+        let getColor = {(y: Int, x: Int) -> UIColor in
             let pixelOffset = yStep * y + x * xStep
             let r: CGFloat, g: CGFloat, b: CGFloat
             switch format {
@@ -167,11 +197,7 @@ class ColorContentPicker: UIView {
             default:
                 r = 0; g = 0; b = 0
             }
-            if #available(iOS 13.0, *) {
-                return CGColor(red: r, green: g, blue: b, alpha: 1)
-            } else {
-                return UIColor(red: r, green: g, blue: b, alpha: 1).cgColor
-            }
+            return UIColor(red: r, green: g, blue: b, alpha: 1)
         }
         
         let p = center.mulitply(UIScreen.main.scale)
@@ -189,7 +215,7 @@ class ColorContentPicker: UIView {
                     continue
                 }
                 
-                grid[r][c].fillColor = getColor(y, x)
+                grid[r][c].fillColor = getColor(y, x).cgColor
                 
                 if r == midElem && c == midElem {
                     lastColor = UIColor(cgColor: grid[r][c].fillColor!)
