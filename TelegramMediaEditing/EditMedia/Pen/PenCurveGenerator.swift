@@ -235,7 +235,7 @@ struct PenCurveGenerator {
             
             let distSqr = sqrDist(point: midPw, toLine: (p1w, p2w))
             if distSqr > maxPixErrSqr {
-                pointsT.insert((midP, midT), at: idx)
+                pointsT.insert((midP, midT), at: idx) // TODO: we spend here lot of time, try other struct
                 continue
             }
             

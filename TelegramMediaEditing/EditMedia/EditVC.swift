@@ -39,6 +39,10 @@ final class EditVC: UIViewController {
         pen.active = true
     }
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+    
     fileprivate func setupUI() {
         view.backgroundColor = .black
         scroll = ZoomScrollView(frame: view.bounds)

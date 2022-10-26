@@ -32,7 +32,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="672.5"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2rZ-kU-hp0">
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2rZ-kU-hp0">
                                 <rect key="frame" x="6" y="4" width="50" height="50"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title=""/>
@@ -41,7 +41,7 @@
                                     <action selector="colorPickPressed" destination="-1" eventType="touchUpInside" id="ulO-CC-pTa"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IRm-4r-7fc">
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IRm-4r-7fc">
                                 <rect key="frame" x="356" y="4" width="50" height="50"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title=""/>
@@ -63,14 +63,14 @@
                                 </connections>
                             </segmentedControl>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3GJ-0Y-5QV">
-                                <rect key="frame" x="16" y="103" width="382" height="319"/>
+                                <rect key="frame" x="16" y="103" width="382" height="318.5"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="3GJ-0Y-5QV" secondAttribute="height" multiplier="120:100" id="BhB-1a-Z08"/>
                                 </constraints>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="OPACITY" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LFE-04-kvj">
-                                <rect key="frame" x="16" y="437" width="382" height="18"/>
+                                <rect key="frame" x="16" y="436.5" width="382" height="18"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="18" id="vMy-ei-l2r"/>
                                 </constraints>
@@ -79,7 +79,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IgV-K4-Csq" customClass="ColorSlider" customModule="TelegramMediaEditing" customModuleProvider="target">
-                                <rect key="frame" x="16" y="459" width="293" height="35"/>
+                                <rect key="frame" x="16" y="458.5" width="293" height="35"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="35" id="yZ0-jk-oLg"/>
@@ -89,7 +89,7 @@
                                 </connections>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="78y-bk-QHa" customClass="ValueLabel" customModule="TelegramMediaEditing" customModuleProvider="target">
-                                <rect key="frame" x="321" y="459" width="77" height="36"/>
+                                <rect key="frame" x="321" y="458.5" width="77" height="36"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="36" id="Kk4-F2-CWD"/>
                                     <constraint firstAttribute="width" constant="77" id="YDe-qF-uKF"/>
@@ -99,7 +99,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bRw-DO-4jj">
-                                <rect key="frame" x="16" y="518" width="382" height="1"/>
+                                <rect key="frame" x="16" y="517.5" width="382" height="1"/>
                                 <color key="backgroundColor" red="0.28235294117647058" green="0.28235294117647058" blue="0.29019607843137252" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="1" id="NWp-TZ-Jsa"/>

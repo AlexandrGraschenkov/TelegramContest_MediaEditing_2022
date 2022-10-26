@@ -13,8 +13,8 @@ class PenSplitOptimizer: NSObject {
     fileprivate(set) var shapeArr: [CAShapeLayer] = []
     fileprivate(set) var penGen: PenCurveGenerator!
     fileprivate(set) var frozenCount: Int = 0
-    let splitThreshCount = 150
-    let splitCount = 100
+    let splitThreshCount = 100
+    let splitCount = 80
     fileprivate(set) var isPrepared: Bool = false
     
     func start(layer: CAShapeLayer, penGen: PenCurveGenerator) {

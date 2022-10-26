@@ -30,7 +30,17 @@ final class PhotoPermissionOverlay: UIView {
     
     func startAnimation() {
         buttonContainer.startAnimation()
-        animationView.play()
+        infinitePlayLottieAnimation()
+    }
+    
+    private func infinitePlayLottieAnimation() {
+        animationView.play { ok in
+            if ok {
+                delay(2) { [weak self] in
+                    self?.infinitePlayLottieAnimation()
+                }
+            }
+        }
     }
     
     private func setup() {
@@ -63,6 +73,8 @@ final class PhotoPermissionOverlay: UIView {
         label.textAlignment = .center
         label.text = "Access Your Photos and Videos"
         label.font = .systemFont(ofSize: 20, weight: .semibold)
+        label.minimumScaleFactor = 0.5
+        label.adjustsFontSizeToFitWidth = true
         label.textColor = .white
         
         let views: [UIView] = [animationView, shimmerContainer, button, label]
