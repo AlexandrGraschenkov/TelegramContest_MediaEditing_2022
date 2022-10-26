@@ -141,6 +141,22 @@ final class EditorToolbar: UIView {
         
         plusButton.x = topControlsContainer.width - plusButton.width - 2.5
         plusButton.autoresizingMask = [.flexibleLeftMargin]
+        plusButton.addAction { [weak self] in
+            guard let self = self else { return }
+            switch self.mode {
+            case .textEdit:
+                if let editingResult = self.editingResult {
+                    self.editingResult = nil
+                    self.unfocus(on: editingResult)
+                }
+                self.animateToTextMode()
+            case .base:
+                // TODO: add shapes popup
+                break
+            case .toolEdit:
+                break
+            }
+        }
     }
     
     private func setupColourPicker() {
@@ -165,8 +181,9 @@ final class EditorToolbar: UIView {
         modeSwitcher.autoresizingMask = [.flexibleWidth]
         modeSwitcher.onSelect = { [weak self] index in
             if index == 0 {
-                self?.cancelTextMode()
+                self?.moveToDraw()
             } else {
+                self?.mode = .textEdit
                 self?.animateToTextMode()
             }
         }
@@ -247,10 +264,8 @@ final class EditorToolbar: UIView {
         })
     }
     
+    private var lastOverlay: TextViewEditingOverlay? // retain to propogate actions when the keyboard is hidden
     private func animateToTextMode(state: ImageEditingTextState? = nil) {
-//        guard self.mode == .base else { return }
-//        self.mode = .textEdit
-        
         plusButton.isHidden = true
         topControlsContainer.addSubview(textPanel)
         textPanel.isGradientVisible = false
@@ -269,6 +284,7 @@ final class EditorToolbar: UIView {
             ),
             frame: UIScreen.main.bounds
         )
+        lastOverlay = overlay
         overlay.delegate = self
         
         textPanel.onAnyAttributeChange = { [weak overlay] in
@@ -321,10 +337,14 @@ final class EditorToolbar: UIView {
         
     }
     
-    private func cancelTextMode() {
+    private func moveToDraw() {
+        self.mode = .base
         toolsContainer.alpha = 0
         addSubview(toolsContainer)
         self.modeSwitcher.select(0, animated: true)
+        if let editingResult = editingResult {
+            unfocus(on: editingResult)
+        }
 
         UIView.animate(
             withDuration: 0.2,
@@ -361,17 +381,40 @@ extension EditorToolbar: TextViewEditingOverlayDelegate {
     func textEditingOverlay(_ overlay: TextViewEditingOverlay, doneEditingText result: TextEditingResult) {
         textModeHiddenKeyboard(overlay: overlay, isCancel: false)
         _ = UITapGestureRecognizer(addingTo: result.view) { [weak self] _ in
-            self?.editingResult = result
+            guard let self = self else { return }
+            if let editingResult = self.editingResult, result != editingResult {
+                self.unfocus(on: editingResult)
+            }
+            self.editingResult = result
             result.view.isHidden = true
-            self?.animateToTextMode(state: result.state)
+            self.animateToTextMode(state: result.state)
+            self.focus(on: result)
         }
         editingResult?.view.isHidden = false
         editingResult?.view.removeFromSuperview()
         actionHandler?(.textEditEnded(result))
+        focus(on: result)
     }
     
     func textEditingOverlayDidCancel(_ overlay: TextViewEditingOverlay) {
         textModeHiddenKeyboard(overlay: overlay, isCancel: true)
-        cancelTextMode()
+    }
+    
+    private func focus(on textResult: TextEditingResult) {
+        self.editingResult = textResult
+        let borderLayer = CAShapeLayer()
+        borderLayer.strokeColor = UIColor.white.cgColor
+        borderLayer.fillColor = nil
+        borderLayer.lineWidth = 2
+        borderLayer.lineCap = .round
+        borderLayer.lineDashPattern = [12, 8]
+        borderLayer.frame = textResult.view.bounds
+        borderLayer.path = UIBezierPath(roundedRect: textResult.view.bounds, cornerRadius: 12).cgPath
+        textResult.view.layer.insertSublayer(borderLayer, at: 0)
+        textResult.borderLayer = borderLayer
+    }
+    
+    private func unfocus(on textResult: TextEditingResult) {
+        textResult.borderLayer?.removeFromSuperlayer()
     }
 }

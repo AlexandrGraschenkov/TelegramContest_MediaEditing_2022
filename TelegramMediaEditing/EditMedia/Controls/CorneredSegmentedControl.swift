@@ -10,7 +10,7 @@ import UIKit
 final class CorneredSegmentedControl: UIView {
     private var selectionView = UIView()
     private var segmentViews: [UIView] = []
-    private var selectedIndex: Int?
+    private(set) var selectedIndex: Int?
     private var isAnimating = false
     
     var onSelect: ((Int) -> Void)?

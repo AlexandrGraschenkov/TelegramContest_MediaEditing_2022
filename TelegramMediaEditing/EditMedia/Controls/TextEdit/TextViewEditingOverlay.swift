@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct ImageEditingTextState {
+struct ImageEditingTextState: Equatable {
     let text: String?
     let font: UIFont
     let color: UIColor
@@ -15,11 +15,23 @@ struct ImageEditingTextState {
     let alignment: NSTextAlignment
 }
 
-struct TextEditingResult {
+final class TextEditingResult: Equatable {
+    static func == (lhs: TextEditingResult, rhs: TextEditingResult) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    internal init(view: UIView, state: ImageEditingTextState, frameInWindow: CGRect, borderLayer: CAShapeLayer? = nil) {
+        self.view = view
+        self.state = state
+        self.frameInWindow = frameInWindow
+        self.borderLayer = borderLayer
+    }
+    
     let id = UUID()
     let view: UIView
     let state: ImageEditingTextState
     let frameInWindow: CGRect
+    var borderLayer: CAShapeLayer? = nil
 }
     
 protocol TextViewEditingOverlayDelegate: AnyObject {

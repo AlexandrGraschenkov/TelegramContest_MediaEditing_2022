@@ -31,7 +31,7 @@ final class OutlineableTextView: UITextView {
         let layout = self.layoutManager
         for i in 0..<layout.numberOfGlyphs {
             let glyph = layout.glyph(at: i)
-            let glyphPath = CTFontCreatePathForGlyph(self.font!, glyph, nil)!
+            guard let glyphPath = CTFontCreatePathForGlyph(self.font!, glyph, nil) else { continue }
             
             let container = layout.textContainer(forGlyphAt: i, effectiveRange: nil)!
             let glyphRect = layout.boundingRect(forGlyphRange: NSRange(location: i, length: 1), in: container)
