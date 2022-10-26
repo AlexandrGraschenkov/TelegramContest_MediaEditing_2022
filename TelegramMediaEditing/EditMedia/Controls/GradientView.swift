@@ -16,6 +16,10 @@ final class GradientView: UIView {
             gradientLayer.colors = colors.map(\.cgColor)
         }
     }
+    var locations: [NSNumber]? {
+        get { gradientLayer.locations }
+        set { gradientLayer.locations = newValue }
+    }
     
     var startPoint: CGPoint = CGPoint(x: 0.5, y: 0) {
         didSet {

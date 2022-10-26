@@ -17,13 +17,15 @@ class PenDrawer: NSObject {
     var color: UIColor = .white
     var penSize: CGFloat = 10
     
-    func setup(content: UIView) {
+    func setup(content: UIView, history: History) {
         pan = UIPanGestureRecognizer(target: self, action: #selector(onPan(pan:)))
         pan.isEnabled = active
+        pan.maximumNumberOfTouches = 1
         content.addGestureRecognizer(pan)
         content.isUserInteractionEnabled = true
         
         self.content = content
+        self.history = history
     }
     
 //    func historyForward() {
@@ -54,44 +56,45 @@ class PenDrawer: NSObject {
             }
             penGen.penSize = penSize*scale
             penGen.scrollZoomScale = scale
-            smoothTime.scale = scale
-            smoothTime.debugView = content
-            smoothTime.start()
-            smoothTime.update(point: pp)
-            drawPath = smoothTime.points
+            smooth.scale = scale
+            smooth.debugView = content
+            smooth.start()
+            smooth.update(point: pp)
+            drawPath = smooth.points
             updateDrawLayer()
         case .changed:
-            smoothTime.update(point: pp)
-            drawPath = smoothTime.points
+            smooth.update(point: pp)
+            drawPath = smooth.points
             updateDrawLayer()
         case .ended:
-            smoothTime.end()
-            drawPath = smoothTime.points
+            smooth.end()
+            drawPath = smooth.points
             
             updateDrawLayer()
             finishDraw(canceled: false)
         default:
-            smoothTime.end()
+            smooth.end()
             finishDraw(canceled: true)
         }
     }
     
-    fileprivate var smoothTime = PanSmoothIK()
+    fileprivate var smooth = PanSmoothIK()
 //    fileprivate var smoothTime = PanSmoothTime()
     fileprivate var pan: UIPanGestureRecognizer!
     fileprivate weak var content: UIView?
-    fileprivate var drawBezier: UIBezierPath?
+    fileprivate weak var history: History?
     fileprivate var drawPath: [PanPoint] = []
-    fileprivate var penLayers: [CAShapeLayer] = []
     fileprivate var penGen = PenCurveGenerator()
     fileprivate let splitOpt = PenSplitOptimizer()
+    fileprivate var parentLayer: CAShapeLayer?
     
     fileprivate func updateDrawLayer() {
         if !splitOpt.isPrepared {
             let comp = color.components
-            let parentWithOpacity = CALayer()
+            let parentWithOpacity = CAShapeLayer()
             parentWithOpacity.opacity = Float(comp.a)
             content?.layer.addSublayer(parentWithOpacity)
+            parentLayer = parentWithOpacity
             
             let layer = CAShapeLayer()
             layer.strokeColor = nil
@@ -122,15 +125,36 @@ class PenDrawer: NSObject {
         if canceled {
             splitOpt.shapeArr.forEach({$0.removeFromSuperlayer()})
         } else {
-            penLayers.append(contentsOf: splitOpt.shapeArr)
-            
             let suffCount = drawPath.count - splitOpt.frozenCount
             // generate last layer without plume
             splitOpt.finish(updateLayer: false, points: drawPath)
+            addToHistory()
+            
             // run pretty animation with plume shrinks
             penGen.finishPlumAnimation(points: drawPath.suffix(suffCount), onLayer: splitOpt.shapeArr.last!, duration: 0.24)
         }
+        parentLayer = nil
 //        currentDrawDebugLayer = nil
+    }
+    
+    fileprivate func addToHistory() {
+        guard let history = history,
+              let parentLayer = parentLayer,
+              let layers = history.layerContainer else {
+            assert(false, "Something missing")
+            return
+        }
+
+        // WARNING: For optimization purpose we have layer with multiple sublayers; Possible some bugs in future;
+        let name = layers.generateUniqueName(prefix: "pen")
+        history.layerContainer?.layers[name] = parentLayer
+        let bezier = UIBezierPath()
+        for b in splitOpt.bezierArr {
+            bezier.append(b)
+        }
+        let forward = History.Element(objectId: name, action: .add(classType: CAShapeLayer.self), updateKeys: ["path": bezier.cgPath, "fillColor": color.cgColor])
+        let backward = History.Element(objectId: name, action: .remove)
+        history.add(element: .init(forward: [forward], backward: [backward]))
     }
 }
 
