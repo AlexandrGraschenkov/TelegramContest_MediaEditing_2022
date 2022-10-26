@@ -16,7 +16,7 @@ enum EditToolbarAction {
     case toolShapeChanged(ToolShape)
     case colorChange(UIColor)
     case textEditBegan(TextViewEditingOverlay)
-    case textEditEnded
+    case textEditEnded(TextEditingResult)
 }
 
 enum EditMode {
@@ -36,7 +36,8 @@ final class EditorToolbar: UIView {
     private let colorPickerControl = ColourPickerButton()
     private let modeSwitcher = CorneredSegmentedControl()
     private var toolsContainer: ToolsContainer!
-    
+    private var editingResult: TextEditingResult?
+        
     private lazy var slider: ToolSlider = {
         let slider = ToolSlider(frame: CGRect(x: 46.5, y: 0, width: bounds.width - 150, height: bottomControlsContainer.height))
         slider.translatesAutoresizingMaskIntoConstraints = true
@@ -246,9 +247,9 @@ final class EditorToolbar: UIView {
         })
     }
     
-    private func animateToTextMode() {
-        guard self.mode == .base else { return }
-        self.mode = .textEdit
+    private func animateToTextMode(state: ImageEditingTextState? = nil) {
+//        guard self.mode == .base else { return }
+//        self.mode = .textEdit
         
         plusButton.isHidden = true
         topControlsContainer.addSubview(textPanel)
@@ -259,7 +260,7 @@ final class EditorToolbar: UIView {
             panelView: textPanel,
             colourPicker: colorPickerControl,
             panelContainer: topControlsContainer,
-            state: .init(
+            state: state ?? .init(
                 text: "",
                 font: textPanel.selectedFont,
                 color: .white,
@@ -289,7 +290,7 @@ final class EditorToolbar: UIView {
         )
     }
     
-    private func textModeHiddenKeyboard(overlay: TextViewEditingOverlay) {
+    private func textModeHiddenKeyboard(overlay: TextViewEditingOverlay, isCancel: Bool) {
         textPanel.isGradientVisible = true
         plusButton.isHidden = false
         plusButton.alpha = 0
@@ -310,16 +311,17 @@ final class EditorToolbar: UIView {
 
             self.plusButton.alpha = 1
             self.textPanel.width = self.plusButton.x - self.textPanel.x
-            overlay.alpha = 0
+            overlay.backgroundColor = .clear
         }, completion: { _ in
+            if isCancel {
+                self.editingResult?.view.isHidden = false
+            }
             overlay.removeFromSuperview()
         })
         
     }
     
     private func cancelTextMode() {
-        guard self.mode == .textEdit else { return }
-        self.mode = .base
         toolsContainer.alpha = 0
         addSubview(toolsContainer)
         self.modeSwitcher.select(0, animated: true)
@@ -355,12 +357,21 @@ extension EditorToolbar: ToolsContainerDelegate {
 }
 
 extension EditorToolbar: TextViewEditingOverlayDelegate {
-    func textEditingOverlay(_ overlay: TextViewEditingOverlay, doneEditingText: UITextView) {
-        textModeHiddenKeyboard(overlay: overlay)
+    
+    func textEditingOverlay(_ overlay: TextViewEditingOverlay, doneEditingText result: TextEditingResult) {
+        textModeHiddenKeyboard(overlay: overlay, isCancel: false)
+        _ = UITapGestureRecognizer(addingTo: result.view) { [weak self] _ in
+            self?.editingResult = result
+            result.view.isHidden = true
+            self?.animateToTextMode(state: result.state)
+        }
+        editingResult?.view.isHidden = false
+        editingResult?.view.removeFromSuperview()
+        actionHandler?(.textEditEnded(result))
     }
     
     func textEditingOverlayDidCancel(_ overlay: TextViewEditingOverlay) {
-        textModeHiddenKeyboard(overlay: overlay)
+        textModeHiddenKeyboard(overlay: overlay, isCancel: true)
         cancelTextMode()
     }
 }

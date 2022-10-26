@@ -20,7 +20,8 @@ final class TextPanel: UIView {
     var onAnyAttributeChange: VoidBlock?
 
     var selectedFont: UIFont {
-        fontsView.selectedFont!
+        get { fontsView.selectedFont! }
+        set { fontsView.selectedFont = newValue }
     }
     
     var isGradientVisible: Bool = true {

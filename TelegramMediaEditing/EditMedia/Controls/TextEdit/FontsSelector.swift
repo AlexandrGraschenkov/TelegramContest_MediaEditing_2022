@@ -20,10 +20,20 @@ final class FontsSelector: UIView {
     }
 
     var selectedFont: UIFont? {
-        guard let indexPath = collectionView.indexPathsForSelectedItems?.first, allFonts.indices.contains(indexPath.item) else {
-            return nil
+        get {
+            guard let indexPath = collectionView.indexPathsForSelectedItems?.first, allFonts.indices.contains(indexPath.item) else {
+                return nil
+            }
+            return allFonts[indexPath.item]
         }
-        return allFonts[indexPath.item]
+        set {
+            guard let font = newValue, let index = allFonts.firstIndex(of: font) else { return }
+            collectionView.selectItem(
+                at: IndexPath(item: index, section: 0),
+                animated: false,
+                scrollPosition: .left
+            )
+        }
     }
     
     private var collectionView: UICollectionView!
