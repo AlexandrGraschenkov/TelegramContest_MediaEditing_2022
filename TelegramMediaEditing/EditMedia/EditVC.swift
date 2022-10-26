@@ -51,10 +51,7 @@ final class EditVC: UIViewController {
         view.addSubview(scroll)
         scroll.setup(content: mediaContainer)
         
-        toolbar = EditorToolbar(frame: CGRect(x: 0, y: view.bounds.height - 196, width: view.bounds.width, height: 196))
-        toolbar.translatesAutoresizingMaskIntoConstraints = true
-        toolbar.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
-        view.addSubview(toolbar)
+        toolbar = EditorToolbar.createAndAdd(toView: view)
         toolbar.actionHandler = { [unowned self] action in
             switch action {
             case .toolChanged(let type):
@@ -78,7 +75,7 @@ final class EditVC: UIViewController {
         }
         
         layerContainer.mediaView = mediaContainer
-        nav = EditNavBar.addTo(view: view)
+        nav = EditNavBar.createAndAdd(toView: view)
         history.connect(forwardButton: nav.forward, backwardButton: nav.backward, clearAllButton: nav.clearAll)
         history.setup(container: layerContainer)
         

@@ -28,6 +28,16 @@ enum EditMode {
 
 final class EditorToolbar: UIView {
     
+    static func createAndAdd(toView view: UIView) -> EditorToolbar {
+        let botInset = UIApplication.shared.tm_keyWindow.safeAreaInsets.bottom
+        let height = botInset + 162
+        let toolbar = EditorToolbar(frame: CGRect(x: 0, y: view.bounds.height - height, width: view.bounds.width, height: height), bottomInset: botInset)
+        toolbar.translatesAutoresizingMaskIntoConstraints = true
+        toolbar.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
+        view.addSubview(toolbar)
+        return toolbar
+    }
+    
     var selectedColor: UIColor {
         get { colorPickerControl.selectedColour }
         set { colorPickerControl.selectedColour = newValue }
@@ -41,6 +51,9 @@ final class EditorToolbar: UIView {
     private let colorPickerControl = ColourPickerButton()
     private let modeSwitcher = CorneredSegmentedControl()
     private var toolsContainer: ToolsContainer!
+    private var backgroundBlurMask: UIView!
+    private var backgroundBlur: UIView!
+    private var bottomSafeInset: CGFloat = 0
     
     private lazy var slider: ToolSlider = {
         let slider = ToolSlider(frame: CGRect(x: 46.5, y: 0, width: bounds.width - 150, height: bottomControlsContainer.height))
@@ -66,24 +79,25 @@ final class EditorToolbar: UIView {
     
     private var mode: EditMode = .base
 
-    override init(frame: CGRect) {
+    init(frame: CGRect, bottomInset: CGFloat) {
         super.init(frame: frame)
+        bottomSafeInset = bottomInset
         setup()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
+        bottomSafeInset = superview?.safeInsets.bottom ?? 0
         setup()
     }
     
     private func setup() {
-        backgroundColor = .black.withAlphaComponent(0.5)
-        
         setupContainers()
         setupButtons()
         setupColourPicker()
         setupModeSwitcher()
         setupToolsContainer()
+        setupBackgroundBlur()
     }
     
     private func setupContainers() {
@@ -95,7 +109,7 @@ final class EditorToolbar: UIView {
             width: self.width,
             height: 44
         )
-        bottomControlsContainer.y = self.height - bottomControlsContainer.height - 2.5 - UIApplication.shared.tm_keyWindow.safeAreaInsets.bottom
+        bottomControlsContainer.y = self.height - bottomControlsContainer.height - 2.5 - bottomSafeInset
         bottomControlsContainer.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         
         addSubview(topControlsContainer)
@@ -129,14 +143,6 @@ final class EditorToolbar: UIView {
         modeSwitcher.width = width - cancelButton.width - saveButton.width - 32
         modeSwitcher.center = .init(x: bottomControlsContainer.width / 2, y: 33 / 2)
         modeSwitcher.autoresizingMask = [.flexibleWidth]
-
-        let pensContainer = ToolsContainer(frame: .init(x: 0, y: 0, width: width, height: bottomControlsContainer.y))
-        pensContainer.translatesAutoresizingMaskIntoConstraints = true
-        pensContainer.delegate = self
-        addSubview(pensContainer)
-        pensContainer.autoresizingMask = [.flexibleWidth]
-        self.toolsContainer = pensContainer
-        bringSubviewToFront(topControlsContainer)
     }
     
     private func setupButtons() {
@@ -214,6 +220,32 @@ final class EditorToolbar: UIView {
         toolsContainer.autoresizingMask = [.flexibleWidth]
         self.toolsContainer = toolsContainer
         bringSubviewToFront(topControlsContainer)
+    }
+    
+    private func setupBackgroundBlur() {
+        let blur = UIVisualEffectView(frame: bounds.inset(top: 30))
+        blur.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        blur.effect = UIBlurEffect(style: .regular)
+        for sub in blur.subviews {
+            let className = NSStringFromClass(type(of: sub))
+            if className == "_UIVisualEffectSubview" {
+                sub.backgroundColor = UIColor(white: 0, alpha: 0.3)
+            }
+//            print(NSStringFromClass(type(of: sub)))
+        }
+        
+        let mask = GradientView(frame: blur.frame)
+        mask.startPoint = CGPoint(x: 0.5, y: 0)
+        mask.endPoint = CGPoint(x: 0.5, y: 1)
+        mask.colors = [UIColor(white: 0, alpha: 0), UIColor.black, UIColor.black]
+        mask.locations = [0, NSNumber(value: 50 / blur.height), 1]
+        mask.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        blur.mask = mask
+//        blurMask = mask
+        
+        insertSubview(blur, at: 0)
+        backgroundBlur = blur
+        backgroundBlurMask = mask
     }
     
     private func animateToEditMode(animationDuration: TimeInterval, toolView: ToolView) {
@@ -360,6 +392,13 @@ final class EditorToolbar: UIView {
 
             }
         )
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+//         it's not in view hierarchy
+        backgroundBlurMask.frame = backgroundBlur.frame
     }
 }
 
