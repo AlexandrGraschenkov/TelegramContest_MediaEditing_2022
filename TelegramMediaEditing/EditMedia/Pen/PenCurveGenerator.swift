@@ -194,7 +194,7 @@ struct PenCurveGenerator {
             return p
         }
         let calcWidth: (CGFloat)->(CGFloat) = { fromWidth * (1-$0) + toWidth * $0 }
-        let maxPixErr: CGFloat = 0.4
+        let maxPixErr: CGFloat = 0.2
         let maxPixErrSqr = pow(maxPixErr, 2)
         let cosValThresh: CGFloat = 0.8
         

@@ -20,10 +20,13 @@ final class EditVC: UIViewController {
     var scroll: ZoomScrollView!
     var mediaContainer: UIView!
     var toolbar: EditorToolbar!
+    var history = History()
+    var layerContainer = LayerContainer()
+    var nav: EditNavBar!
     weak var colorContentPicker: ColorContentPicker? // destroys by itself
     lazy var pen: PenDrawer = {
         let brush = PenDrawer()
-        brush.setup(content: mediaContainer)
+        brush.setup(content: mediaContainer, history: history)
         return brush
     }()
     
@@ -69,6 +72,25 @@ final class EditVC: UIViewController {
                 break
             }
         }
+        
+        layerContainer.mediaView = mediaContainer
+        nav = EditNavBar.addTo(view: view)
+        history.connect(forwardButton: nav.forward, backwardButton: nav.backward, clearAllButton: nav.clearAll)
+        history.setup(container: layerContainer)
+        
+        setupZoomOutUI()
+    }
+    
+    fileprivate func setupZoomOutUI() {
+        scroll.onZoom = { [weak self] zoom in
+            guard let self = self else { return }
+            let contentSize = self.mediaContainer.bounds.size.mulitply(zoom)
+            let scrollSize = self.scroll.bounds.size
+            let zoomOutEnabled = contentSize.width > scrollSize.width && contentSize.height > scrollSize.height
+            self.nav.setZoomOut(enabled: zoomOutEnabled, animated: true)
+        }
+        nav.setZoomOut(enabled: false, animated: false)
+        nav.zoomOut.addTarget(scroll, action: #selector(ZoomScrollView.zoomOut), for: .touchUpInside)
     }
     
 //    private func addCloseButton() {
