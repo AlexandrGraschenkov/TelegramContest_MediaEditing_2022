@@ -25,7 +25,7 @@ final class CorneredSegmentedControl: UIView {
     }
     
     func select(_ index: Int, animated: Bool) {
-        guard index < segmentViews.count else { return }
+        guard index < segmentViews.count, selectedIndex != index else { return }
         let change = {
             self.selectionView.frame = self.segmentViews[index].frameIn(view: self).inset(by: .all(2))
         }
