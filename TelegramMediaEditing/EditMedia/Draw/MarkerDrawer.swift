@@ -21,7 +21,7 @@ class MarkerDrawer: ToolDrawer {
         curveGen.mode = .marker
     }
     
-    fileprivate var parentLayer: CALayer?
+    fileprivate var parentLayer: CAReplicatorLayer?
     fileprivate var bendStrokeLayer: CAShapeLayer?
     fileprivate var bendStrokePath: UIBezierPath?
     fileprivate var bendTranslate: CGPoint = .zero
@@ -30,7 +30,7 @@ class MarkerDrawer: ToolDrawer {
     override func updateDrawLayer() {
         if !splitOpt.isPrepared {
             let comp = color.components
-            let parentWithOpacity = CALayer()
+            let parentWithOpacity = CAReplicatorLayer()
             parentWithOpacity.opacity = Float(comp.a)
             content?.layer.addSublayer(parentWithOpacity)
             parentLayer = parentWithOpacity
@@ -66,19 +66,13 @@ class MarkerDrawer: ToolDrawer {
 //            bendStrokeLayer!.lineJoin = layer.lineJoin
 //            parentWithOpacity.addSublayer(bendStrokeLayer!)
             
-            let rep = CAReplicatorLayer()
-            rep.instanceTransform = CATransform3DMakeTranslation(t.x, t.y, 0)
-            rep.instanceCount = repCount
-            rep.addSublayer(layer)
+//            let rep = CAReplicatorLayer()
+            parentWithOpacity.instanceTransform = CATransform3DMakeTranslation(t.x, t.y, 0)
+            parentWithOpacity.instanceCount = repCount
+            parentWithOpacity.addSublayer(layer)
             
-            parentWithOpacity.addSublayer(rep)
+//            parentWithOpacity.addSublayer(rep)
             splitOpt.start(layer: layer, penGen: curveGen)
-            
-//            currentDrawDebugLayer = CAShapeLayer()
-//            currentDrawDebugLayer?.strokeColor = UIColor.red.cgColor
-//            currentDrawDebugLayer?.lineWidth = scale
-//            currentDrawDebugLayer?.fillColor = nil
-//            content?.layer.addSublayer(currentDrawDebugLayer!)
         }
         splitOpt.updatePath(points: drawPath)
         drawLinesOnBend()
@@ -120,7 +114,29 @@ class MarkerDrawer: ToolDrawer {
         for b in splitOpt.bezierArr {
             bezier.append(b)
         }
-        let forward = History.Element(objectId: name, action: .add(classType: CAShapeLayer.self), updateKeys: ["path": bezier.cgPath, "fillColor": color.cgColor, "lineWidth": 2, "strokeColor": color.cgColor])
+        var shapeDict: [String: Any] = [:]
+        if let l = parentLayer.sublayers?.first as? CAShapeLayer {
+            shapeDict["lineWidth"] = l.lineWidth
+            shapeDict["transform"] = l.transform
+            shapeDict["lineJoin"] = l.lineJoin
+            shapeDict["lineCap"] = l.lineCap
+            shapeDict["strokeColor"] = l.strokeColor
+        }
+        
+        let forward = History.Element(objectId: name, action: .add(classType: CAReplicatorLayer.self), updateKeys: ["instanceCount": parentLayer.instanceCount, "instanceTransform": parentLayer.instanceTransform, "opacity": parentLayer.opacity]) { elem, container in
+            guard let rep = container.layers[elem.objectId] else {
+                return
+            }
+            
+            let shape = CAShapeLayer()
+            shape.path = bezier.cgPath
+            shape.fillColor = nil
+            for (k, v) in shapeDict {
+                shape.setValue(v, forKeyPath: k)
+            }
+            rep.addSublayer(shape)
+        }
+        
         let backward = History.Element(objectId: name, action: .remove)
         history.add(element: .init(forward: [forward], backward: [backward]))
     }

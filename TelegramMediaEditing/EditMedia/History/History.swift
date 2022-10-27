@@ -170,7 +170,7 @@ class History {
         var backward: [Element]
     }
     struct Element {
-        init(objectId: String, action: History.Element.LayerAction, zIndex: Int? = nil, closure: ((Element, LayerContainer) -> ())? = nil, updateKeys: [String : Any]? = nil, backgroundFill: UIColor? = nil) {
+        init(objectId: String, action: History.Element.LayerAction, zIndex: Int? = nil, updateKeys: [String : Any]? = nil, backgroundFill: UIColor? = nil, closure: ((Element, LayerContainer) -> ())? = nil) {
             self.objectId = objectId
             self.action = action
             self.zIndex = zIndex
@@ -187,8 +187,8 @@ class History {
         let action: LayerAction
         
         var zIndex: Int?
-        var closure: ((Element, LayerContainer)->())?
         var updateKeys: [String: Any?]?
+        var closure: ((Element, LayerContainer)->())?
         
         var backgroundFill: UIColor? // TODO: don't forget implement it
     }
