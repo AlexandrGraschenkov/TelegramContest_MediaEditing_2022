@@ -9,7 +9,7 @@ import UIKit
 
 enum ToolType {
     case pen
-    case brush
+    case marker
     case neon
     case pencil
     case lasso
@@ -81,11 +81,11 @@ extension ToolViewConfig {
         )
     )
     
-    static let brush = ToolViewConfig(
-        baseImage: UIImage(named: "brush_base")!,
-        toolType: .brush,
+    static let marker = ToolViewConfig(
+        baseImage: UIImage(named: "marker_base")!,
+        toolType: .marker,
         invariants: .init(
-            tipImage: UIImage(named: "brush_tip")!,
+            tipImage: UIImage(named: "marker_tip")!,
             lineView: ToolLineView.straight(),
             initialColor: UIColor(red: 255, green: 230, blue: 32, a: 1),
             initialLineWidth: 6

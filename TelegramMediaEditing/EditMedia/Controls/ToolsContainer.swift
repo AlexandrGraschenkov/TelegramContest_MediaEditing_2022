@@ -44,13 +44,13 @@ final class ToolsContainer: UIView {
     private func setup() {
         clipsToBounds = true
         let pen = ToolView(config: .pen)
-        let brush = ToolView(config: .brush)
+        let marker = ToolView(config: .marker)
         let neon = ToolView(config: .neon)
         let pencil = ToolView(config: .pencil)
         let lasso = ToolView(config: .lasso)
         let eraser = ToolView(config: .eraser)
         
-        self.tools = [pen, brush, neon, pencil, lasso, eraser].map { tool in
+        self.tools = [pen, marker, neon, pencil, lasso, eraser].map { tool in
             tool.translatesAutoresizingMaskIntoConstraints = true
             let container = ToolViewContainer()
             container.frame.size = CGSize(width: 20, height: 88)

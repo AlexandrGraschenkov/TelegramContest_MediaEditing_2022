@@ -25,9 +25,14 @@ final class EditVC: UIViewController {
     var nav: EditNavBar!
     weak var colorContentPicker: ColorContentPicker? // destroys by itself
     lazy var pen: PenDrawer = {
-        let brush = PenDrawer()
-        brush.setup(content: mediaContainer, history: history)
-        return brush
+        let pen = PenDrawer()
+        pen.setup(content: mediaContainer, history: history)
+        return pen
+    }()
+    lazy var marker: MarkerDrawer = {
+        let marker = MarkerDrawer()
+        marker.setup(content: mediaContainer, history: history)
+        return marker
     }()
     
     override func viewDidLoad() {
@@ -56,12 +61,21 @@ final class EditVC: UIViewController {
             switch action {
             case .toolChanged(let type):
                 self.pen.active = type == .pen
+                self.marker.active = type == .marker
             case .colorChange(let color):
                 if self.pen.active {
                     self.pen.color = color
                 }
+                if self.marker.active {
+                    self.marker.color = color
+                }
             case .lineWidthChanged(let width):
-                self.pen.penSize = width
+                if self.pen.active {
+                    self.pen.toolSize = width
+                }
+                if self.marker.active {
+                    self.marker.toolSize = width
+                }
             case .openColorPicker:
                 self.openColorPicker()
             case .textEditBegan(let overlay):
