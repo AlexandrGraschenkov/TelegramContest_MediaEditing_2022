@@ -15,11 +15,7 @@ extension CGPoint: Hashable {
 }
 
 class MarkerDrawer: ToolDrawer {
-    override init() {
-        super.init()
-        
-        curveGen.mode = .marker
-    }
+    override var toolType: ToolType { .marker }
     
     fileprivate var parentLayer: CAReplicatorLayer?
     fileprivate var bendStrokeLayer: CAShapeLayer?
@@ -44,7 +40,7 @@ class MarkerDrawer: ToolDrawer {
             let repCount: Int = 3
             let layer = CAShapeLayer()
             layer.strokeColor = comp.toColorOverride(a: 1).cgColor
-            layer.lineWidth = toolSize * scale / CGFloat(repCount)
+            layer.lineWidth = toolSize * 2 * scale / CGFloat(repCount)
             layer.lineCap = .round
             layer.lineJoin = .round
 //            print("Tool size", toolSize * scale / 2)
@@ -74,8 +70,10 @@ class MarkerDrawer: ToolDrawer {
 //            parentWithOpacity.addSublayer(rep)
             splitOpt.start(layer: layer, penGen: curveGen)
         }
-        splitOpt.updatePath(points: drawPath)
-        drawLinesOnBend()
+        CALayer.withoutAnimation {
+            splitOpt.updatePath(points: drawPath)
+        }
+//        drawLinesOnBend()
 //        let bezier = penGen.generatePolygon(type: .standart, points: drawPath)
 //        currentDrawLayer?.path = bezier.cgPath
 //        var debugPath = penGen.generateStrokePolygon(type: .standart, points: drawPath)

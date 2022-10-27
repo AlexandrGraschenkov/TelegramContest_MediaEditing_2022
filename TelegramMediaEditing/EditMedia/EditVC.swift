@@ -76,8 +76,8 @@ final class EditVC: UIViewController {
                 if self.marker.active {
                     self.marker.toolSize = width
                 }
-            case .openColorPicker:
-                self.openColorPicker()
+            case .openColorPicker(startColor: let startColor):
+                self.openColorPicker(startColor: startColor)
             case .textEditBegan(let overlay):
                 self.addTextView(overlay: overlay)
             case .close:
@@ -120,13 +120,12 @@ final class EditVC: UIViewController {
 //        button.autoresizingMask = [.flexibleBottomMargin, .flexibleRightMargin]
 //    }
     
-    private func openColorPicker() {
+    private func openColorPicker(startColor: UIColor) {
         let picker = ColorPickerVC()
-        picker.color = pen.color
+        picker.color = startColor
         let onColorUpdate: (UIColor)->() = { [weak self] color in
             guard let self = self else { return }
-            self.pen.color = color
-            self.toolbar.selectedColor = color
+            self.toolbar.colorChangeOutside(color: color)
         }
         picker.onPickColorFromContent = { [weak self] in
             guard let self = self else { return }

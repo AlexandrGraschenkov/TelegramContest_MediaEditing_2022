@@ -14,7 +14,9 @@ private final class ToolViewContainer: UIView {
 protocol ToolsContainerDelegate: AnyObject {
     var viewForPopups: UIView? { get }
     func toolsContainer(_ container: ToolsContainer, didTriggerToolEdit: ToolView, animationDuration: Double)
+    func toolsContainer(_ container: ToolsContainer, didFinishToolEdit: ToolView)
     func toolsContainer(_ container: ToolsContainer, didChangeActiveTool: ToolView)
+//    func toolsContainer(_ container: ToolsContainer, didChangeActiveTool: ToolView)
 }
 
 final class ToolsContainer: UIView {
@@ -27,6 +29,7 @@ final class ToolsContainer: UIView {
     private var gradientMaskView: UIView!
     private let activeOffset: CGFloat = 0
     private let normalOffset: CGFloat = 14
+    private var isToolEditing: Bool = false
     
     var selectedTool: ToolView? {
         selectedIndex.flatMap { tools[$0].toolView }
@@ -89,9 +92,6 @@ final class ToolsContainer: UIView {
         let tapGR = UITapGestureRecognizer(target: self, action: #selector(onTap))
         addGestureRecognizer(tapGR)
         
-        let longPressGR = UILongPressGestureRecognizer(target: self, action: #selector(onLongPress))
-        addGestureRecognizer(longPressGR)
-        
         select(0, animated: false)
     }
     
@@ -123,6 +123,7 @@ final class ToolsContainer: UIView {
     }
     
     func finishEditing(animationDuration: Double) {
+        isToolEditing = false
         stack.isHidden = false
         isUserInteractionEnabled = false
         stack.collapse(animationDuration: animationDuration, completion: {
@@ -139,6 +140,7 @@ final class ToolsContainer: UIView {
     }
     
     private func triggerNavigaion(to tool: ToolViewContainer, index: Int) {
+        isToolEditing = true
         isUserInteractionEnabled = false
         stack.expand(
             index: index,
@@ -159,24 +161,17 @@ final class ToolsContainer: UIView {
     
     @objc
     private func onTap(_ gesture: UITapGestureRecognizer) {
-        guard let toolIndex = indedOfViewTouched(by: gesture), toolIndex != selectedIndex else { return }
-        
-        select(toolIndex, animated: true)
-        delegate?.toolsContainer(self, didChangeActiveTool: tools[toolIndex].toolView)
-    }
-    
-    @objc
-    private func onLongPress(_ gesture: UILongPressGestureRecognizer) {
         guard let toolIndex = indedOfViewTouched(by: gesture) else { return }
-        if toolIndex == selectedIndex, gesture.state == .began {
+        
+        if toolIndex != selectedIndex {
+            select(toolIndex, animated: true)
+            delegate?.toolsContainer(self, didChangeActiveTool: tools[toolIndex].toolView)
+        } else if isToolEditing {
+            delegate?.toolsContainer(self, didFinishToolEdit: tools[toolIndex].toolView)
+        } else {
             let isEditable = tools[toolIndex].toolView.config.invariants != nil
             guard isEditable else { return }
             triggerNavigaion(to: tools[toolIndex], index: toolIndex)
-            gesture.isEnabled = false
-            gesture.isEnabled = true
-        } else if gesture.state == .ended {
-            select(toolIndex, animated: true)
-            delegate?.toolsContainer(self, didChangeActiveTool: tools[toolIndex].toolView)
         }
     }
 }

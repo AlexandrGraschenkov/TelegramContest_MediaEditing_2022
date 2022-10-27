@@ -14,6 +14,7 @@ class ToolDrawer: NSObject {
             pan?.isEnabled = active
         }
     }
+    var toolType: ToolType { .pen }
     var color: UIColor = .white
     var toolSize: CGFloat = 10
     
@@ -49,6 +50,7 @@ class ToolDrawer: NSObject {
             curveGen.toolSize = toolSize*scale
             curveGen.scrollZoomScale = scale
             smooth.scale = scale
+            smooth.toolSize = toolSize
             smooth.debugView = content
             smooth.start()
             smooth.update(point: pp)
@@ -76,7 +78,11 @@ class ToolDrawer: NSObject {
     fileprivate(set) weak var content: UIView?
     fileprivate(set) weak var history: History?
     fileprivate(set) var drawPath: [PanPoint] = []
-    var curveGen = ToolCurveGenerator()
+    lazy var curveGen: ToolCurveGenerator = {
+        let gen = ToolCurveGenerator()
+        gen.mode = toolType
+        return gen
+    }()
     let splitOpt = ToolDrawSplitOptimizer()
     fileprivate var parentLayer: CAShapeLayer?
     

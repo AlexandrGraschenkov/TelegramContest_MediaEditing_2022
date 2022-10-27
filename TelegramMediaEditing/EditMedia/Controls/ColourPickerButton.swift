@@ -9,15 +9,15 @@ import UIKit
 
 final class ColourPickerButton: UIView {
     private var ringView: UIView!
-    private var centerView: ColourPickerCirlce!
+    private var centerView: ColourPickerCirlceOpacity!
     private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
     
     var onColourChange: ((UIColor) -> Void)?
-    var onPress: (() -> Void)?
+    var onPress: ((ColourPickerButton) -> Void)?
     
     var selectedColour: UIColor {
-        get { centerView.backgroundColor ?? .white }
-        set { centerView.backgroundColor = newValue }
+        get { centerView.color }
+        set { centerView.color = newValue }
     }
     
     override init(frame: CGRect) {
@@ -31,7 +31,7 @@ final class ColourPickerButton: UIView {
     
     private func setup() {
         ringView = UIImageView(image: UIImage(named: "edit_colour_control_ring")!)
-        centerView = ColourPickerCirlce()
+        centerView = ColourPickerCirlceOpacity(frame: CGRect(origin: .zero, size: .square(side: 30)))
         addSubview(ringView)
         addSubview(centerView)
         
@@ -61,7 +61,7 @@ final class ColourPickerButton: UIView {
 //        let state = tap.state
 //        print(state)
         if tap.state == .ended {
-            onPress?()
+            onPress?(self)
         }
     }
     
@@ -95,7 +95,7 @@ final class ColourPickerButton: UIView {
             
             let pickedColor = activeGradientView.getColor(at: center) ?? .clear
             pickerView.backgroundColor = pickedColor
-            centerView.backgroundColor = pickedColor
+            centerView.color = pickedColor
             
             onColourChange?(pickedColor)
         @unknown default:
@@ -174,7 +174,7 @@ final class ColourPickerButton: UIView {
         pickerView = nil
         let gradientOverlay = UIView(frame: gradient.bounds)
         gradientOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        gradientOverlay.backgroundColor = centerView.backgroundColor
+        gradientOverlay.backgroundColor = centerView.color
         gradientOverlay.alpha = 0
         gradient.addSubview(gradientOverlay)
         UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut]) {

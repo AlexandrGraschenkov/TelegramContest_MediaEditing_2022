@@ -15,7 +15,7 @@ enum EditToolbarAction {
     case lineWidthChanged(CGFloat)
     case toolShapeChanged(ToolShape)
     case colorChange(UIColor)
-    case openColorPicker
+    case openColorPicker(startColor: UIColor)
     case textEditBegan(TextViewEditingOverlay)
     case textEditEnded
 }
@@ -38,10 +38,12 @@ final class EditorToolbar: UIView {
         return toolbar
     }
     
-    var selectedColor: UIColor {
-        get { colorPickerControl.selectedColour }
-        set { colorPickerControl.selectedColour = newValue }
+    func colorChangeOutside(color: UIColor) {
+        toolsContainer.selectedTool?.tintColor = color
+        colorPickerControl.selectedColour = color
+        colorPickerControl.onColourChange?(color)
     }
+    
     var actionHandler: ((EditToolbarAction) -> Void)?
     private var cancelButton = BackOrCancelButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
     private var saveButton = UIButton()
@@ -132,8 +134,8 @@ final class EditorToolbar: UIView {
             self?.actionHandler?(.colorChange(color))
             self?.toolsContainer.selectedTool?.tintColor = color
         }
-        colorPickerControl.onPress = { [weak self] in
-            self?.actionHandler?(.openColorPicker)
+        colorPickerControl.onPress = { [weak self] butt in
+            self?.actionHandler?(.openColorPicker(startColor: butt.selectedColour))
         }
 
         modeSwitcher.select(0, animated: false)
@@ -277,7 +279,7 @@ final class EditorToolbar: UIView {
         UIView.animate(
             withDuration: animationDuration,
             delay: 0,
-            options: [],
+            options: [.beginFromCurrentState],
             animations: {
                 buttonsToScale.forEach { $0.transform = .init(scaleX: 0.1, y: 0.1) }
                 self.modeSwitcher.alpha = 0
@@ -300,7 +302,7 @@ final class EditorToolbar: UIView {
         UIView.animate(
             withDuration: animationDuration,
             delay: 0,
-            options: [],
+            options: [.beginFromCurrentState],
             animations: {
                 buttonsToScale.forEach { $0.transform = .identity }
                 self.modeSwitcher.alpha = 1
@@ -413,6 +415,16 @@ extension EditorToolbar: ToolsContainerDelegate {
     
     func toolsContainer(_ container: ToolsContainer, didChangeActiveTool tool: ToolView) {
         actionHandler?(.toolChanged(tool.config.toolType))
+        let lineWidth = tool.lineWidth ?? tool.config.invariants?.initialLineWidth ?? 10
+        actionHandler?(.lineWidthChanged(lineWidth))
+        actionHandler?(.colorChange(tool.tintColor))
+        UIView.animate(withDuration: 0.2) {
+            self.colorPickerControl.selectedColour = tool.tintColor
+        }
+    }
+    
+    func toolsContainer(_ container: ToolsContainer, didFinishToolEdit tool: ToolView) {
+        animateFromEditMode(animationDuration: 0.3)
     }
 }
 
