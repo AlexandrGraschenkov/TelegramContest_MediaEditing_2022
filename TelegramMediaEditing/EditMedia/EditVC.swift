@@ -25,9 +25,14 @@ final class EditVC: UIViewController {
     var nav: EditNavBar!
     weak var colorContentPicker: ColorContentPicker? // destroys by itself
     lazy var pen: PenDrawer = {
-        let brush = PenDrawer()
-        brush.setup(content: mediaContainer, history: history)
-        return brush
+        let pen = PenDrawer()
+        pen.setup(content: mediaContainer, history: history)
+        return pen
+    }()
+    lazy var marker: MarkerDrawer = {
+        let marker = MarkerDrawer()
+        marker.setup(content: mediaContainer, history: history)
+        return marker
     }()
     
     override func viewDidLoad() {
@@ -51,22 +56,28 @@ final class EditVC: UIViewController {
         view.addSubview(scroll)
         scroll.setup(content: mediaContainer)
         
-        toolbar = EditorToolbar(frame: CGRect(x: 0, y: view.bounds.height - 196, width: view.bounds.width, height: 196))
-        toolbar.translatesAutoresizingMaskIntoConstraints = true
-        toolbar.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
-        view.addSubview(toolbar)
+        toolbar = EditorToolbar.createAndAdd(toView: view)
         toolbar.actionHandler = { [unowned self] action in
             switch action {
             case .toolChanged(let type):
                 self.pen.active = type == .pen
+                self.marker.active = type == .marker
             case .colorChange(let color):
                 if self.pen.active {
                     self.pen.color = color
                 }
+                if self.marker.active {
+                    self.marker.color = color
+                }
             case .lineWidthChanged(let width):
-                self.pen.penSize = width
-            case .openColorPicker:
-                self.openColorPicker()
+                if self.pen.active {
+                    self.pen.toolSize = width
+                }
+                if self.marker.active {
+                    self.marker.toolSize = width
+                }
+            case .openColorPicker(startColor: let startColor):
+                self.openColorPicker(startColor: startColor)
             case .textEditBegan(let overlay):
                 self.addTextView(overlay: overlay)
             case .close:
@@ -78,7 +89,7 @@ final class EditVC: UIViewController {
         }
         
         layerContainer.mediaView = mediaContainer
-        nav = EditNavBar.addTo(view: view)
+        nav = EditNavBar.createAndAdd(toView: view)
         history.connect(forwardButton: nav.forward, backwardButton: nav.backward, clearAllButton: nav.clearAll)
         history.setup(container: layerContainer)
         
@@ -109,13 +120,12 @@ final class EditVC: UIViewController {
 //        button.autoresizingMask = [.flexibleBottomMargin, .flexibleRightMargin]
 //    }
     
-    private func openColorPicker() {
+    private func openColorPicker(startColor: UIColor) {
         let picker = ColorPickerVC()
-        picker.color = pen.color
+        picker.color = startColor
         let onColorUpdate: (UIColor)->() = { [weak self] color in
             guard let self = self else { return }
-            self.pen.color = color
-            self.toolbar.selectedColor = color
+            self.toolbar.colorChangeOutside(color: color)
         }
         picker.onPickColorFromContent = { [weak self] in
             guard let self = self else { return }

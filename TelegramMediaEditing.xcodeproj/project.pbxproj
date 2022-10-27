@@ -47,9 +47,12 @@
 		FA4BF3D628F6A80100592051 /* UIImage+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */; };
 		FA4BF3D828F6AAC700592051 /* ZoomScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */; };
 		FA4BF3DB28F6B42400592051 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = FA4BF3DA28F6B42400592051 /* Lottie */; };
+		FACBB876290A72D3005B6941 /* ToolDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB875290A72D3005B6941 /* ToolDrawer.swift */; };
+		FACBB87A290A791A005B6941 /* MarkerDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB879290A791A005B6941 /* MarkerDrawer.swift */; };
+		FACBB87C290AAE52005B6941 /* Bezier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB87B290AAE52005B6941 /* Bezier.swift */; };
 		FACE5BD3290057C600960A48 /* PenPlume.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD2290057C600960A48 /* PenPlume.swift */; };
 		FACE5BD5290147EF00960A48 /* DisplayLinkAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */; };
-		FACE5BD7290151DE00960A48 /* PenSplitOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD6290151DE00960A48 /* PenSplitOptimizer.swift */; };
+		FACE5BD7290151DE00960A48 /* ToolDrawSplitOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD6290151DE00960A48 /* ToolDrawSplitOptimizer.swift */; };
 		FACE5BDB2902D13200960A48 /* ColorPickerVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD92902D13200960A48 /* ColorPickerVC.swift */; };
 		FACE5BDC2902D13200960A48 /* ColorPickerVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = FACE5BDA2902D13200960A48 /* ColorPickerVC.xib */; };
 		FACE5BDE2902E75E00960A48 /* ColorGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BDD2902E75E00960A48 /* ColorGridView.swift */; };
@@ -64,7 +67,7 @@
 		FADCE22129092F3400E92CD9 /* LayerContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADCE22029092F3400E92CD9 /* LayerContainer.swift */; };
 		FADCE2232909568F00E92CD9 /* EditNavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADCE2222909568F00E92CD9 /* EditNavBar.swift */; };
 		FAEDF41828F9B7BF00094ADF /* PenDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41728F9B7BF00094ADF /* PenDrawer.swift */; };
-		FAEDF41B28F9F49200094ADF /* PenCurveGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41A28F9F49200094ADF /* PenCurveGenerator.swift */; };
+		FAEDF41B28F9F49200094ADF /* ToolCurveGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF41A28F9F49200094ADF /* ToolCurveGenerator.swift */; };
 		FAEDF42328FB3D7900094ADF /* GausianSmooth.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */; };
 		FAEDF42528FC082F00094ADF /* PanSmoothIK.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDF42428FC082F00094ADF /* PanSmoothIK.swift */; };
 /* End PBXBuildFile section */
@@ -111,9 +114,12 @@
 		FA4BF3D328F6A4E800592051 /* EditVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditVC.swift; sourceTree = "<group>"; };
 		FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ex.swift"; sourceTree = "<group>"; };
 		FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomScrollView.swift; sourceTree = "<group>"; };
+		FACBB875290A72D3005B6941 /* ToolDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDrawer.swift; sourceTree = "<group>"; };
+		FACBB879290A791A005B6941 /* MarkerDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerDrawer.swift; sourceTree = "<group>"; };
+		FACBB87B290AAE52005B6941 /* Bezier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bezier.swift; sourceTree = "<group>"; };
 		FACE5BD2290057C600960A48 /* PenPlume.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenPlume.swift; sourceTree = "<group>"; };
 		FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayLinkAnimator.swift; sourceTree = "<group>"; };
-		FACE5BD6290151DE00960A48 /* PenSplitOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenSplitOptimizer.swift; sourceTree = "<group>"; };
+		FACE5BD6290151DE00960A48 /* ToolDrawSplitOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDrawSplitOptimizer.swift; sourceTree = "<group>"; };
 		FACE5BD92902D13200960A48 /* ColorPickerVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerVC.swift; sourceTree = "<group>"; };
 		FACE5BDA2902D13200960A48 /* ColorPickerVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ColorPickerVC.xib; sourceTree = "<group>"; };
 		FACE5BDD2902E75E00960A48 /* ColorGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorGridView.swift; sourceTree = "<group>"; };
@@ -128,7 +134,7 @@
 		FADCE22029092F3400E92CD9 /* LayerContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerContainer.swift; sourceTree = "<group>"; };
 		FADCE2222909568F00E92CD9 /* EditNavBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditNavBar.swift; sourceTree = "<group>"; };
 		FAEDF41728F9B7BF00094ADF /* PenDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenDrawer.swift; sourceTree = "<group>"; };
-		FAEDF41A28F9F49200094ADF /* PenCurveGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenCurveGenerator.swift; sourceTree = "<group>"; };
+		FAEDF41A28F9F49200094ADF /* ToolCurveGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolCurveGenerator.swift; sourceTree = "<group>"; };
 		FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GausianSmooth.swift; sourceTree = "<group>"; };
 		FAEDF42428FC082F00094ADF /* PanSmoothIK.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanSmoothIK.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -246,24 +252,35 @@
 				FADCE21D29091E1000E92CD9 /* History */,
 				FACE5BD82902D11C00960A48 /* ColorPicker */,
 				AAAB482128F96A82008373CB /* Controls */,
-				FACE5BD1290026AF00960A48 /* Pen */,
+				FACBB877290A72D8005B6941 /* Draw */,
 				FA4BF3D328F6A4E800592051 /* EditVC.swift */,
 				FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */,
 			);
 			path = EditMedia;
 			sourceTree = "<group>";
 		};
-		FACE5BD1290026AF00960A48 /* Pen */ = {
+		FACBB877290A72D8005B6941 /* Draw */ = {
 			isa = PBXGroup;
 			children = (
+				FACBB878290A74C3005B6941 /* Common */,
 				FAEDF41728F9B7BF00094ADF /* PenDrawer.swift */,
-				FAEDF41A28F9F49200094ADF /* PenCurveGenerator.swift */,
+				FACBB879290A791A005B6941 /* MarkerDrawer.swift */,
+			);
+			path = Draw;
+			sourceTree = "<group>";
+		};
+		FACBB878290A74C3005B6941 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				FACBB875290A72D3005B6941 /* ToolDrawer.swift */,
+				FAEDF41A28F9F49200094ADF /* ToolCurveGenerator.swift */,
 				FAEDF42228FB3D7900094ADF /* GausianSmooth.swift */,
 				FAEDF42428FC082F00094ADF /* PanSmoothIK.swift */,
 				FACE5BD2290057C600960A48 /* PenPlume.swift */,
-				FACE5BD6290151DE00960A48 /* PenSplitOptimizer.swift */,
+				FACE5BD6290151DE00960A48 /* ToolDrawSplitOptimizer.swift */,
+				FACBB87B290AAE52005B6941 /* Bezier.swift */,
 			);
-			path = Pen;
+			path = Common;
 			sourceTree = "<group>";
 		};
 		FACE5BD82902D11C00960A48 /* ColorPicker */ = {
@@ -382,6 +399,7 @@
 				FADCE22129092F3400E92CD9 /* LayerContainer.swift in Sources */,
 				AA77710F28FC891600CF73C0 /* PassthroughView.swift in Sources */,
 				FA4BF3D828F6AAC700592051 /* ZoomScrollView.swift in Sources */,
+				FACBB87A290A791A005B6941 /* MarkerDrawer.swift in Sources */,
 				FACE5BDB2902D13200960A48 /* ColorPickerVC.swift in Sources */,
 				FA39D93A28F7FE1900CBA7A4 /* PHImageManager+Ex.swift in Sources */,
 				FA046F0528F56996002D5023 /* PHPhotoLibrary+Ex.swift in Sources */,
@@ -392,12 +410,14 @@
 				FADCE20D290430FF00E92CD9 /* ColorSlidersView.swift in Sources */,
 				AAAB482328F96A8F008373CB /* EditToolbar.swift in Sources */,
 				FADCE211290540F300E92CD9 /* ValueLabel.swift in Sources */,
+				FACBB876290A72D3005B6941 /* ToolDrawer.swift in Sources */,
 				AAAB484328FC58FC008373CB /* PopupMenu.swift in Sources */,
 				FACE5BD3290057C600960A48 /* PenPlume.swift in Sources */,
 				AAA335CE28F6CE6F00B86B89 /* ImageCell.swift in Sources */,
 				AAA335CC28F6CCE100B86B89 /* GalleryViewController.swift in Sources */,
 				FAEDF42328FB3D7900094ADF /* GausianSmooth.swift in Sources */,
 				FA046F0128F55953002D5023 /* Extensions.swift in Sources */,
+				FACBB87C290AAE52005B6941 /* Bezier.swift in Sources */,
 				FADCE2192906AFE400E92CD9 /* FavoriteColorsView.swift in Sources */,
 				AAAB483128F9C876008373CB /* ToolsContainer.swift in Sources */,
 				AAAB483328FAD13A008373CB /* CorneredSegmentedControl.swift in Sources */,
@@ -426,10 +446,10 @@
 				AA79DEAB290320BE00905FEF /* FontsSelector.swift in Sources */,
 				FA046F0728F569BE002D5023 /* GlobalFunctions.swift in Sources */,
 				FACE5BDE2902E75E00960A48 /* ColorGridView.swift in Sources */,
-				FACE5BD7290151DE00960A48 /* PenSplitOptimizer.swift in Sources */,
+				FACE5BD7290151DE00960A48 /* ToolDrawSplitOptimizer.swift in Sources */,
 				AA79DEB1290343E200905FEF /* RectsUnion.swift in Sources */,
 				AA79DEAD2903363B00905FEF /* TextAlignmentButton.swift in Sources */,
-				FAEDF41B28F9F49200094ADF /* PenCurveGenerator.swift in Sources */,
+				FAEDF41B28F9F49200094ADF /* ToolCurveGenerator.swift in Sources */,
 				FAEDF42528FC082F00094ADF /* PanSmoothIK.swift in Sources */,
 				FACE5BD5290147EF00960A48 /* DisplayLinkAnimator.swift in Sources */,
 				AAAB482928F97F82008373CB /* Array+Zip3.swift in Sources */,

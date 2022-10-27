@@ -14,7 +14,9 @@ private final class ToolViewContainer: UIView {
 protocol ToolsContainerDelegate: AnyObject {
     var viewForPopups: UIView? { get }
     func toolsContainer(_ container: ToolsContainer, didTriggerToolEdit: ToolView, animationDuration: Double)
+    func toolsContainer(_ container: ToolsContainer, didFinishToolEdit: ToolView)
     func toolsContainer(_ container: ToolsContainer, didChangeActiveTool: ToolView)
+//    func toolsContainer(_ container: ToolsContainer, didChangeActiveTool: ToolView)
 }
 
 final class ToolsContainer: UIView {
@@ -24,7 +26,10 @@ final class ToolsContainer: UIView {
     private var tools: [ToolViewContainer] = []
     private var selectedIndex: Int?
     private var stack: ToolsStack!
-    private var gradientView: UIView!
+    private var gradientMaskView: UIView!
+    private let activeOffset: CGFloat = 0
+    private let normalOffset: CGFloat = 14
+    private var isToolEditing: Bool = false
     
     var selectedTool: ToolView? {
         selectedIndex.flatMap { tools[$0].toolView }
@@ -42,13 +47,13 @@ final class ToolsContainer: UIView {
     private func setup() {
         clipsToBounds = true
         let pen = ToolView(config: .pen)
-        let brush = ToolView(config: .brush)
+        let marker = ToolView(config: .marker)
         let neon = ToolView(config: .neon)
         let pencil = ToolView(config: .pencil)
         let lasso = ToolView(config: .lasso)
         let eraser = ToolView(config: .eraser)
         
-        self.tools = [pen, brush, neon, pencil, lasso, eraser].map { tool in
+        self.tools = [pen, marker, neon, pencil, lasso, eraser].map { tool in
             tool.translatesAutoresizingMaskIntoConstraints = true
             let container = ToolViewContainer()
             container.frame.size = CGSize(width: 20, height: 88)
@@ -64,7 +69,7 @@ final class ToolsContainer: UIView {
         }
         
         for container in tools {
-            container.toolView.transform = .init(translationX: 0, y: 12)
+            container.toolView.transform = .init(translationX: 0, y: normalOffset)
         }
         
         let stackView = ToolsStack(views: self.tools)
@@ -75,18 +80,17 @@ final class ToolsContainer: UIView {
         stackView.insets = .init(top: 33, left: 75, bottom: 0, right: 75)
         self.stack = stackView
         
-        let gradient = GradientView(frame: .zero)
-        gradient.isUserInteractionEnabled = false
-        addSubview(gradient)
-        gradient.frame = .init(x: 75, y: bounds.height - 16, width: bounds.width - 150, height: 16)
-        gradient.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
-        self.gradientView = gradient
+        let gradientMask = GradientView(frame: .zero)
+        gradientMask.colors = [.black, .black, .clear]
+        gradientMask.locations = [0, NSNumber(value: (bounds.height - 16) / bounds.height), 1]
+        gradientMask.isUserInteractionEnabled = false
+        gradientMask.frame = .init(x: 75, y: 0, width: bounds.width - 150, height: bounds.height)
+        gradientMask.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
+        mask = gradientMask
+        self.gradientMaskView = gradientMask
         
         let tapGR = UITapGestureRecognizer(target: self, action: #selector(onTap))
         addGestureRecognizer(tapGR)
-        
-        let longPressGR = UILongPressGestureRecognizer(target: self, action: #selector(onLongPress))
-        addGestureRecognizer(longPressGR)
         
         select(0, animated: false)
     }
@@ -96,9 +100,9 @@ final class ToolsContainer: UIView {
         let currentSelection = selectedIndex
         let change = {
             if let currentSelection = currentSelection {
-                self.tools[currentSelection].toolView.transform = .init(translationX: 0, y: 12)
+                self.tools[currentSelection].toolView.transform = .init(translationX: 0, y: self.normalOffset)
             }
-            self.tools[index].toolView.transform = .identity
+            self.tools[index].toolView.transform = .init(translationX: 0, y: self.activeOffset)
         }
         
         selectedIndex = index
@@ -119,14 +123,15 @@ final class ToolsContainer: UIView {
     }
     
     func finishEditing(animationDuration: Double) {
+        isToolEditing = false
         stack.isHidden = false
         isUserInteractionEnabled = false
         stack.collapse(animationDuration: animationDuration, completion: {
             self.isUserInteractionEnabled = true
         })
         UIView.animate(withDuration: animationDuration) {
-            self.gradientView.height -= 16
-            self.gradientView.y += 16
+            self.gradientMaskView.height -= 16
+            self.gradientMaskView.y += 16
         }
     }
     
@@ -135,17 +140,18 @@ final class ToolsContainer: UIView {
     }
     
     private func triggerNavigaion(to tool: ToolViewContainer, index: Int) {
+        isToolEditing = true
         isUserInteractionEnabled = false
         stack.expand(
             index: index,
             insertAction: { [weak self] view in
                 guard let self = self else { return }
-                self.insertSubview(view, belowSubview: self.gradientView)
+                self.insertSubview(view, belowSubview: self.gradientMaskView)
             },
             outsideAnimations: { [weak self] toolView, duration in
                 guard let self = self else { return }
-                self.gradientView.height += 16
-                self.gradientView.y -= 16
+                self.gradientMaskView.height += 16
+                self.gradientMaskView.y -= 16
                 self.delegate?.toolsContainer(self, didTriggerToolEdit: toolView, animationDuration: duration)
             }, animationCompletion: {
                 self.isUserInteractionEnabled = true
@@ -155,24 +161,17 @@ final class ToolsContainer: UIView {
     
     @objc
     private func onTap(_ gesture: UITapGestureRecognizer) {
-        guard let toolIndex = indedOfViewTouched(by: gesture), toolIndex != selectedIndex else { return }
-        
-        select(toolIndex, animated: true)
-        delegate?.toolsContainer(self, didChangeActiveTool: tools[toolIndex].toolView)
-    }
-    
-    @objc
-    private func onLongPress(_ gesture: UILongPressGestureRecognizer) {
         guard let toolIndex = indedOfViewTouched(by: gesture) else { return }
-        if toolIndex == selectedIndex, gesture.state == .began {
+        
+        if toolIndex != selectedIndex {
+            select(toolIndex, animated: true)
+            delegate?.toolsContainer(self, didChangeActiveTool: tools[toolIndex].toolView)
+        } else if isToolEditing {
+            delegate?.toolsContainer(self, didFinishToolEdit: tools[toolIndex].toolView)
+        } else {
             let isEditable = tools[toolIndex].toolView.config.invariants != nil
             guard isEditable else { return }
             triggerNavigaion(to: tools[toolIndex], index: toolIndex)
-            gesture.isEnabled = false
-            gesture.isEnabled = true
-        } else if gesture.state == .ended {
-            select(toolIndex, animated: true)
-            delegate?.toolsContainer(self, didChangeActiveTool: tools[toolIndex].toolView)
         }
     }
 }

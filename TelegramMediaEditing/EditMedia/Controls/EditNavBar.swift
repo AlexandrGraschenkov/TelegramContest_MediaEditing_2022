@@ -28,7 +28,7 @@ class EditNavBar: UIView {
         }
     }
     
-    static func addTo(view: UIView) -> EditNavBar {
+    static func createAndAdd(toView view: UIView) -> EditNavBar {
         let bar = EditNavBar(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         view.addSubview(bar)
         bar.pinEdges(to: view, edges: [.top, .leading, .trailing])
