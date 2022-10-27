@@ -181,4 +181,28 @@ extension UIView {
         pinCenterX(to: otherView)
         pinCenterY(to: otherView)
     }
+    
+    var safeInsets: UIEdgeInsets {
+        if #available(iOS 11.0, *) {
+            return safeAreaInsets
+        } else {
+            return UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
+        }
+    }
+    
+    var isInsideAnimationBlock: Bool {
+        let act = action(for: layer, forKey: "position")
+        if act is NSNull {
+            return false
+        }
+        return act != nil
+    }
+}
+
+public extension UIView {
+    static func loadFromXib<T>(name: String? = nil) -> T {
+        let nibName = name ?? "\(self)"
+        let nib = UINib(nibName: nibName, bundle: Bundle(for: self))
+        return nib.instantiate(withOwner: self, options: nil).first as! T
+    }
 }

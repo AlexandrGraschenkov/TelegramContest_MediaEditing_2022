@@ -29,6 +29,7 @@ class ZoomScrollView: UIScrollView {
         centerScrollViewContents()
     }
 
+    var onZoom: ((CGFloat)->())?
     fileprivate(set) var content: UIView!
     fileprivate var screenScale: CGFloat!
     override var frame: CGRect {
@@ -42,6 +43,10 @@ class ZoomScrollView: UIScrollView {
                                         y: -safeAreaInsets.top - contentInset.top)
             }
         }
+    }
+    
+    @objc func zoomOut() {
+        setZoomScale(minimumZoomScale, animated: true)
     }
     
     /// add insets to content, to center it on minimal zoom
@@ -97,6 +102,7 @@ extension ZoomScrollView: UIScrollViewDelegate {
 //            print("----", zoom)
             prevZoom = zoom
             centerScrollViewContents()
+            onZoom?(zoom)
         } else {
 //            print("•••", zoomScale)
         }

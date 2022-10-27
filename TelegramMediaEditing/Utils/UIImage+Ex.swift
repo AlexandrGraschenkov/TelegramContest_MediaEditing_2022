@@ -12,6 +12,7 @@ extension UIImage {
         return CGSize(width: size.width * scale, height: size.height * scale)
     }
     
+    /// expects RGBA format
     func getColor(at point: CGPoint) -> UIColor? {
         let x = Int(point.x)
         let y = Int(point.y)
@@ -19,17 +20,23 @@ extension UIImage {
             return nil
         }
         
-        let provider = self.cgImage!.dataProvider
+        let provider = cgImage!.dataProvider
         let providerData = provider!.data
         let data = CFDataGetBytePtr(providerData)
         
-        let numberOfComponents = 4
-        let pixelData = ((Int(size.width) * y) + x) * numberOfComponents
+        let yStep = cgImage!.bytesPerRow
+        let xStep = cgImage!.bitsPerPixel / 8
+        let pixelData = yStep * y + xStep * x
         
         let r = CGFloat(data![pixelData]) / 255.0
         let g = CGFloat(data![pixelData + 1]) / 255.0
         let b = CGFloat(data![pixelData + 2]) / 255.0
-        let a = CGFloat(data![pixelData + 3]) / 255.0
+        let a: CGFloat
+        if xStep < 4 { // without alpha
+            a = 1
+        } else {
+            a = CGFloat(data![pixelData + 3]) / 255.0
+        }
         
         return UIColor(red: r, green: g, blue: b, alpha: a)
     }

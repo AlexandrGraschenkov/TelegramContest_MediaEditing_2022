@@ -12,7 +12,7 @@ final class TestViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .black
                 
-        let toolbar = EditorToolbar(frame: CGRect(x: 0, y: view.bounds.height - 196, width: view.bounds.width, height: 196))
+        let toolbar = EditorToolbar.createAndAdd(toView: view)
         toolbar.translatesAutoresizingMaskIntoConstraints = true
         toolbar.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         view.addSubview(toolbar)

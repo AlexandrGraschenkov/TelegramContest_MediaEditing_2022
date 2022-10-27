@@ -16,6 +16,10 @@ final class GradientView: UIView {
             gradientLayer.colors = colors.map(\.cgColor)
         }
     }
+    var locations: [NSNumber]? {
+        get { gradientLayer.locations }
+        set { gradientLayer.locations = newValue }
+    }
     
     var startPoint: CGPoint = CGPoint(x: 0.5, y: 0) {
         didSet {
@@ -41,5 +45,14 @@ final class GradientView: UIView {
         super.init(frame: frame)
         let layer = self.layer as! CAGradientLayer
         layer.colors = self.colors.map(\.cgColor)
+    }
+    
+    override func action(for layer: CALayer, forKey event: String) -> CAAction? {
+        if event == "colors" && isInsideAnimationBlock {
+            let tr = CATransition()
+            tr.type = .fade
+            return tr
+        }
+        return super.action(for: layer, forKey: event)
     }
 }

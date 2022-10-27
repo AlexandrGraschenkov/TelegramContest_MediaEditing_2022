@@ -1,5 +1,5 @@
 //
-//  PenSplitOptimizer.swift
+//  ToolDrawSplitOptimizer.swift
 //  TelegramMediaEditing
 //
 //  Created by Alexander Graschenkov on 20.10.2022.
@@ -8,21 +8,25 @@
 import UIKit
 
 /// Если пользователь будет водить продолжительное время кисточкой, обновление CAShapeLayer начинает занимать слишком много, поэтому бъем на кусочки
-class PenSplitOptimizer: NSObject {
+class ToolDrawSplitOptimizer: NSObject {
     fileprivate(set) var bezierArr: [UIBezierPath] = []
     fileprivate(set) var shapeArr: [CAShapeLayer] = []
-    fileprivate(set) var penGen: PenCurveGenerator!
+    fileprivate(set) var penGen: ToolCurveGenerator!
     fileprivate(set) var frozenCount: Int = 0
-    let splitThreshCount = 150
-    let splitCount = 100
+    let splitThreshCount = 100
+    let splitCount = 80
     fileprivate(set) var isPrepared: Bool = false
     
-    func start(layer: CAShapeLayer, penGen: PenCurveGenerator) {
+    func start(layer: CAShapeLayer, penGen: ToolCurveGenerator) {
         isPrepared = true
         shapeArr = [layer]
         bezierArr = [UIBezierPath()]
         self.penGen = penGen
         frozenCount = 0
+    }
+    
+    func finish() {
+        isPrepared = false
     }
     
     func finish(updateLayer: Bool, points: [PanPoint]) {
@@ -63,6 +67,7 @@ fileprivate extension CAShapeLayer {
         res.lineWidth = lineWidth
         res.lineCap = .round
         res.lineJoin = .round
+        res.transform = transform
         return res
     }
 }

@@ -9,14 +9,15 @@ import UIKit
 
 final class ColourPickerButton: UIView {
     private var ringView: UIView!
-    private var centerView: ColourPickerCirlce!
+    private var centerView: ColourPickerCirlceOpacity!
     private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
     
     var onColourChange: ((UIColor) -> Void)?
+    var onPress: ((ColourPickerButton) -> Void)?
     
     var selectedColour: UIColor {
-        get { centerView.backgroundColor ?? .white }
-        set { centerView.backgroundColor = newValue }
+        get { centerView.color }
+        set { centerView.color = newValue }
     }
     
     override init(frame: CGRect) {
@@ -30,7 +31,7 @@ final class ColourPickerButton: UIView {
     
     private func setup() {
         ringView = UIImageView(image: UIImage(named: "edit_colour_control_ring")!)
-        centerView = ColourPickerCirlce()
+        centerView = ColourPickerCirlceOpacity(frame: CGRect(origin: .zero, size: .square(side: 30)))
         addSubview(ringView)
         addSubview(centerView)
         
@@ -41,6 +42,10 @@ final class ColourPickerButton: UIView {
         let panGR = UIPanGestureRecognizer()
         panGR.addTarget(self, action: #selector(onLongPressOrPan))
         addGestureRecognizer(panGR)
+        
+        let tapGR = UITapGestureRecognizer()
+        tapGR.addTarget(self, action: #selector(onTap(tap:)))
+        addGestureRecognizer(tapGR)
     }
     
     override func layoutSubviews() {
@@ -52,24 +57,33 @@ final class ColourPickerButton: UIView {
     }
     
     @objc
-    private func onLongPressOrPan(recongiser: UIGestureRecognizer) {
-        switch recongiser.state {
+    func onTap(tap: UITapGestureRecognizer) {
+//        let state = tap.state
+//        print(state)
+        if tap.state == .ended {
+            onPress?(self)
+        }
+    }
+    
+    @objc
+    private func onLongPressOrPan(recongizer: UIGestureRecognizer) {
+        switch recongizer.state {
         case .began:
-            insertGradientView(recogniser: recongiser)
-            if recongiser is UILongPressGestureRecognizer {
+            insertGradientView(recogniser: recongizer)
+            if recongizer is UILongPressGestureRecognizer {
                 feedbackGenerator.impactOccurred()
             }
         case .failed, .ended, .cancelled:
             removeGradient()
         case .possible:
-            if recongiser is UILongPressGestureRecognizer {
+            if recongizer is UILongPressGestureRecognizer {
                 feedbackGenerator.prepare()
             }
         case .changed:
             guard let activeGradientView = activeGradientView, let pickerView = pickerView else {
                 return
             }
-            let location = recongiser.location(in: activeGradientView)
+            let location = recongizer.location(in: activeGradientView)
             var center = location
             if !activeGradientView.bounds.contains(location) {
                 center.x = max(0, min(activeGradientView.bounds.width-1, location.x))
@@ -81,7 +95,7 @@ final class ColourPickerButton: UIView {
             
             let pickedColor = activeGradientView.getColor(at: center) ?? .clear
             pickerView.backgroundColor = pickedColor
-            centerView.backgroundColor = pickedColor
+            centerView.color = pickedColor
             
             onColourChange?(pickedColor)
         @unknown default:
@@ -160,7 +174,7 @@ final class ColourPickerButton: UIView {
         pickerView = nil
         let gradientOverlay = UIView(frame: gradient.bounds)
         gradientOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        gradientOverlay.backgroundColor = centerView.backgroundColor
+        gradientOverlay.backgroundColor = centerView.color
         gradientOverlay.alpha = 0
         gradient.addSubview(gradientOverlay)
         UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut]) {
@@ -174,12 +188,6 @@ final class ColourPickerButton: UIView {
             circle?.removeFromSuperview()
             gradientOverlay.removeFromSuperview()
         }
-    }
-}
-
-extension ColourPickerButton: CAAnimationDelegate {
-    func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
-        activeGradientContainer?.removeFromSuperview()
     }
 }
 

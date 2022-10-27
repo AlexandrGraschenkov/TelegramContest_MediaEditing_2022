@@ -19,10 +19,20 @@ final class EditVC: UIViewController {
     var asset: PHAsset!
     var scroll: ZoomScrollView!
     var mediaContainer: UIView!
+    var toolbar: EditorToolbar!
+    var history = History()
+    var layerContainer = LayerContainer()
+    var nav: EditNavBar!
+    weak var colorContentPicker: ColorContentPicker? // destroys by itself
     lazy var pen: PenDrawer = {
-        let brush = PenDrawer()
-        brush.setup(content: mediaContainer)
-        return brush
+        let pen = PenDrawer()
+        pen.setup(content: mediaContainer, history: history)
+        return pen
+    }()
+    lazy var marker: MarkerDrawer = {
+        let marker = MarkerDrawer()
+        marker.setup(content: mediaContainer, history: history)
+        return marker
     }()
     
     override func viewDidLoad() {
@@ -34,6 +44,10 @@ final class EditVC: UIViewController {
         pen.active = true
     }
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+    
     fileprivate func setupUI() {
         view.backgroundColor = .black
         scroll = ZoomScrollView(frame: view.bounds)
@@ -42,20 +56,28 @@ final class EditVC: UIViewController {
         view.addSubview(scroll)
         scroll.setup(content: mediaContainer)
         
-        let toolbar = EditorToolbar(frame: CGRect(x: 0, y: view.bounds.height - 196, width: view.bounds.width, height: 196))
-        toolbar.translatesAutoresizingMaskIntoConstraints = true
-        toolbar.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
-        view.addSubview(toolbar)
+        toolbar = EditorToolbar.createAndAdd(toView: view)
         toolbar.actionHandler = { [unowned self] action in
             switch action {
             case .toolChanged(let type):
                 self.pen.active = type == .pen
+                self.marker.active = type == .marker
             case .colorChange(let color):
                 if self.pen.active {
                     self.pen.color = color
                 }
+                if self.marker.active {
+                    self.marker.color = color
+                }
             case .lineWidthChanged(let width):
-                self.pen.penSize = width
+                if self.pen.active {
+                    self.pen.toolSize = width
+                }
+                if self.marker.active {
+                    self.marker.toolSize = width
+                }
+            case .openColorPicker(startColor: let startColor):
+                self.openColorPicker(startColor: startColor)
             case .textEditBegan(let overlay):
                 self.addTextView(overlay: overlay)
             case .textEditEnded(let result):
@@ -68,9 +90,62 @@ final class EditVC: UIViewController {
                 break
             }
         }
+        
+        layerContainer.mediaView = mediaContainer
+        nav = EditNavBar.createAndAdd(toView: view)
+        history.connect(forwardButton: nav.forward, backwardButton: nav.backward, clearAllButton: nav.clearAll)
+        history.setup(container: layerContainer)
+        
+        setupZoomOutUI()
+    }
+    
+    fileprivate func setupZoomOutUI() {
+        scroll.onZoom = { [weak self] zoom in
+            guard let self = self else { return }
+            let contentSize = self.mediaContainer.bounds.size.mulitply(zoom)
+            let scrollSize = self.scroll.bounds.size
+            let zoomOutEnabled = contentSize.width > scrollSize.width && contentSize.height > scrollSize.height
+            self.nav.setZoomOut(enabled: zoomOutEnabled, animated: true)
+        }
+        nav.setZoomOut(enabled: false, animated: false)
+        nav.zoomOut.addTarget(scroll, action: #selector(ZoomScrollView.zoomOut), for: .touchUpInside)
     }
 
     
+    private func openColorPicker(startColor: UIColor) {
+        let picker = ColorPickerVC()
+        picker.color = startColor
+        let onColorUpdate: (UIColor)->() = { [weak self] color in
+            guard let self = self else { return }
+            self.toolbar.colorChangeOutside(color: color)
+        }
+        picker.onPickColorFromContent = { [weak self] in
+            guard let self = self else { return }
+            
+            let bounds = self.getMediaContainerContentFrame()
+            self.colorContentPicker = ColorContentPicker.createOn(content: self.scroll, bounds: bounds, completion: onColorUpdate)
+        }
+        picker.onDismiss = onColorUpdate
+//        present(nav, animated: true, completion: nil)
+        present(picker, animated: false)
+    }
+    
+    private func getMediaContainerContentFrame() -> CGRect {
+        // intersection of counte
+        let bounds = mediaContainer.convert(mediaContainer.bounds, to: view)
+            .offsetBy(dx: scroll.x, dy: scroll.y)
+        let scrollBounds = CGRect(origin: .zero, size: scroll.bounds.size)
+        let tl = CGPoint(x: max(bounds.minX, scrollBounds.minX),
+                         y: max(bounds.minY, scrollBounds.minY))
+        let br = CGPoint(x: min(bounds.maxX, scrollBounds.maxX),
+                         y: min(bounds.maxY, scrollBounds.maxY))
+        return CGRect(origin: tl, size: br.substract(tl).size)
+    }
+    
+    @objc
+    private func close() {
+        dismiss(animated: true)
+    }
     private func addTextView(overlay: TextViewEditingOverlay) {
         view.addSubview(overlay)
         overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]

@@ -23,20 +23,21 @@ class PanSmoothIK: NSObject {
     fileprivate var lastPointsFilterTime: TimeInterval = 0.2
     fileprivate var maxDistOffset: CGFloat = 30
     fileprivate var lastPoint: PanPoint?
-    fileprivate lazy var debugLayer: CAShapeLayer = {
-        let shape = CAShapeLayer()
-        shape.lineWidth = 10
-        shape.strokeColor = UIColor.green.cgColor
-        shape.fillColor = nil
-        return shape
-    }()
-    fileprivate lazy var debugLayer2: CAShapeLayer = {
-        let shape = CAShapeLayer()
-        shape.strokeColor = nil
-        shape.fillColor = UIColor.blue.cgColor
-        return shape
-    }()
+//    fileprivate lazy var debugLayer: CAShapeLayer = {
+//        let shape = CAShapeLayer()
+//        shape.lineWidth = 10
+//        shape.strokeColor = UIColor.green.cgColor
+//        shape.fillColor = nil
+//        return shape
+//    }()
+//    fileprivate lazy var debugLayer2: CAShapeLayer = {
+//        let shape = CAShapeLayer()
+//        shape.strokeColor = nil
+//        shape.fillColor = UIColor.blue.cgColor
+//        return shape
+//    }()
     var scale: CGFloat = 1.0
+    var toolSize: CGFloat = 1
     var debugView: UIView?
     
     func start() {
@@ -53,8 +54,8 @@ class PanSmoothIK: NSObject {
     }
     
     func end() {
-        debugLayer.removeFromSuperlayer()
-        debugLayer.removeFromSuperlayer()
+//        debugLayer.removeFromSuperlayer()
+//        debugLayer.removeFromSuperlayer()
     }
     
     func update(point: PanPoint) {
@@ -69,19 +70,24 @@ class PanSmoothIK: NSObject {
             return
         }
         lastPoint = PanPoint(point: point.point, time: point.time+2)
-        defer {
-            let path = UIBezierPath()
-            path.move(to: lastPoint!.point)
-            path.addLine(to: smoothPoints.last!.point)
-            debugLayer.path = path.cgPath
-        }
+//        defer {
+//            let path = UIBezierPath()
+//            path.move(to: lastPoint!.point)
+//            path.addLine(to: smoothPoints.last!.point)
+//            debugLayer.path = path.cgPath
+//        }
         
         let lineLenght = calcLineLength(points: lastPoints)
         let dt = lastPoints.last!.time - lastPoints.first!.time
         let speed = dt > 0.00001 ? lineLenght / dt : 0
         // larger speed => larger offset dist
-        let maxPanOffset = log(speed/2/scale+1) * 2 * scale // just gogle it to understand formula of log
+        var maxPanOffset = log(speed/2/scale+1) * 2 * scale // just gogle it to understand formula of log
 //        print(speed, maxPanOffset, log(speed/2/scale+1) * 2)
+        
+        // чем меньше кисточка, тем точней необходимо рисовать
+        let mult = toolSize.percent(min: 1, max: 30).percentToRange(min: 0.2, max: 2)
+        maxPanOffset *= mult
+        
         let dist = smoothPoints.last!.point.distance(p: point.point)
         if dist < maxPanOffset {
             return

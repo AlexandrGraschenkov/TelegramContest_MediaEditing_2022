@@ -35,6 +35,9 @@ class GausianSmooth {
         return invSqrt2pi / s * exp(-0.5 * a * a)
     }
     fileprivate static func generatePointTimeDistance(points: [PanPoint]) -> [CGFloat] {
+        if points.isEmpty {
+            return []
+        }
         var distArr: [CGFloat] = [0]
         var lineLength: CGFloat = 0 
 //        let timeScale: CGFloat = 100

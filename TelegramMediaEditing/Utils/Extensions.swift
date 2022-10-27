@@ -15,30 +15,39 @@ extension Comparable {
 }
 
 extension CGPoint {
+    @inline(__always)
     func distance() -> CGFloat {
         return sqrt(x * x + y * y)
     }
+    @inline(__always)
     func distanceSqr() -> CGFloat {
         return x * x + y * y
     }
+    @inline(__always)
     func distanceSqr(p: CGPoint) -> CGFloat {
         return pow(p.x - x, 2) + pow(p.y - y, 2)
     }
+    @inline(__always)
     func distance(p: CGPoint) -> CGFloat {
         return sqrt(pow(p.x - x, 2) + pow(p.y - y, 2))
     }
+    @inline(__always)
     func add(_ p: CGPoint) -> CGPoint {
         return CGPoint(x: x + p.x, y: y + p.y)
     }
+    @inline(__always)
     func substract(_ p: CGPoint) -> CGPoint {
         return CGPoint(x: x - p.x, y: y - p.y)
     }
+    @inline(__always)
     func mulitply(_ val: CGFloat) -> CGPoint {
         return CGPoint(x: x * val, y: y * val)
     }
+    @inline(__always)
     func dot(_ p: CGPoint) -> CGFloat {
         return x * p.x + y * p.y
     }
+    @inline(__always)
     func normDot(_ p: CGPoint) -> CGFloat {
         return (x * p.x + y * p.y) / (distance() * p.distance())
     }
@@ -136,5 +145,15 @@ extension FloatingPoint {
     }
     func percentToRange(min: Self, max: Self) -> Self {
         return (max - min)*self + min
+    }
+    func round(scale: Self) -> Self {
+        return (self * scale).rounded() / scale
+    }
+}
+
+extension String {
+    static func random(length: Int) -> String {
+      let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+      return String((0..<length).map{ _ in letters.randomElement()! })
     }
 }
