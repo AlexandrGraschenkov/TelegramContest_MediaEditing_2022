@@ -7,12 +7,12 @@
 
 import UIKit
 
-extension CGPoint: Hashable {
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(x)
-        hasher.combine(y)
-    }
-}
+//extension CGPoint: Hashable {
+//    public func hash(into hasher: inout Hasher) {
+//        hasher.combine(x)
+//        hasher.combine(y)
+//    }
+//}
 
 class MarkerDrawer: ToolDrawer {
     override var toolType: ToolType { .marker }
@@ -21,7 +21,7 @@ class MarkerDrawer: ToolDrawer {
     fileprivate var bendStrokeLayer: CAShapeLayer?
     fileprivate var bendStrokePath: UIBezierPath?
     fileprivate var bendTranslate: CGPoint = .zero
-    fileprivate var bendPointsSet = Set<CGPoint>()
+//    fileprivate var bendPointsSet = Set<CGPoint>()
     
     override func updateDrawLayer() {
         if !splitOpt.isPrepared {
@@ -139,13 +139,13 @@ class MarkerDrawer: ToolDrawer {
         history.add(element: .init(forward: [forward], backward: [backward]))
     }
     
-    func drawLinesOnBend() {
-        for p in curveGen.markerBendPoints {
-            if bendPointsSet.contains(p) { continue }
-            bendPointsSet.insert(p)
-            bendStrokePath?.move(to: p.add(bendTranslate))
-            bendStrokePath?.addLine(to: p.substract(bendTranslate))
-            bendStrokeLayer?.path = bendStrokePath?.cgPath
-        }
-    }
+//    func drawLinesOnBend() {
+//        for p in curveGen.markerBendPoints {
+//            if bendPointsSet.contains(p) { continue }
+//            bendPointsSet.insert(p)
+//            bendStrokePath?.move(to: p.add(bendTranslate))
+//            bendStrokePath?.addLine(to: p.substract(bendTranslate))
+//            bendStrokeLayer?.path = bendStrokePath?.cgPath
+//        }
+//    }
 }
