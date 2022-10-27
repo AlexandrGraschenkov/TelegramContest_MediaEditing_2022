@@ -39,7 +39,7 @@ final class EditorToolbar: UIView {
     }
     
     func colorChangeOutside(color: UIColor) {
-        toolsContainer.selectedTool?.tintColor = color
+        toolsContainer.selectedTool?.tintColor = color.withAlphaComponent(1)
         colorPickerControl.selectedColour = color
         colorPickerControl.onColourChange?(color)
     }
@@ -132,7 +132,7 @@ final class EditorToolbar: UIView {
         colorPickerControl.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
         colorPickerControl.onColourChange = { [weak self] color in
             self?.actionHandler?(.colorChange(color))
-            self?.toolsContainer.selectedTool?.tintColor = color
+            self?.toolsContainer.selectedTool?.tintColor = color.withAlphaComponent(1)
         }
         colorPickerControl.onPress = { [weak self] butt in
             self?.actionHandler?(.openColorPicker(startColor: butt.selectedColour))
@@ -193,7 +193,7 @@ final class EditorToolbar: UIView {
         colorPickerControl.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
         colorPickerControl.onColourChange = { [weak self] color in
             self?.actionHandler?(.colorChange(color))
-            self?.toolsContainer.selectedTool?.tintColor = color
+            self?.toolsContainer.selectedTool?.tintColor = color.withAlphaComponent(1)
         }
     }
 

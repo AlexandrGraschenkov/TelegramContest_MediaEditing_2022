@@ -191,7 +191,7 @@ final class ToolView: UIView {
             return
         }
 
-        tintColor = config.invariants?.initialColor
+        tintColor = config.invariants?.initialColor.withAlphaComponent(1)
         let tipView = UIImageView()
         tipView.image = invariants.tipImage
         addSubview(tipView)
