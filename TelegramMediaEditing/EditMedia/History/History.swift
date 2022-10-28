@@ -121,16 +121,22 @@ class History {
             }
             
         case .remove:
+            var obj: AnyObject!
             if let view = layers.views[element.objectId] {
                 view.removeFromSuperview()
                 layers.views.removeValue(forKey: element.objectId)
+                obj = view
             } else if let layer = layers.layers[element.objectId] {
                 layer.removeFromSuperlayer()
                 layers.layers.removeValue(forKey: element.objectId)
+                obj = layer
             } else {
                 assert(false, "Can't find \(element.objectId) in collection")
+                obj = NSObject()
             }
             // we don't modify any properties, just remove
+            // but we can have some additional logic before elem will die
+            element.closure?(element, layers, obj)
             return
             
         case .update:
@@ -159,7 +165,7 @@ class History {
         for (key, val) in element.updateKeys ?? [:] {
             obj.setValue(val, forKeyPath: key)
         }
-        element.closure?(element, layers)
+        element.closure?(element, layers, obj)
     }
     
     
@@ -170,7 +176,7 @@ class History {
         var backward: [Element]
     }
     struct Element {
-        init(objectId: String, action: History.Element.LayerAction, zIndex: Int? = nil, updateKeys: [String : Any]? = nil, backgroundFill: UIColor? = nil, closure: ((Element, LayerContainer) -> ())? = nil) {
+        init(objectId: String, action: History.Element.LayerAction, zIndex: Int? = nil, updateKeys: [String : Any]? = nil, backgroundFill: UIColor? = nil, closure: ((Element, LayerContainer, AnyObject) -> ())? = nil) {
             self.objectId = objectId
             self.action = action
             self.zIndex = zIndex
@@ -188,7 +194,7 @@ class History {
         
         var zIndex: Int?
         var updateKeys: [String: Any?]?
-        var closure: ((Element, LayerContainer)->())?
+        var closure: ((Element, LayerContainer, AnyObject)->())?
         
         var backgroundFill: UIColor? // TODO: don't forget implement it
     }

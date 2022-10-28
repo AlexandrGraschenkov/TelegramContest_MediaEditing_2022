@@ -1,5 +1,5 @@
 //
-//  NeonDrawer.swift
+//  EraserDrawer.swift
 //  TelegramMediaEditing
 //
 //  Created by Alexander Graschenkov on 28.10.2022.
@@ -7,10 +7,15 @@
 
 import UIKit
 
-class NeonDrawer: ToolDrawer {
-    override var toolType: ToolType { .neon }
+class EraserDrawer: ToolDrawer {
+    override init() {
+        super.init()
+        smooth.smoothMultiplier = 0.001
+    }
     
-    fileprivate var parentLayer: CALayer?
+    override var toolType: ToolType { .eraser }
+    
+    fileprivate var parentLayer: CAShapeLayer?
     
     override func updateDrawLayer() {
         if !splitOpt.isPrepared {
@@ -20,31 +25,28 @@ class NeonDrawer: ToolDrawer {
             }
             let size = toolSize * 2 * scale
             
-            let comp = color.components
-            let parentWithOpacity = CALayer()
-            parentWithOpacity.opacity = Float(comp.a)
-            parentWithOpacity.shadowColor = comp.toColorOverride(a: 1).cgColor
-            parentWithOpacity.shadowRadius = size
-            parentWithOpacity.shadowOpacity = 1
-            parentWithOpacity.shadowOffset = .zero
-            content?.layer.addSublayer(parentWithOpacity)
-            parentLayer = parentWithOpacity
+            // cheating with overlay
+            parentLayer = CAShapeLayer()
+            parentLayer?.frame = content!.bounds
+//            let imgView = content as? UIImageView
+//            print(content)
+            parentLayer?.contents = (content as? UIImageView)?.image?.cgImage
+            content?.layer.addSublayer(parentLayer!)
             
             
             let layer = CAShapeLayer()
-            layer.strokeColor = comp.toColorOverride(a: 1).cgColor
+            layer.strokeColor = UIColor.white.cgColor // Use like a mask
             layer.lineWidth = size
             layer.lineCap = .round
             layer.lineJoin = .round
-            layer.shadowColor = parentWithOpacity.shadowColor
-            layer.shadowRadius = size / 2
-            layer.shadowOpacity = parentWithOpacity.shadowOpacity
-            layer.shadowOffset = parentWithOpacity.shadowOffset
+//            print("Tool size", toolSize * scale / 2)
             layer.fillColor = nil //comp.toColorOverride(a: 1).cgColor
             
-            parentWithOpacity.addSublayer(layer)
             
-//            parentWithOpacity.addSublayer(rep)
+            let mask = CALayer()
+            mask.addSublayer(layer)
+            parentLayer?.mask = mask
+            
             splitOpt.start(layer: layer, penGen: curveGen)
         }
         CALayer.withoutAnimation {
@@ -77,38 +79,35 @@ class NeonDrawer: ToolDrawer {
         for b in splitOpt.bezierArr {
             bezier.append(b)
         }
-        let lineWidth = (parentLayer.sublayers?.first as? CAShapeLayer)?.lineWidth ?? toolSize
-        
+        let cgPath = bezier.cgPath
+        let lineWidth = (parentLayer.mask?.sublayers?.first as? CAShapeLayer)?.lineWidth ?? toolSize
+
         let shapeDict: [String: Any] = [
-            "path": bezier.cgPath,
-            "strokeColor": color.withAlphaComponent(1).cgColor,
+            "path": cgPath,
+            "strokeColor": UIColor.white.cgColor,
             "lineJoin": CAShapeLayerLineJoin.round,
             "lineCap": CAShapeLayerLineCap.round,
             "lineWidth": lineWidth,
-            "shadowOpacity": parentLayer.shadowOpacity,
-            "shadowColor": parentLayer.shadowColor ?? color.withAlphaComponent(1).cgColor,
-            "shadowRadius": parentLayer.shadowRadius,
-            "shadowOffset": parentLayer.shadowOffset,
             "fillColor": UIColor.clear.cgColor
         ]
-        
+
         let forward = History.Element(objectId: name, action: .add(classType: CAShapeLayer.self), updateKeys: [
-            "shadowOpacity": parentLayer.shadowOpacity,
-            "shadowColor": parentLayer.shadowColor ?? color.withAlphaComponent(1).cgColor,
-            "shadowRadius": parentLayer.shadowRadius,
-            "shadowOffset": parentLayer.shadowOffset,
+            "frame": parentLayer.frame,
+            "path": parentLayer.path,
+            "contents": parentLayer.contents,
+            "fillColor": parentLayer.fillColor
         ]) { elem, container, obj in
             guard let container = container.layers[elem.objectId] else {
                 return
             }
-            
+
             let shape = CAShapeLayer()
             for (k, v) in shapeDict {
                 shape.setValue(v, forKeyPath: k)
             }
-            container.addSublayer(shape)
+            container.mask = shape
         }
-        
+
         let backward = History.Element(objectId: name, action: .remove)
         history.add(element: .init(forward: [forward], backward: [backward]))
     }

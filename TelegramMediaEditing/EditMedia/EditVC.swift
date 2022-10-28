@@ -195,7 +195,7 @@ private extension ToolDrawer {
         case .neon: return NeonDrawer()
         case .pencil: return PencilDrawer()
         case .lasso: return nil
-        case .eraser: return nil
+        case .eraser: return EraserDrawer()
         case .objectEraser: return nil
         case .blurEraser: return nil
         }
