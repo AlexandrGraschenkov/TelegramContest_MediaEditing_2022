@@ -33,6 +33,13 @@ final class FavoriteColorsView: UIView {
         return lineCount * 2 - 1
     }
     
+    func selectedColorChanged(color: UIColor) {
+        let idx = colors.firstIndex(of: color)
+        colorViews.enumerated().forEach({ i, b in
+            b.isSelected = (i == idx)
+        })
+    }
+    
     // MARK: - private
     private lazy var addColorButt: UIButton = {
         let b = ExpandButton(frame: CGRect(x: 0, y: 0, width: elemSize, height: elemSize))
@@ -166,6 +173,7 @@ final class FavoriteColorsView: UIView {
         colors.insert(newColor, at: 0)
         let newView = generateColorView(color: newColor)
         newView.frame = colorViews.first?.frame ?? addColorButt.frame
+        newView.isSelected = true
         colorViews.insert(newView, at: 0)
         while colorViews.count > maxCount {
             colors.removeLast()
@@ -262,6 +270,16 @@ private final class ColorCircleButt: ExpandButton {
     var onDelete: ((ColorCircleButt)->())?
     var onDeleteAll: ((ColorCircleButt)->())?
     
+    // Do we need it by design?
+    // https://contest.com/file/464001885/10aee/M1oPvtKHC6w.541313/36a6d5ff1c241aca65
+    // https://contest.com/docs/iOS-Oct22-Round1#1-drawing-and-text-editing-features-with-a-wide-range-of-tools
+//    override var isSelected: Bool {
+//        didSet {
+//            if oldValue == isSelected { return }
+//            selectedShape.opacity = isSelected ? 1 : 0
+//        }
+//    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
@@ -288,6 +306,15 @@ private final class ColorCircleButt: ExpandButton {
         v.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         addSubview(v)
         return v
+    }()
+    private lazy var selectedShape: CAShapeLayer = {
+        let s = CAShapeLayer()
+        s.path = CGPath(ellipseIn: bounds.insetBy(dx: 3, dy: 3), transform: nil)
+        s.strokeColor = UIColor.white.cgColor
+        s.fillColor = nil
+        s.lineWidth = 2
+        layer.addSublayer(s)
+        return s
     }()
     private var prevSize: CGSize = .zero
     private func colorUpdate() {

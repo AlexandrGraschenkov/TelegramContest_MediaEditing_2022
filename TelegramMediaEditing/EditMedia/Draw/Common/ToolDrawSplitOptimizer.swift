@@ -68,6 +68,10 @@ fileprivate extension CAShapeLayer {
         res.lineCap = .round
         res.lineJoin = .round
         res.transform = transform
+        res.shadowColor = shadowColor
+        res.shadowOffset = shadowOffset
+        res.shadowRadius = shadowRadius
+        res.shadowOpacity = shadowOpacity
         return res
     }
 }

@@ -96,7 +96,6 @@ final class ColorPickerVC: UIViewController {
                 self?.opacitySlider.setValue(Float(newColor.components.a), animated: true)
                 self?.opacityLabelUpdate()
             }
-
         }
     }
     
@@ -253,6 +252,7 @@ final class ColorPickerVC: UIViewController {
                                              to: comp.toColorOverride(a: 1))
         opacitySlider.thumbStroke = comp.isLightColor ? .black : .white
         finalColorView.backgroundColor = color
+        favoriteView.selectedColorChanged(color: color)
     }
     
     private func opacityLabelUpdate() {

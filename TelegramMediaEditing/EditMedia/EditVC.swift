@@ -24,28 +24,45 @@ final class EditVC: UIViewController {
     var layerContainer = LayerContainer()
     var nav: EditNavBar!
     weak var colorContentPicker: ColorContentPicker? // destroys by itself
-    lazy var pen: PenDrawer = {
-        let pen = PenDrawer()
-        pen.setup(content: mediaContainer, history: history)
-        return pen
-    }()
-    lazy var marker: MarkerDrawer = {
-        let marker = MarkerDrawer()
-        marker.setup(content: mediaContainer, history: history)
-        return marker
-    }()
+    var tools: [ToolType: ToolDrawer] = [:]
+    var activeTool: ToolType = .pen
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        if #available(iOS 13.0, *) {
+            overrideUserInterfaceStyle = .dark
+        } else {
+            // Don't care
+        }
         assert(asset != nil)
         setupMediaContainer()
         setupUI()
-        pen.active = true
+        
+        // Setup default active tool properties
+        activateTool(type: activeTool)
+        tools[activeTool]!.toolSize = ToolDefaults.getSize(type: activeTool)
+        tools[activeTool]!.color = ToolDefaults.getColor(type: activeTool) ?? .white
+        toolbar.colorChangeOutside(color: tools[activeTool]!.color)
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
+    }
+    
+    fileprivate func activateTool(type toolType: ToolType) {
+        activeTool = toolType
+        
+        if tools[toolType] == nil {
+            if let t = ToolDrawer.generate(toolType: toolType) {
+                t.setup(content: mediaContainer, history: history)
+                tools[toolType] = t
+            }
+        }
+        
+        for (_, tool) in tools {
+            tool.active = (toolType == tool.toolType)
+        }
     }
     
     fileprivate func setupUI() {
@@ -60,22 +77,16 @@ final class EditVC: UIViewController {
         toolbar.actionHandler = { [unowned self] action in
             switch action {
             case .toolChanged(let type):
-                self.pen.active = type == .pen
-                self.marker.active = type == .marker
+                self.activateTool(type: type)
+                
             case .colorChange(let color):
-                if self.pen.active {
-                    self.pen.color = color
-                }
-                if self.marker.active {
-                    self.marker.color = color
-                }
+                self.tools[self.activeTool]?.color = color
+                ToolDefaults.set(color: color, type: activeTool)
+                
             case .lineWidthChanged(let width):
-                if self.pen.active {
-                    self.pen.toolSize = width
-                }
-                if self.marker.active {
-                    self.marker.toolSize = width
-                }
+                self.tools[self.activeTool]?.toolSize = width
+                ToolDefaults.set(size: width, type: activeTool)
+                
             case .openColorPicker(startColor: let startColor):
                 self.openColorPicker(startColor: startColor)
             case .textEditBegan(let overlay):
@@ -174,4 +185,19 @@ final class EditVC: UIViewController {
     // MARK: -
     
 
+}
+
+private extension ToolDrawer {
+    static func generate(toolType: ToolType) -> ToolDrawer? {
+        switch toolType {
+        case .pen: return PenDrawer()
+        case .marker: return MarkerDrawer()
+        case .neon: return NeonDrawer()
+        case .pencil: return PencilDrawer()
+        case .lasso: return nil
+        case .eraser: return nil
+        case .objectEraser: return nil
+        case .blurEraser: return nil
+        }
+    }
 }
