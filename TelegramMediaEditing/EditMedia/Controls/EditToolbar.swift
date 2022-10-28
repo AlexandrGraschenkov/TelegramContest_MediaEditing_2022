@@ -396,7 +396,7 @@ final class EditorToolbar: UIView {
         topControlsContainer.alpha = 0
         
         UIView.animate(withDuration: 0.2, delay: 0, options: [], animations: {
-            self.topControlsContainer.backgroundColor = .black
+            self.topControlsContainer.backgroundColor = .clear
             self.topControlsContainer.alpha = 1
 
             self.plusButton.alpha = 1
@@ -419,12 +419,12 @@ final class EditorToolbar: UIView {
     private func moveToDraw() {
         self.mode = .base
         toolsContainer.alpha = 0
-        addSubview(toolsContainer)
+        insertSubview(toolsContainer, belowSubview: topControlsContainer)
         modeSwitcher.select(0, animated: true)
-        assignColourPickerActionToDrawing()
         if let focusedResult = focusedResult {
             unfocus(from: focusedResult)
         }
+        assignColourPickerActionToDrawing()
 
         UIView.animate(
             withDuration: 0.2,

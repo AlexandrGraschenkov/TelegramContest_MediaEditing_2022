@@ -24,44 +24,12 @@ final class TextPanel: UIView {
         set { fontsView.selectedFont = newValue }
     }
     
-    var isGradientVisible: Bool = true {
-        didSet {
-            let gradients = [leftGradient, rightGradient]
-            if isGradientVisible {
-                gradients.forEach {
-                    $0?.alpha = 0
-                    $0?.isHidden = false
-                }
-                UIView.animate(
-                    withDuration: 0.2,
-                    delay: 0,
-                    options: [],
-                    animations: {
-                        self.fontsView.insets = .tm_insets(top: 0, left: self.leftGradient.width, bottom: 0, right: self.rightGradient.width)
-                        gradients.forEach { $0?.alpha = 1 }
-                    },
-                    completion: nil
-                )
-            } else {
-                UIView.animate(
-                    withDuration: 0.2,
-                    delay: 0,
-                    options: [],
-                    animations: {
-                        self.fontsView.insets = .zero
-                        gradients.forEach { $0?.alpha = 0 }
-                    },
-                    completion: { _ in
-                        gradients.forEach { $0?.isHidden = true }
-                    }
-                )
-            }
-        }
+    var isGradientVisible: Bool {
+        get { fontsView.isGradientVisible }
+        set { fontsView.isGradientVisible = newValue }
     }
     
     private var fontsView:FontsSelector!
-    private var leftGradient: UIView!
-    private var rightGradient: UIView!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -112,23 +80,6 @@ final class TextPanel: UIView {
         fontsView.onFontSelect = { _ in onChange() }
         
         fontsView.autoresizingMask = [.flexibleWidth]
-        let leftGradient = GradientView(frame: CGRect(x: fontsView.x, y: fontsView.y, width: 16, height: fontsView.height))
-        leftGradient.startPoint = .init(x: 0, y: 0.5)
-        leftGradient.endPoint = .init(x: 1, y: 0.5)
-        leftGradient.colors = [.black, .clear]
-        leftGradient.autoresizingMask = [.flexibleRightMargin]
-        self.leftGradient = leftGradient
-        
-        
-        let rightGradient = GradientView(frame: CGRect(x: fontsView.frame.maxX - 16, y: fontsView.y, width: 16, height: fontsView.height))
-        rightGradient.startPoint = .init(x: 0, y: 0.5)
-        rightGradient.endPoint = .init(x: 1, y: 0.5)
-        rightGradient.colors = [.clear, .black]
-        rightGradient.autoresizingMask = [.flexibleLeftMargin]
-        self.rightGradient = rightGradient
-        
-        addSubview(leftGradient)
-        addSubview(rightGradient)
     }
 }
 

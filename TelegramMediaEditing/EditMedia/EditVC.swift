@@ -95,19 +95,29 @@ final class EditVC: UIViewController {
                 self.setTopControlsHidden(isHidden: true)
                 self.addTextView(overlay: overlay)
             case .textEditEnded(let result):
-                self.view.insertSubview(result.view, belowSubview: self.gesturesOverlay)
                 result.view.frame = self.view.convert(result.editingFrameInWindow, from: view.window)
                 if let center = result.view.movedCenterInCanvas {
                     result.view.center = center
                 }
-                self.gesturesOverlay.overlays.append(result.view)
+                let addView = {
+                    self.view.insertSubview(result.view, belowSubview: self.gesturesOverlay)
+                    self.gesturesOverlay.overlays.append(result.view)
+                }
+                let add = History.Element(objectId: result.id.uuidString, action: .add(classType: TextEditingResultView.self)) { _, _, _ in
+                    addView()
+                }
+                let remove = History.Element(objectId: result.id.uuidString, action: .remove) { _, _, _ in
+                    result.view.removeFromSuperview()
+                }
+                addView()
+                self.history.add(element: .init(forward: [add], backward: [remove]))
                 self.setTopControlsHidden(isHidden: false)
             case .close:
                 dismiss(animated: true)
             case .switchedToDraw:
-                pen.active = true
+                self.tools[self.activeTool]?.active = true
             case .switchedToText:
-                pen.active = false
+                self.tools[self.activeTool]?.active = false
             case .save, .add, .toolShapeChanged:
                 // TODO: implement
                 break

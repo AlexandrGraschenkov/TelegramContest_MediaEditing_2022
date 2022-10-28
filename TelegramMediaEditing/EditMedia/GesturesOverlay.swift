@@ -94,7 +94,7 @@ final class GesturesOverlay: UIView {
         guard activeOverlay == nil || !userFingersOnScreen else { return true }
         
         var hitViews: [(UIView, Bool)] = []
-        for view in overlays {
+        for view in overlays.reversed() {
             if view.superview == nil { continue }
             let convertPoint = convert(point, to: view)
             if view.bounds.insetBy(dx: -10, dy: -10).contains(convertPoint) {
