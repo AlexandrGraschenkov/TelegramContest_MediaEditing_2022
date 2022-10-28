@@ -25,7 +25,8 @@ class NeonDrawer: ToolDrawer {
             parentWithOpacity.opacity = Float(comp.a)
             parentWithOpacity.shadowColor = comp.toColorOverride(a: 1).cgColor
             parentWithOpacity.shadowRadius = size
-            parentWithOpacity.shadowOpacity = 0.8
+            parentWithOpacity.shadowOpacity = 1
+            parentWithOpacity.shadowOffset = .zero
             content?.layer.addSublayer(parentWithOpacity)
             parentLayer = parentWithOpacity
             
@@ -35,6 +36,10 @@ class NeonDrawer: ToolDrawer {
             layer.lineWidth = size
             layer.lineCap = .round
             layer.lineJoin = .round
+            layer.shadowColor = parentWithOpacity.shadowColor
+            layer.shadowRadius = size / 2
+            layer.shadowOpacity = parentWithOpacity.shadowOpacity
+            layer.shadowOffset = parentWithOpacity.shadowOffset
 //            print("Tool size", toolSize * scale / 2)
             layer.fillColor = nil //comp.toColorOverride(a: 1).cgColor
             
@@ -98,8 +103,7 @@ class NeonDrawer: ToolDrawer {
         }
         let lineWidth = (parentLayer.sublayers?.first as? CAShapeLayer)?.lineWidth ?? toolSize
         
-        let forward = History.Element(objectId: name, action: .add(classType: CAShapeLayer.self), updateKeys: [
-            "opacity": parentLayer.opacity,
+        let shapeDict: [String: Any] = [
             "path": bezier.cgPath,
             "strokeColor": color.withAlphaComponent(1).cgColor,
             "lineJoin": CAShapeLayerLineJoin.round,
@@ -108,8 +112,26 @@ class NeonDrawer: ToolDrawer {
             "shadowOpacity": parentLayer.shadowOpacity,
             "shadowColor": parentLayer.shadowColor ?? color.withAlphaComponent(1).cgColor,
             "shadowRadius": parentLayer.shadowRadius,
+            "shadowOffset": parentLayer.shadowOffset,
             "fillColor": UIColor.clear.cgColor
-        ])
+        ]
+        
+        let forward = History.Element(objectId: name, action: .add(classType: CAShapeLayer.self), updateKeys: [
+            "shadowOpacity": parentLayer.shadowOpacity,
+            "shadowColor": parentLayer.shadowColor ?? color.withAlphaComponent(1).cgColor,
+            "shadowRadius": parentLayer.shadowRadius,
+            "shadowOffset": parentLayer.shadowOffset,
+        ]) { elem, container in
+            guard let container = container.layers[elem.objectId] else {
+                return
+            }
+            
+            let shape = CAShapeLayer()
+            for (k, v) in shapeDict {
+                shape.setValue(v, forKeyPath: k)
+            }
+            container.addSublayer(shape)
+        }
         
         let backward = History.Element(objectId: name, action: .remove)
         history.add(element: .init(forward: [forward], backward: [backward]))
