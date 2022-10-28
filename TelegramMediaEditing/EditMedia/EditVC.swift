@@ -80,6 +80,9 @@ final class EditVC: UIViewController {
                 self.openColorPicker(startColor: startColor)
             case .textEditBegan(let overlay):
                 self.addTextView(overlay: overlay)
+            case .textEditEnded(let result):
+                self.view.addSubview(result.view)
+                result.view.frame = self.view.convert(result.frameInWindow, from: view.window)
             case .close:
                 dismiss(animated: true)
             default:
@@ -107,18 +110,7 @@ final class EditVC: UIViewController {
         nav.setZoomOut(enabled: false, animated: false)
         nav.zoomOut.addTarget(scroll, action: #selector(ZoomScrollView.zoomOut), for: .touchUpInside)
     }
-    
-//    private func addCloseButton() {
-//        let button = UIButton()
-//        button.setTitle("Close", for: .normal)
-//        button.translatesAutoresizingMaskIntoConstraints = true
-//        view.addSubview(button)
-//        button.addTarget(self, action: #selector(close), for: .touchUpInside)
-//        button.x = 15
-//        button.y = 32
-//        button.sizeToFit()
-//        button.autoresizingMask = [.flexibleBottomMargin, .flexibleRightMargin]
-//    }
+
     
     private func openColorPicker(startColor: UIColor) {
         let picker = ColorPickerVC()

@@ -7,17 +7,40 @@
 
 import UIKit
 
-struct ImageEditingTextState {
+struct ImageEditingTextState: Equatable {
     let text: String?
     let font: UIFont
     let color: UIColor
     let style: TextStyle
     let alignment: NSTextAlignment
+    
+    static let defaultState = ImageEditingTextState(text: "", font: .systemFont(ofSize: 32), color: .white, style: .regular, alignment: .center)
+}
+
+final class TextEditingResult: Equatable {
+    static func == (lhs: TextEditingResult, rhs: TextEditingResult) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    internal init(view: UIView, state: ImageEditingTextState, frameInWindow: CGRect, borderLayer: CAShapeLayer? = nil, changeHandler: TextStyleChangeHandler) {
+        self.view = view
+        self.state = state
+        self.frameInWindow = frameInWindow
+        self.borderLayer = borderLayer
+        self.changeHandler = changeHandler
+    }
+    
+    let id = UUID()
+    let view: UIView
+    let state: ImageEditingTextState
+    let frameInWindow: CGRect
+    var borderLayer: CAShapeLayer? = nil
+    var changeHandler: TextStyleChangeHandler
 }
     
 protocol TextViewEditingOverlayDelegate: AnyObject {
     func textEditingOverlayDidCancel(_ overlay: TextViewEditingOverlay)
-    func textEditingOverlay(_ overlay: TextViewEditingOverlay, doneEditingText: UITextView)
+    func textEditingOverlay(_ overlay: TextViewEditingOverlay, doneEditingText: TextEditingResult)
 }
 
 final class TextViewEditingOverlay: UIView {
@@ -27,16 +50,11 @@ final class TextViewEditingOverlay: UIView {
     private let contentContainer = UIView()
     private let blurView = UIVisualEffectView()
     private var slider: ToolSlider!
+    private var textStyleChangeHandler: TextStyleChangeHandler!
     
     weak var delegate: TextViewEditingOverlayDelegate?
     
     private let state: ImageEditingTextState?
-    
-    private var currentColor: UIColor? {
-        didSet {
-            updateTextViewAttributes()
-        }
-    }
         
     private let panelView: TextPanel
     private let colourPicker: ColourPickerButton
@@ -53,18 +71,12 @@ final class TextViewEditingOverlay: UIView {
         self.panelView = panelView
         self.colourPicker = colourPicker
         self.state = state
-        self.currentColor = state.color
         super.init(frame: frame)
         setup(panelOriginalContainer: panelContainer)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    func updateText() {
-        updateTextViewAttributes()
-        textViewDidChange(textView)
     }
     
     private func setup(panelOriginalContainer: UIView) {
@@ -96,10 +108,6 @@ final class TextViewEditingOverlay: UIView {
         contentContainer.frame = .init(x: 0, y: safeArea.top + 45, width: width, height: panelContainer.y - safeArea.top)
         contentContainer.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
-        colourPicker.onColourChange = { [weak self] color in
-            self?.currentColor = color
-        }
-        
         textViewCenteringContainer = UIView()
         contentContainer.addSubview(textViewCenteringContainer)
         textViewCenteringContainer.frame = .init(
@@ -114,6 +122,7 @@ final class TextViewEditingOverlay: UIView {
         
         let textView = OutlineableTextView(frame: textViewCenteringContainer.bounds)
         textView.tintColor = .white
+        textView.isScrollEnabled = false
         textView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         textViewCenteringContainer.addSubview(textView)
         textView.delegate = self
@@ -137,13 +146,16 @@ final class TextViewEditingOverlay: UIView {
                 self.slider.center.x = 28
             }, completion: nil)
 
-            self.updateTextViewAttributes()
+            self.textStyleChangeHandler.updateTextViewAttributes(fontSize: self.slider.currentValue)
             self.textViewDidChange(self.textView)
             self.scheduleSliderHide()
         }
         slider.onEndInteraction = { [weak self] in
             self?.scheduleSliderHide()
         }
+        
+        textStyleChangeHandler = TextStyleChangeHandler(textView: textView)
+        textStyleChangeHandler.assignControls(textPanel: panelView, colourPicker: colourPicker)
         
         NotificationCenter.default.addObserver(
             forName: UIApplication.keyboardWillShowNotification,
@@ -175,10 +187,12 @@ final class TextViewEditingOverlay: UIView {
         }
         
         performAsyncIn(.main, closure: {
+            self.textStyleChangeHandler.applyState(state)
+            self.textStyleChangeHandler.updateTextViewAttributes()
             if let text = state.text {
                 self.textView.text = text
+                self.textViewDidChange(self.textView)
             }
-            self.updateTextViewAttributes()
         })
     }
     
@@ -194,10 +208,9 @@ final class TextViewEditingOverlay: UIView {
         cancelButton.addAction { [weak self] in
             self?.textView.resignFirstResponder()
             self?.blurView.removeFromSuperview()
-            delay(0.3) {
+            delay(0.1) {
                 guard let self = self else { return }
                 self.delegate?.textEditingOverlayDidCancel(self)
-                self.removeFromSuperview()
             }
         }
         
@@ -225,13 +238,21 @@ final class TextViewEditingOverlay: UIView {
     private func done() {
         guard !textView.text.isEmpty else { return }
         textView.resignFirstResponder()
-        delay(0.35, closure: actualDone)
+        delay(0.1, closure: actualDone)
     }
     
     private func actualDone() {
         guard !textView.text.isEmpty else { return }
         blurView.removeFromSuperview()
-        delegate?.textEditingOverlay(self, doneEditingText: textView)
+        prepareViewToBePlacedOnCanvas()
+        
+        let result = TextEditingResult(
+            view: textViewCenteringContainer,
+            state: textStyleChangeHandler.currentState,
+            frameInWindow: textViewCenteringContainer.frameIn(view: window),
+            changeHandler: self.textStyleChangeHandler
+        )
+        delegate?.textEditingOverlay(self, doneEditingText: result)
     }
     
     private var sliderHideAnimationId: UUID?
@@ -252,48 +273,7 @@ final class TextViewEditingOverlay: UIView {
             }
         }
     }
-    
-    fileprivate func currentAttributes() -> [NSAttributedString.Key : Any] {
-        let attributes: [NSAttributedString.Key : Any]
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.alignment = panelView.alignmentButton.textAlignment
-    
-        let color = currentColor ?? .black
-        
-        switch panelView.styleButton.textStyle {
-        case .regular, .framed:
-            attributes = [.font : panelView.selectedFont.withSize(slider.currentValue),
-                          .foregroundColor : color,
-                          .paragraphStyle: paragraphStyle]
-        case .outlined:
-            attributes = [.font : panelView.selectedFont.withSize(slider.currentValue),
-                          .foregroundColor : color,
-                          .paragraphStyle: paragraphStyle,
-            ]
-        }
-        return attributes
-    }
 
-    private func updateTextViewAttributes() {
-        let attributes = currentAttributes()
-        textView.textAlignment = self.panelView.alignmentButton.textAlignment
-        textView.attributedText = NSAttributedString(string: textView.text, attributes: attributes)
-        textView.typingAttributes = attributes
-        switch panelView.styleButton.textStyle {
-        case .regular:
-            textView.removeOutline()
-            textHighlightLayer?.isHidden = true
-        case .outlined:
-            textView.outline()
-            textView.outlineColor = (self.currentColor?.bestBackgroundColor ?? UIColor.black)
-        case .framed:
-            textView.removeOutline()
-            textHighlightLayer?.fillColor = (self.currentColor?.bestBackgroundColor ?? UIColor.black).cgColor
-            textHighlightLayer?.isHidden = false
-            drawTextHighlight()
-        }
-    }
-    
     private func animateWithKeyboard(
         notification: Notification,
         animations: ((_ keyboardFrame: CGRect) -> Void)?
@@ -328,58 +308,54 @@ final class TextViewEditingOverlay: UIView {
         animator.startAnimation()
     }
     
-    private var textHighlightLayer: CAShapeLayer?
-    
-    private func drawTextHighlight() {
-        let textLayer = textView.layer
-        let textContainerInset = textView.textContainerInset
-        let uiInset: CGFloat = -10//CGFloat(insetSlider.value)
-        let radius: CGFloat = 6 * UIScreen.main.scale
-        let highlightLayer: CAShapeLayer
-        if let textHighlightLayer = textHighlightLayer {
-            highlightLayer = textHighlightLayer
-        } else {
-            let layer = CAShapeLayer()
-            layer.frame = textViewCenteringContainer.bounds
-            layer.fillColor = (self.currentColor?.bestBackgroundColor ?? UIColor.black).cgColor
-            textViewCenteringContainer.layer.insertSublayer(layer, at: 0)
-            textHighlightLayer = layer
-            highlightLayer = layer
+    private func prepareViewToBePlacedOnCanvas() {
+        textView.isUserInteractionEnabled = false
+        let scaleX = textViewCenteringContainer.transform.a
+        let scaleY = textViewCenteringContainer.transform.d
+        var textSize = textView.systemLayoutSizeFitting(
+            .init(width: (contentContainer.width - 72),
+                  height: contentContainer.height
+                 ),
+            withHorizontalFittingPriority: .defaultHigh,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+        textSize.width *= scaleX
+        textSize.height *= scaleY
+        textView.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin, .flexibleRightMargin, .flexibleBottomMargin]
+        let oldSize = textViewCenteringContainer.frame.size
+
+        switch panelView.alignmentButton.textAlignment {
+        case .center:
+            textViewCenteringContainer.frame = CGRect(
+                origin: CGPoint(
+                    x: textViewCenteringContainer.x + (oldSize.width - textSize.width) / 2,
+                    y: textViewCenteringContainer.y + (oldSize.height - textSize.height) / 2
+                ),
+                size: textSize)
+        case .left:
+            textViewCenteringContainer.frame.size = textSize
+        case .right:
+            textViewCenteringContainer.frame = CGRect(
+                origin: CGPoint(
+                    x: textViewCenteringContainer.x + textViewCenteringContainer.width - textSize.width,
+                    y: textViewCenteringContainer.y + (oldSize.height - textSize.height) / 2
+                ),
+                size: textSize)
+        default:
+            break
         }
-        let layout = textView.layoutManager
-        let range = NSMakeRange(0, layout.numberOfGlyphs)
-        var rects: [CGRect] = []
-        layout.enumerateLineFragments(forGlyphRange: range) { (_, usedRect, _, _, _) in
-            if usedRect.width > 0 && usedRect.height > 0 {
-                var rect = usedRect
-                rect.origin.x += textContainerInset.left
-                rect.origin.y += textContainerInset.top
-                rect = highlightLayer.convert(rect, from: textLayer)
-                rect = rect.insetBy(dx: uiInset, dy: uiInset)
-                rects.append(rect)
-            }
+        textView.frame = textViewCenteringContainer.bounds
+        if let textHighlightLayer = textStyleChangeHandler.textHighlightLayer {
+            textHighlightLayer.frame = bounds
+            textStyleChangeHandler.drawTextHighlight()
         }
-        highlightLayer.path = CGPath.makeUnion(of: rects, cornerRadius: radius)
+        if panelView.styleButton.textStyle == .outlined {
+            textView.outline()
+        }
     }
 }
-
-extension TextViewEditingOverlay: TextPanelDelegate {
-    func textPanel(_ textPanel: TextPanel, didChangeFont: UIFont) {
-        updateTextViewAttributes()
-    }
-    
-    func textPanel(_ textPanel: TextPanel, didChangeAlignment: NSTextAlignment) {
-        updateTextViewAttributes()
-    }
-    
-    func textPanel(_ textPanel: TextPanel, didChangeTextStyle: TextStyle) {
-        updateTextViewAttributes()
-    }
-}
-
     
 extension TextViewEditingOverlay: UITextViewDelegate {
-    
     public func textViewDidChange(_ textView: UITextView) {
         let textSize = textView.systemLayoutSizeFitting(
             .init(width: contentContainer.width - 72,
@@ -399,9 +375,143 @@ extension TextViewEditingOverlay: UITextViewDelegate {
             textViewCenteringContainer.y = 0
         }
         if panelView.styleButton.textStyle == .framed {
-            drawTextHighlight()
+            textStyleChangeHandler.drawTextHighlight()
         } else if panelView.styleButton.textStyle == .outlined {
             self.textView.outline()
         }
+    }
+}
+
+
+final class TextStyleChangeHandler {
+    private let textView: OutlineableTextView
+    fileprivate(set) var textHighlightLayer: CAShapeLayer?
+    private(set) var currentColor: UIColor! {
+        didSet {
+            updateTextViewAttributes()
+        }
+    }
+    private var textPanel: TextPanel?
+    private var colourPicker: ColourPickerButton?
+    
+    var currentState: ImageEditingTextState {
+        .init(
+            text: textView.text,
+            font: textView.font!,
+            color: currentColor,
+            style: textPanel?.styleButton.textStyle ?? .regular,
+            alignment: textPanel?.alignmentButton.textAlignment ?? .center
+        )
+    }
+    
+    init(textView: OutlineableTextView) {
+        self.textView = textView
+    }
+    
+    func assignControls(textPanel: TextPanel, colourPicker: ColourPickerButton) {
+        self.textPanel = textPanel
+        self.colourPicker = colourPicker
+        
+        colourPicker.onColourChange = { [weak self] color in
+            self?.currentColor = color
+        }
+        textPanel.onAnyAttributeChange = { [weak self] in
+            self?.updateTextViewAttributes()
+        }
+    }
+    
+    func applyState(_ state: ImageEditingTextState) {
+        self.currentColor = state.color
+        guard let textPanel = textPanel, let colourPicker = colourPicker else {
+            return
+        }
+
+        textPanel.selectedFont = state.font
+        textPanel.styleButton.setStyle(state.style, animated: false)
+        colourPicker.selectedColour = state.color
+        textPanel.alignmentButton.textAlignment = state.alignment
+    }
+    
+    fileprivate func drawTextHighlight() {
+        let textLayer = textView.layer
+        textView.clipsToBounds = false
+        let textContainerInset = textView.textContainerInset
+        let uiInset: CGFloat = -10//CGFloat(insetSlider.value)
+        let radius: CGFloat = 6 * UIScreen.main.scale
+        let highlightLayer: CAShapeLayer
+        if let textHighlightLayer = textHighlightLayer {
+            highlightLayer = textHighlightLayer
+        } else {
+            let layer = CAShapeLayer()
+            layer.frame = textView.bounds
+            layer.fillColor = currentColor.bestBackgroundColor.cgColor
+            textView.layer.insertSublayer(layer, at: 0)
+            textHighlightLayer = layer
+            highlightLayer = layer
+        }
+        let layout = textView.layoutManager
+        let range = NSMakeRange(0, layout.numberOfGlyphs)
+        var rects: [CGRect] = []
+        layout.enumerateLineFragments(forGlyphRange: range) { (_, usedRect, _, _, _) in
+            if usedRect.width > 0 && usedRect.height > 0 {
+                var rect = usedRect
+                rect.origin.x += textContainerInset.left
+                rect.origin.y += textContainerInset.top
+                rect = highlightLayer.convert(rect, from: textLayer)
+                rect = rect.insetBy(dx: uiInset, dy: uiInset)
+                rects.append(rect)
+            }
+        }
+        highlightLayer.path = CGPath.makeUnion(of: rects, cornerRadius: radius)
+    }
+    
+    fileprivate func updateTextViewAttributes(fontSize: CGFloat? = nil) {
+        guard let textPanel = textPanel else {
+            return
+        }
+
+        let attributes = currentAttributes(fontSize: fontSize)
+        textView.textAlignment = textPanel.alignmentButton.textAlignment
+        textView.attributedText = NSAttributedString(string: textView.text, attributes: attributes)
+        textView.typingAttributes = attributes
+        switch textPanel.styleButton.textStyle {
+        case .regular:
+            textView.removeOutline()
+            textHighlightLayer?.isHidden = true
+        case .outlined:
+            textView.outline()
+            textView.outlineColor = currentColor.bestBackgroundColor
+        case .framed:
+            textView.removeOutline()
+            textHighlightLayer?.fillColor = currentColor.bestBackgroundColor.cgColor
+            textHighlightLayer?.isHidden = false
+            drawTextHighlight()
+        }
+    }
+    
+    fileprivate func currentAttributes(fontSize: CGFloat? = nil) -> [NSAttributedString.Key : Any] {
+        guard let textPanel = textPanel else {
+            return [:]
+        }
+
+        let fontSize = fontSize ?? textView.font?.pointSize ?? 32
+        let attributes: [NSAttributedString.Key : Any]
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = textPanel.alignmentButton.textAlignment
+    
+        let color = currentColor ?? .white
+        
+        switch textPanel.styleButton.textStyle {
+        case .regular, .framed:
+            attributes = [.font : textPanel.selectedFont.withSize(fontSize),
+                          .foregroundColor : color,
+                          .paragraphStyle: paragraphStyle]
+        case .outlined:
+            attributes = [.font : textPanel.selectedFont.withSize(fontSize),
+                          .foregroundColor : color,
+                          .paragraphStyle: paragraphStyle,
+            ]
+        }
+        return attributes
     }
 }
