@@ -7,6 +7,49 @@
 
 import UIKit
 
+final class TextEditingResultView: UIView {
+    var resultId: UUID?
+    var movedCenterInCanvas: CGPoint?
+    private var dashedBorderLayer: CAShapeLayer?
+    
+    func setDashedBorderHidden(_ isHidden: Bool) {
+        if dashedBorderLayer == nil {
+            let borderLayer = CAShapeLayer()
+            borderLayer.strokeColor = UIColor.white.cgColor
+            borderLayer.fillColor = nil
+            borderLayer.lineWidth = 2
+            borderLayer.lineCap = .round
+            borderLayer.lineDashPattern = [12, 8]
+            borderLayer.frame = self.bounds
+            borderLayer.path = UIBezierPath(roundedRect: borderLayer.bounds, cornerRadius: 12).cgPath
+            layer.addSublayer(borderLayer)
+            dashedBorderLayer = borderLayer
+        }
+        dashedBorderLayer?.isHidden = isHidden
+        setNeedsLayout()
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard let dashedBorderLayer = dashedBorderLayer else { return }
+        dashedBorderLayer.frame = self.bounds
+//        var boundingRect = bounds
+//        for layer in (layer.sublayers ?? []) {
+//            boundingRect = boundingRect.union(layer.frame)
+//        }
+        
+//        for view in subviews {
+//            for layer in (view.layer.sublayers ?? []) {
+//                var rectInSelf = layer.frame
+//                rectInSelf.origin.x += view.x
+//                rectInSelf.origin.y += view.y
+//                boundingRect = boundingRect.union(rectInSelf)
+//            }
+//        }
+//        dashedBorderLayer.frame = boundingRect.inset(top: -10, left: -10, bottom: -10, right: -10)
+    }
+}
+
 struct ImageEditingTextState: Equatable {
     let text: String?
     let font: UIFont
@@ -22,19 +65,25 @@ final class TextEditingResult: Equatable {
         lhs.id == rhs.id
     }
     
-    internal init(view: UIView, state: ImageEditingTextState, frameInWindow: CGRect, borderLayer: CAShapeLayer? = nil, changeHandler: TextStyleChangeHandler) {
+    internal init(
+        id: UUID = UUID(),
+        view: TextEditingResultView,
+        state: ImageEditingTextState,
+        editingFrameInWindow: CGRect,
+        changeHandler: TextStyleChangeHandler
+    ) {
+        self.id = id
         self.view = view
         self.state = state
-        self.frameInWindow = frameInWindow
-        self.borderLayer = borderLayer
+        self.editingFrameInWindow = editingFrameInWindow
         self.changeHandler = changeHandler
+        view.resultId = id
     }
     
-    let id = UUID()
-    let view: UIView
+    let id: UUID
+    let view: TextEditingResultView
     let state: ImageEditingTextState
-    let frameInWindow: CGRect
-    var borderLayer: CAShapeLayer? = nil
+    let editingFrameInWindow: CGRect
     var changeHandler: TextStyleChangeHandler
 }
     
@@ -46,7 +95,7 @@ protocol TextViewEditingOverlayDelegate: AnyObject {
 final class TextViewEditingOverlay: UIView {
     private let cancelButton = UIButton()
     private let doneButton = UIButton()
-    private var textViewCenteringContainer: UIView!
+    private var textViewCenteringContainer: TextEditingResultView!
     private let contentContainer = UIView()
     private let blurView = UIVisualEffectView()
     private var slider: ToolSlider!
@@ -66,6 +115,7 @@ final class TextViewEditingOverlay: UIView {
         colourPicker: ColourPickerButton,
         panelContainer: UIView,
         state: ImageEditingTextState,
+        previousResultId: UUID?,
         frame: CGRect
     ) {
         self.panelView = panelView
@@ -108,7 +158,7 @@ final class TextViewEditingOverlay: UIView {
         contentContainer.frame = .init(x: 0, y: safeArea.top + 45, width: width, height: panelContainer.y - safeArea.top)
         contentContainer.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
-        textViewCenteringContainer = UIView()
+        textViewCenteringContainer = TextEditingResultView()
         contentContainer.addSubview(textViewCenteringContainer)
         textViewCenteringContainer.frame = .init(
             x: 36,
@@ -249,7 +299,7 @@ final class TextViewEditingOverlay: UIView {
         let result = TextEditingResult(
             view: textViewCenteringContainer,
             state: textStyleChangeHandler.currentState,
-            frameInWindow: textViewCenteringContainer.frameIn(view: window),
+            editingFrameInWindow: textViewCenteringContainer.frameIn(view: window),
             changeHandler: self.textStyleChangeHandler
         )
         delegate?.textEditingOverlay(self, doneEditingText: result)

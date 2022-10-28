@@ -27,6 +27,8 @@ final class EditVC: UIViewController {
     var tools: [ToolType: ToolDrawer] = [:]
     var activeTool: ToolType = .pen
     
+    private lazy var gesturesOverlay = GesturesOverlay(overlaysContainer: self.view, frame: self.view.bounds)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -90,14 +92,24 @@ final class EditVC: UIViewController {
             case .openColorPicker(startColor: let startColor):
                 self.openColorPicker(startColor: startColor)
             case .textEditBegan(let overlay):
+                self.setTopControlsHidden(isHidden: true)
                 self.addTextView(overlay: overlay)
             case .textEditEnded(let result):
-                self.view.addSubview(result.view)
-                result.view.frame = self.view.convert(result.frameInWindow, from: view.window)
+                self.view.insertSubview(result.view, belowSubview: self.gesturesOverlay)
+                result.view.frame = self.view.convert(result.editingFrameInWindow, from: view.window)
+                if let center = result.view.movedCenterInCanvas {
+                    result.view.center = center
+                }
+                self.gesturesOverlay.overlays.append(result.view)
+                self.setTopControlsHidden(isHidden: false)
             case .close:
                 dismiss(animated: true)
-            default:
-                // TODO:
+            case .switchedToDraw:
+                pen.active = true
+            case .switchedToText:
+                pen.active = false
+            case .save, .add, .toolShapeChanged:
+                // TODO: implement
                 break
             }
         }
@@ -108,6 +120,13 @@ final class EditVC: UIViewController {
         history.setup(container: layerContainer)
         
         setupZoomOutUI()
+        
+        view.addSubview(gesturesOverlay)
+        gesturesOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        gesturesOverlay.onTap = { [weak toolbar] view in
+            guard let textView = view as? TextEditingResultView else { return }
+            toolbar?.handleTap(on: textView)
+        }
     }
     
     fileprivate func setupZoomOutUI() {
@@ -120,6 +139,12 @@ final class EditVC: UIViewController {
         }
         nav.setZoomOut(enabled: false, animated: false)
         nav.zoomOut.addTarget(scroll, action: #selector(ZoomScrollView.zoomOut), for: .touchUpInside)
+    }
+    
+    private func setTopControlsHidden(isHidden: Bool) {
+        UIView.animate(withDuration: 0.2) {
+            self.nav.alpha = isHidden ? 0 : 1
+        }
     }
 
     
