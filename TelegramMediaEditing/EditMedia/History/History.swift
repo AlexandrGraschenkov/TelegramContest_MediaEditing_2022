@@ -10,10 +10,10 @@ import UIKit
 
 class History {
     private(set) var layerContainer: LayerContainer?
-    private(set) var elems: [ElementGroup] = []
+    private(set) var elements: [ElementGroup] = []
     private(set) var currentIdx: Int = 0
     
-    var forwardEnabled: Bool { currentIdx < elems.count }
+    var forwardEnabled: Bool { currentIdx < elements.count }
     var backwardEnabled: Bool { currentIdx > 0 }
     
     func setup(container: LayerContainer) {
@@ -32,18 +32,18 @@ class History {
     }
     
     func add(element: ElementGroup) {
-        while currentIdx < elems.count {
-            _ = elems.popLast()
+        while currentIdx < elements.count {
+            _ = elements.popLast()
         }
-        elems.append(element)
+        elements.append(element)
         currentIdx += 1
         historyUpdated(animated: true)
     }
     
     @objc func forward() {
         if !forwardEnabled { return }
-        for elem in elems[currentIdx].forward {
-            apply(element: elem)
+        for element in elements[currentIdx].forward {
+            apply(element: element)
         }
         currentIdx += 1
         historyUpdated(animated: true)
@@ -51,8 +51,8 @@ class History {
     
     @objc func backward() {
         if !backwardEnabled { return }
-        for elem in elems[currentIdx-1].backward {
-            apply(element: elem)
+        for element in elements[currentIdx-1].backward {
+            apply(element: element)
         }
         currentIdx -= 1
         historyUpdated(animated: true)
@@ -62,7 +62,7 @@ class History {
         if !backwardEnabled { return }
         guard let layerContainer = layerContainer else { return }
         
-        elems.removeAll()
+        elements.removeAll()
         for (_, l) in layerContainer.layers {
             l.removeFromSuperlayer()
         }
@@ -140,7 +140,10 @@ class History {
             return
             
         case .update:
-            break // no update in hierarhy, continue
+            break // no update in hierarchy, continue
+            
+        case .closure:
+            element.closure!(element, layers, nil)
         }
         
         
@@ -176,7 +179,9 @@ class History {
         var backward: [Element]
     }
     struct Element {
-        init(objectId: String, action: History.Element.LayerAction, zIndex: Int? = nil, updateKeys: [String : Any]? = nil, backgroundFill: UIColor? = nil, closure: ((Element, LayerContainer, AnyObject) -> ())? = nil) {
+        typealias Closure = (Element, LayerContainer, AnyObject?) -> ()
+        
+        init(objectId: String, action: History.Element.LayerAction, zIndex: Int? = nil, updateKeys: [String : Any]? = nil, backgroundFill: UIColor? = nil, closure: Closure? = nil) {
             self.objectId = objectId
             self.action = action
             self.zIndex = zIndex
@@ -186,7 +191,7 @@ class History {
         }
         
         enum LayerAction {
-            case add(classType: AnyClass), remove, update
+            case add(classType: AnyClass), remove, update, closure
         }
         
         let objectId: String
@@ -194,7 +199,7 @@ class History {
         
         var zIndex: Int?
         var updateKeys: [String: Any?]?
-        var closure: ((Element, LayerContainer, AnyObject)->())?
+        var closure: Closure?
         
         var backgroundFill: UIColor? // TODO: don't forget implement it
     }
