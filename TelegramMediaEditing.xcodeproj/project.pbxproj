@@ -50,6 +50,7 @@
 		FACBB876290A72D3005B6941 /* ToolDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB875290A72D3005B6941 /* ToolDrawer.swift */; };
 		FACBB87A290A791A005B6941 /* MarkerDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB879290A791A005B6941 /* MarkerDrawer.swift */; };
 		FACBB87C290AAE52005B6941 /* Bezier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB87B290AAE52005B6941 /* Bezier.swift */; };
+		FACBB87E290BBCD3005B6941 /* NeonDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB87D290BBCD2005B6941 /* NeonDrawer.swift */; };
 		FACE5BD3290057C600960A48 /* PenPlume.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD2290057C600960A48 /* PenPlume.swift */; };
 		FACE5BD5290147EF00960A48 /* DisplayLinkAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */; };
 		FACE5BD7290151DE00960A48 /* ToolDrawSplitOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD6290151DE00960A48 /* ToolDrawSplitOptimizer.swift */; };
@@ -117,6 +118,7 @@
 		FACBB875290A72D3005B6941 /* ToolDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDrawer.swift; sourceTree = "<group>"; };
 		FACBB879290A791A005B6941 /* MarkerDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerDrawer.swift; sourceTree = "<group>"; };
 		FACBB87B290AAE52005B6941 /* Bezier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bezier.swift; sourceTree = "<group>"; };
+		FACBB87D290BBCD2005B6941 /* NeonDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NeonDrawer.swift; sourceTree = "<group>"; };
 		FACE5BD2290057C600960A48 /* PenPlume.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenPlume.swift; sourceTree = "<group>"; };
 		FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayLinkAnimator.swift; sourceTree = "<group>"; };
 		FACE5BD6290151DE00960A48 /* ToolDrawSplitOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDrawSplitOptimizer.swift; sourceTree = "<group>"; };
@@ -265,6 +267,7 @@
 				FACBB878290A74C3005B6941 /* Common */,
 				FAEDF41728F9B7BF00094ADF /* PenDrawer.swift */,
 				FACBB879290A791A005B6941 /* MarkerDrawer.swift */,
+				FACBB87D290BBCD2005B6941 /* NeonDrawer.swift */,
 			);
 			path = Draw;
 			sourceTree = "<group>";
@@ -419,6 +422,7 @@
 				FA046F0128F55953002D5023 /* Extensions.swift in Sources */,
 				FACBB87C290AAE52005B6941 /* Bezier.swift in Sources */,
 				FADCE2192906AFE400E92CD9 /* FavoriteColorsView.swift in Sources */,
+				FACBB87E290BBCD3005B6941 /* NeonDrawer.swift in Sources */,
 				AAAB483128F9C876008373CB /* ToolsContainer.swift in Sources */,
 				AAAB483328FAD13A008373CB /* CorneredSegmentedControl.swift in Sources */,
 				AAAB483B28FB6022008373CB /* ToolSlider.swift in Sources */,

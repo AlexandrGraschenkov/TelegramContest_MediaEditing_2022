@@ -34,10 +34,20 @@ final class EditVC: UIViewController {
         marker.setup(content: mediaContainer, history: history)
         return marker
     }()
+    lazy var neon: NeonDrawer = {
+        let neon = NeonDrawer()
+        neon.setup(content: mediaContainer, history: history)
+        return neon
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        if #available(iOS 13.0, *) {
+            overrideUserInterfaceStyle = .dark
+        } else {
+            // Don't care
+        }
         assert(asset != nil)
         setupMediaContainer()
         setupUI()
@@ -62,6 +72,7 @@ final class EditVC: UIViewController {
             case .toolChanged(let type):
                 self.pen.active = type == .pen
                 self.marker.active = type == .marker
+                self.neon.active = type == .neon
             case .colorChange(let color):
                 if self.pen.active {
                     self.pen.color = color
@@ -69,12 +80,18 @@ final class EditVC: UIViewController {
                 if self.marker.active {
                     self.marker.color = color
                 }
+                if self.neon.active {
+                    self.neon.color = color
+                }
             case .lineWidthChanged(let width):
                 if self.pen.active {
                     self.pen.toolSize = width
                 }
                 if self.marker.active {
                     self.marker.toolSize = width
+                }
+                if self.neon.active {
+                    self.neon.toolSize = width
                 }
             case .openColorPicker(startColor: let startColor):
                 self.openColorPicker(startColor: startColor)
