@@ -53,6 +53,7 @@
 		FACBB87E290BBCD3005B6941 /* NeonDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB87D290BBCD2005B6941 /* NeonDrawer.swift */; };
 		FACBB880290BD0EC005B6941 /* PencilDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB87F290BD0EC005B6941 /* PencilDrawer.swift */; };
 		FACBB882290BFA1F005B6941 /* ToolDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB881290BFA1F005B6941 /* ToolDefaults.swift */; };
+		FACBB884290C0DE6005B6941 /* EraserDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB883290C0DE6005B6941 /* EraserDrawer.swift */; };
 		FACE5BD3290057C600960A48 /* PenPlume.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD2290057C600960A48 /* PenPlume.swift */; };
 		FACE5BD5290147EF00960A48 /* DisplayLinkAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */; };
 		FACE5BD7290151DE00960A48 /* ToolDrawSplitOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD6290151DE00960A48 /* ToolDrawSplitOptimizer.swift */; };
@@ -123,6 +124,7 @@
 		FACBB87D290BBCD2005B6941 /* NeonDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NeonDrawer.swift; sourceTree = "<group>"; };
 		FACBB87F290BD0EC005B6941 /* PencilDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PencilDrawer.swift; sourceTree = "<group>"; };
 		FACBB881290BFA1F005B6941 /* ToolDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDefaults.swift; sourceTree = "<group>"; };
+		FACBB883290C0DE6005B6941 /* EraserDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraserDrawer.swift; sourceTree = "<group>"; };
 		FACE5BD2290057C600960A48 /* PenPlume.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenPlume.swift; sourceTree = "<group>"; };
 		FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayLinkAnimator.swift; sourceTree = "<group>"; };
 		FACE5BD6290151DE00960A48 /* ToolDrawSplitOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDrawSplitOptimizer.swift; sourceTree = "<group>"; };
@@ -274,6 +276,7 @@
 				FACBB879290A791A005B6941 /* MarkerDrawer.swift */,
 				FACBB87D290BBCD2005B6941 /* NeonDrawer.swift */,
 				FACBB87F290BD0EC005B6941 /* PencilDrawer.swift */,
+				FACBB883290C0DE6005B6941 /* EraserDrawer.swift */,
 			);
 			path = Draw;
 			sourceTree = "<group>";
@@ -458,6 +461,7 @@
 				AA79DEAB290320BE00905FEF /* FontsSelector.swift in Sources */,
 				FA046F0728F569BE002D5023 /* GlobalFunctions.swift in Sources */,
 				FACE5BDE2902E75E00960A48 /* ColorGridView.swift in Sources */,
+				FACBB884290C0DE6005B6941 /* EraserDrawer.swift in Sources */,
 				FACE5BD7290151DE00960A48 /* ToolDrawSplitOptimizer.swift in Sources */,
 				AA79DEB1290343E200905FEF /* RectsUnion.swift in Sources */,
 				AA79DEAD2903363B00905FEF /* TextAlignmentButton.swift in Sources */,

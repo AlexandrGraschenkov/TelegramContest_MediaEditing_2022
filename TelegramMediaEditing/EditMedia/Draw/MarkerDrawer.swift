@@ -106,7 +106,7 @@ class MarkerDrawer: ToolDrawer {
         }
 
         // WARNING: For optimization purpose we have layer with multiple sublayers; Possible some bugs in future;
-        let name = layers.generateUniqueName(prefix: "pen")
+        let name = layers.generateUniqueName(prefix: toolType.rawValue)
         history.layerContainer?.layers[name] = parentLayer
         let bezier = UIBezierPath()
         for b in splitOpt.bezierArr {
@@ -121,7 +121,7 @@ class MarkerDrawer: ToolDrawer {
             shapeDict["strokeColor"] = l.strokeColor
         }
         
-        let forward = History.Element(objectId: name, action: .add(classType: CAReplicatorLayer.self), updateKeys: ["instanceCount": parentLayer.instanceCount, "instanceTransform": parentLayer.instanceTransform, "opacity": parentLayer.opacity]) { elem, container in
+        let forward = History.Element(objectId: name, action: .add(classType: CAReplicatorLayer.self), updateKeys: ["instanceCount": parentLayer.instanceCount, "instanceTransform": parentLayer.instanceTransform, "opacity": parentLayer.opacity]) { elem, container, obj in
             guard let rep = container.layers[elem.objectId] else {
                 return
             }

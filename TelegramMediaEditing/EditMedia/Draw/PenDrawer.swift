@@ -71,7 +71,7 @@ class PenDrawer: ToolDrawer {
         }
 
         // WARNING: For optimization purpose we have layer with multiple sublayers; Possible some bugs in future;
-        let name = layers.generateUniqueName(prefix: "pen")
+        let name = layers.generateUniqueName(prefix: toolType.rawValue)
         history.layerContainer?.layers[name] = parentLayer
         let bezier = UIBezierPath()
         for b in splitOpt.bezierArr {

@@ -72,7 +72,7 @@ class ToolDrawer: NSObject {
         }
     }
     
-    fileprivate var smooth = PanSmoothIK()
+    fileprivate(set) var smooth = PanSmoothIK()
 //    fileprivate var smooth = PanSmoothTime()
     fileprivate var pan: UIPanGestureRecognizer!
     fileprivate(set) weak var content: UIView?

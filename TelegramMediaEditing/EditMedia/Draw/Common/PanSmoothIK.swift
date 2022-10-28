@@ -18,6 +18,7 @@ class PanSmoothIK: NSObject {
             return smoothPoints + [lastPoint].compactMap({$0})
         }
     }
+    var smoothMultiplier: CGFloat = 1
     fileprivate var smoothPoints: [PanPoint] = []
     fileprivate var lastPoints: [PanPoint] = []
     fileprivate var lastPointsFilterTime: TimeInterval = 0.2
@@ -66,7 +67,7 @@ class PanSmoothIK: NSObject {
         if smoothPoints.isEmpty {
             lastPoint = point
             smoothPoints.append(point)
-            updateDebug2()
+//            updateDebug2()
             return
         }
         lastPoint = PanPoint(point: point.point, time: point.time+2)
@@ -86,7 +87,7 @@ class PanSmoothIK: NSObject {
         
         // чем меньше кисточка, тем точней необходимо рисовать
         let mult = toolSize.percent(min: 1, max: 30).percentToRange(min: 0.2, max: 2)
-        maxPanOffset *= mult
+        maxPanOffset *= mult * smoothMultiplier
         
         let dist = smoothPoints.last!.point.distance(p: point.point)
         if dist < maxPanOffset {
@@ -95,11 +96,11 @@ class PanSmoothIK: NSObject {
         var offset = smoothPoints.last!.point.substract(point.point)
         offset = offset.norm.mulitply(maxPanOffset)
         let newPoint = point.point.add(offset)
-        if newPoint.distance(p: smoothPoints.last!.point) < 14 {
+        if newPoint.distance(p: smoothPoints.last!.point) < 1 {
             return
         }
         smoothPoints.append(PanPoint(point: newPoint, time: point.time))
-        updateDebug2()
+//        updateDebug2()
         
 //        if points.count > 1 && points[points.count-1].time - points[points.count-2].time < skipTime {
 //            _ = points.popLast()
@@ -107,13 +108,13 @@ class PanSmoothIK: NSObject {
 //        points.append(point)
     }
     
-    fileprivate func updateDebug2() {
+//    fileprivate func updateDebug2() {
 //        let bezier = UIBezierPath()
 //        for p in smoothPoints {
 //            bezier.append(UIBezierPath(ovalIn: CGRect(mid: p.point, size: CGSize(width: 5*scale, height: 5*scale))))
 //        }
 //        debugLayer2.path = bezier.cgPath
-    }
+//    }
     
     fileprivate func calcLineLength(points: [PanPoint]) -> CGFloat {
         var sumDist: CGFloat = 0

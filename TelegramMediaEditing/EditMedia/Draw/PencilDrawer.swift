@@ -8,6 +8,11 @@
 import UIKit
 
 class PencilDrawer: ToolDrawer {
+    override init() {
+        super.init()
+        smooth.smoothMultiplier = 0.5
+    }
+    
     override var toolType: ToolType { .pencil }
     
     fileprivate var parentLayer: CAShapeLayer?
@@ -71,7 +76,7 @@ class PencilDrawer: ToolDrawer {
         }
 
         // WARNING: For optimization purpose we have layer with multiple sublayers; Possible some bugs in future;
-        let name = layers.generateUniqueName(prefix: "pen")
+        let name = layers.generateUniqueName(prefix: toolType.rawValue)
         history.layerContainer?.layers[name] = parentLayer
         let bezier = UIBezierPath()
         for b in splitOpt.bezierArr {
@@ -94,7 +99,7 @@ class PencilDrawer: ToolDrawer {
         let forward = History.Element(objectId: name, action: .add(classType: CAShapeLayer.self), updateKeys: [
             "path": parentLayer.path!,
             "fillColor": parentLayer.fillColor!
-        ]) { elem, container in
+        ]) { elem, container, obj in
             guard let container = container.layers[elem.objectId] else {
                 return
             }
