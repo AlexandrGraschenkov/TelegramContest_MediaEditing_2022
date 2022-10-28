@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum ToolType {
+enum ToolType: String {
     case pen
     case marker
     case neon
@@ -20,17 +20,13 @@ enum ToolType {
 
 final class ToolViewConfig {
     final class Invariants {
-        init(tipImage: UIImage, lineView: UIView, initialColor: UIColor, initialLineWidth: CGFloat, shape: ToolShape = .circle) {
+        init(tipImage: UIImage, lineView: UIView, shape: ToolShape = .circle) {
             self.tipImage = tipImage
             self.lineView = lineView
-            self.initialColor = initialColor
-            self.initialLineWidth = initialLineWidth
         }
         
         let tipImage: UIImage
         let lineView: UIView
-        let initialColor: UIColor
-        let initialLineWidth: CGFloat
     }
     
     init(baseImage: UIImage, toolType: ToolType, invariants: Invariants? = nil) {
@@ -75,9 +71,7 @@ extension ToolViewConfig {
         toolType: .pen,
         invariants: .init(
             tipImage: UIImage(named: "pen_tip")!,
-            lineView: ToolLineView.straight(),
-            initialColor: .white,
-            initialLineWidth: 2
+            lineView: ToolLineView.straight()
         )
     )
     
@@ -86,9 +80,7 @@ extension ToolViewConfig {
         toolType: .marker,
         invariants: .init(
             tipImage: UIImage(named: "marker_tip")!,
-            lineView: ToolLineView.straight(),
-            initialColor: UIColor(red: 255, green: 230, blue: 32, a: 1),
-            initialLineWidth: 6
+            lineView: ToolLineView.straight()
         )
     )
     
@@ -97,9 +89,7 @@ extension ToolViewConfig {
         toolType: .neon,
         invariants: .init(
             tipImage: UIImage(named: "neon_tip")!,
-            lineView: ToolLineView.straight(),
-            initialColor: UIColor(red: 50, green: 254, blue: 186, a: 1),
-            initialLineWidth: 15
+            lineView: ToolLineView.straight()
         )
     )
     
@@ -108,9 +98,7 @@ extension ToolViewConfig {
         toolType: .pencil,
         invariants: .init(
             tipImage: UIImage(named: "pencil_tip")!,
-            lineView: ToolLineView.cornered(),
-            initialColor: UIColor(red: 45, green: 136, blue: 243, a: 1),
-            initialLineWidth: 8
+            lineView: ToolLineView.cornered()
         )
     )
     
@@ -191,7 +179,8 @@ final class ToolView: UIView {
             return
         }
 
-        tintColor = config.invariants?.initialColor.withAlphaComponent(1)
+        let toolColor = ToolDefaults.getColor(type: config.toolType) ?? .white
+        tintColor = toolColor.withAlphaComponent(1)
         let tipView = UIImageView()
         tipView.image = invariants.tipImage
         addSubview(tipView)
@@ -203,7 +192,7 @@ final class ToolView: UIView {
         self.lineView = lineView
         addSubview(lineView)
         lineView.translatesAutoresizingMaskIntoConstraints = true
-        self.lineWidth = invariants.initialLineWidth
-        lineView.backgroundColor = invariants.initialColor
+        self.lineWidth = ToolDefaults.getSize(type: config.toolType)
+        lineView.backgroundColor = toolColor
     }
 }

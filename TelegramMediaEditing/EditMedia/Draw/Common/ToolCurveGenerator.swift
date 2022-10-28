@@ -157,7 +157,7 @@ class ToolCurveGenerator {
             penRightSide(traj: traj, reversed: true, bezier: &bezier)
             
             bezier.close()
-        } else if mode == .marker || mode == .neon || mode == .pencil {
+        } else { //if mode == .marker || mode == .neon || mode == .pencil {
             markerBendPoints = []
             trajToBezier(traj: traj, reversed: false, bezier: &bezier)
             

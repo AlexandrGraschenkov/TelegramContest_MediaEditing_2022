@@ -456,7 +456,7 @@ extension EditorToolbar: ToolsContainerDelegate {
     
     func toolsContainer(_ container: ToolsContainer, didChangeActiveTool tool: ToolView) {
         actionHandler?(.toolChanged(tool.config.toolType))
-        let lineWidth = tool.lineWidth ?? tool.config.invariants?.initialLineWidth ?? 10
+        let lineWidth = tool.lineWidth ?? 10
         actionHandler?(.lineWidthChanged(lineWidth))
         actionHandler?(.colorChange(tool.tintColor))
         UIView.animate(withDuration: 0.2) {
