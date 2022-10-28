@@ -141,9 +141,13 @@ class ToolCurveGenerator {
         if traj.count == 1 {
             var size: CGFloat = toolSize
             if mode == .pen {
-                size = penSize(speed: traj[0].speed)
+                size = penSize(speed: pen.minPixSpeed*scrollZoomScale)
+                bezier = UIBezierPath(ovalIn: CGRect(mid: traj[0].point, size: CGSize(width: size*2, height: size*2)))
+            } else {
+                bezier.move(to: traj[0].point)
+                bezier.addLine(to: traj[0].point.add(CGPoint(x: 0, y: 0.001)))
             }
-            bezier = UIBezierPath(ovalIn: CGRect(mid: traj[0].point, size: CGSize(width: size, height: size)))
+            
             return bezier
         }
         
