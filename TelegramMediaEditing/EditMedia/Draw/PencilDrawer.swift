@@ -1,5 +1,5 @@
 //
-//  NeonDrawer.swift
+//  PencilDrawer.swift
 //  TelegramMediaEditing
 //
 //  Created by Alexander Graschenkov on 28.10.2022.
@@ -7,10 +7,11 @@
 
 import UIKit
 
-class NeonDrawer: ToolDrawer {
-    override var toolType: ToolType { .neon }
+class PencilDrawer: ToolDrawer {
+    override var toolType: ToolType { .pencil }
     
-    fileprivate var parentLayer: CALayer?
+    fileprivate var parentLayer: CAShapeLayer?
+    fileprivate lazy var patternImage = UIImage(named: "pencil_texture")!
     
     override func updateDrawLayer() {
         if !splitOpt.isPrepared {
@@ -21,30 +22,29 @@ class NeonDrawer: ToolDrawer {
             let size = toolSize * 2 * scale
             
             let comp = color.components
-            let parentWithOpacity = CALayer()
+            let parentWithOpacity = CAShapeLayer()
             parentWithOpacity.opacity = Float(comp.a)
-            parentWithOpacity.shadowColor = comp.toColorOverride(a: 1).cgColor
-            parentWithOpacity.shadowRadius = size
-            parentWithOpacity.shadowOpacity = 1
-            parentWithOpacity.shadowOffset = .zero
+            
+            let img = patternImage.imageWithColor(color1: comp.toColorOverride(a: 1))
+            parentWithOpacity.fillColor = UIColor(patternImage: img).cgColor
+            parentWithOpacity.path = CGPath(rect: content!.bounds, transform: nil)
             content?.layer.addSublayer(parentWithOpacity)
             parentLayer = parentWithOpacity
             
             
             let layer = CAShapeLayer()
-            layer.strokeColor = comp.toColorOverride(a: 1).cgColor
+            layer.strokeColor = UIColor.white.cgColor // Use like a mask
             layer.lineWidth = size
             layer.lineCap = .round
             layer.lineJoin = .round
-            layer.shadowColor = parentWithOpacity.shadowColor
-            layer.shadowRadius = size / 2
-            layer.shadowOpacity = parentWithOpacity.shadowOpacity
-            layer.shadowOffset = parentWithOpacity.shadowOffset
+//            print("Tool size", toolSize * scale / 2)
             layer.fillColor = nil //comp.toColorOverride(a: 1).cgColor
             
-            parentWithOpacity.addSublayer(layer)
             
-//            parentWithOpacity.addSublayer(rep)
+            let mask = CALayer()
+            mask.addSublayer(layer)
+            parentWithOpacity.mask = mask
+            
             splitOpt.start(layer: layer, penGen: curveGen)
         }
         CALayer.withoutAnimation {
@@ -77,26 +77,23 @@ class NeonDrawer: ToolDrawer {
         for b in splitOpt.bezierArr {
             bezier.append(b)
         }
-        let lineWidth = (parentLayer.sublayers?.first as? CAShapeLayer)?.lineWidth ?? toolSize
+        let cgPath = bezier.cgPath
+        let lineWidth = (parentLayer.mask?.sublayers?.first as? CAShapeLayer)?.lineWidth ?? toolSize
+        let drawBbox = getOptimalBbox(bounds: content!.bounds, patternSize: patternImage.size, path: cgPath, lineWidth: lineWidth)
+        parentLayer.path = CGPath(rect: drawBbox, transform: nil)
         
         let shapeDict: [String: Any] = [
-            "path": bezier.cgPath,
-            "strokeColor": color.withAlphaComponent(1).cgColor,
+            "path": cgPath,
+            "strokeColor": UIColor.white.cgColor,
             "lineJoin": CAShapeLayerLineJoin.round,
             "lineCap": CAShapeLayerLineCap.round,
             "lineWidth": lineWidth,
-            "shadowOpacity": parentLayer.shadowOpacity,
-            "shadowColor": parentLayer.shadowColor ?? color.withAlphaComponent(1).cgColor,
-            "shadowRadius": parentLayer.shadowRadius,
-            "shadowOffset": parentLayer.shadowOffset,
             "fillColor": UIColor.clear.cgColor
         ]
         
         let forward = History.Element(objectId: name, action: .add(classType: CAShapeLayer.self), updateKeys: [
-            "shadowOpacity": parentLayer.shadowOpacity,
-            "shadowColor": parentLayer.shadowColor ?? color.withAlphaComponent(1).cgColor,
-            "shadowRadius": parentLayer.shadowRadius,
-            "shadowOffset": parentLayer.shadowOffset,
+            "path": parentLayer.path!,
+            "fillColor": parentLayer.fillColor!
         ]) { elem, container in
             guard let container = container.layers[elem.objectId] else {
                 return
@@ -106,10 +103,30 @@ class NeonDrawer: ToolDrawer {
             for (k, v) in shapeDict {
                 shape.setValue(v, forKeyPath: k)
             }
-            container.addSublayer(shape)
+            container.mask = shape
         }
         
         let backward = History.Element(objectId: name, action: .remove)
         history.add(element: .init(forward: [forward], backward: [backward]))
     }
+    
+    fileprivate func getOptimalBbox(bounds: CGRect, patternSize: CGSize, path: CGPath, lineWidth: CGFloat) -> CGRect {
+        var bbox = path.boundingBoxOfPath
+        bbox = bbox.insetBy(dx: -lineWidth*2-1, dy: -lineWidth*2-1).integral
+        var tl = CGPoint(x: bbox.minX, y: bbox.minY)
+//        tl.x = floor(tl.x / patternSize.width) * patternSize.width
+//        tl.y = floor(tl.y / patternSize.height) * patternSize.height
+        
+        var br = CGPoint(x: bbox.maxX, y: bbox.maxY)
+//        br.x = ceil(br.x / patternSize.width) * patternSize.width
+//        br.y = ceil(br.y / patternSize.height) * patternSize.height
+        
+        tl.x = max(tl.x, bounds.minX)
+        tl.y = max(tl.y, bounds.minY)
+        br.x = min(br.x, bounds.maxX)
+        br.y = min(br.y, bounds.maxY)
+        
+        return CGRect(origin: tl, size: br.substract(tl).size)
+    }
+    
 }

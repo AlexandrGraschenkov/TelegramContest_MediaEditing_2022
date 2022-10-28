@@ -39,6 +39,11 @@ final class EditVC: UIViewController {
         neon.setup(content: mediaContainer, history: history)
         return neon
     }()
+    lazy var pencil: PencilDrawer = {
+        let pencil = PencilDrawer()
+        pencil.setup(content: mediaContainer, history: history)
+        return pencil
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -73,6 +78,7 @@ final class EditVC: UIViewController {
                 self.pen.active = type == .pen
                 self.marker.active = type == .marker
                 self.neon.active = type == .neon
+                self.pencil.active = type == .pencil
             case .colorChange(let color):
                 if self.pen.active {
                     self.pen.color = color
@@ -83,6 +89,9 @@ final class EditVC: UIViewController {
                 if self.neon.active {
                     self.neon.color = color
                 }
+                if self.pencil.active {
+                    self.pencil.color = color
+                }
             case .lineWidthChanged(let width):
                 if self.pen.active {
                     self.pen.toolSize = width
@@ -92,6 +101,9 @@ final class EditVC: UIViewController {
                 }
                 if self.neon.active {
                     self.neon.toolSize = width
+                }
+                if self.pencil.active {
+                    self.pencil.toolSize = width
                 }
             case .openColorPicker(startColor: let startColor):
                 self.openColorPicker(startColor: startColor)
