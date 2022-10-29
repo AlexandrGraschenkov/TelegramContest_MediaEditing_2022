@@ -32,7 +32,7 @@ class ToolDrawer: NSObject {
     
 //    var debugBegunFlag = false
     @objc
-    private func onPan(pan: UIPanGestureRecognizer) {
+    open func onPan(pan: UIPanGestureRecognizer) {
         let p = pan.location(in: content)
         let t = CACurrentMediaTime()
         let pp = PanPoint(point: p, time: t)

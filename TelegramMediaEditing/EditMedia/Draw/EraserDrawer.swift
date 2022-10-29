@@ -11,11 +11,13 @@ class EraserDrawer: ToolDrawer {
     override init() {
         super.init()
         smooth.smoothMultiplier = 0.001
-        toolShape = .eraserObject
+        toolShape = .eraserNormal
     }
     
     override var toolType: ToolType { .eraser }
     
+    fileprivate var hitLayersForErase = Set<String>()
+    fileprivate var hitDetectors: [String: ShapeLayerHitDetector] = [:]
     fileprivate var parentLayer: CAShapeLayer?
     fileprivate var blurredSnapshot: UIImage?
     override var active: Bool {
@@ -40,6 +42,7 @@ class EraserDrawer: ToolDrawer {
     }
     
     override func updateDrawLayer() {
+        // for `eraserNormal` and `eraserBlur`
         if !splitOpt.isPrepared {
             var scale: CGFloat = 1.0
             if let content = content {
@@ -50,8 +53,6 @@ class EraserDrawer: ToolDrawer {
             // cheating with overlay
             parentLayer = CAShapeLayer()
             parentLayer?.frame = content!.bounds
-//            let imgView = content as? UIImageView
-//            print(content)
             if toolShape == .eraserBlur {
                 parentLayer?.contents = self.blurredSnapshot?.cgImage
             } else {
@@ -119,9 +120,9 @@ class EraserDrawer: ToolDrawer {
 
         let forward = History.Element(objectId: name, action: .add(classType: CAShapeLayer.self), updateKeys: [
             "frame": parentLayer.frame,
-            "path": parentLayer.path,
-            "contents": parentLayer.contents,
-            "fillColor": parentLayer.fillColor
+            "path": parentLayer.path as Any,
+            "contents": parentLayer.contents as Any,
+            "fillColor": parentLayer.fillColor as Any
         ]) { elem, container, obj in
             guard let container = container.layers[elem.objectId] else {
                 return
@@ -154,5 +155,80 @@ class EraserDrawer: ToolDrawer {
                 self.blurredSnapshot = UIImage(cgImage: image)
             }
         })
+    }
+    
+    // --------------------------------------------
+    // MARK: - Object eraser
+    override func onPan(pan: UIPanGestureRecognizer) {
+        if toolShape != .eraserObject {
+            super.onPan(pan: pan)
+            return
+        }
+        // custom logic for object eraser
+        
+        if pan.state == .began {
+            var scale: CGFloat = 1.0
+            if let content = content {
+                scale = content.bounds.width / content.frame.width
+            }
+            let size = toolSize*scale
+            hitDetectors = prepareHitDetectors(eraserSize: size)
+        }
+        hideHitObjects(p: pan.location(in: content))
+        
+        let layers = history?.layerContainer?.layers ?? [:]
+        switch pan.state {
+        case .failed, .cancelled:
+            for key in hitLayersForErase {
+                layers[key]?.isHidden = false
+            }
+            hitLayersForErase.removeAll()
+            hitDetectors.removeAll()
+            
+        case .ended:
+            addToHistoryObjectEraser()
+            hitLayersForErase.removeAll()
+            hitDetectors.removeAll()
+            
+        default: break
+        }
+    }
+}
+
+fileprivate extension EraserDrawer {
+    func prepareHitDetectors(eraserSize: CGFloat) -> [String: ShapeLayerHitDetector] {
+        var result: [String: ShapeLayerHitDetector] = [:]
+        for (key, layer) in history?.layerContainer?.layers ?? [:] {
+            if key.hasPrefix(toolType.rawValue) || layer.isHidden { continue }
+            
+            result[key] = ShapeLayerHitDetector(layer: layer, hitDistance: eraserSize)
+        }
+        return result
+    }
+    
+    func hideHitObjects(p: CGPoint) {
+        let layers = history?.layerContainer?.layers ?? [:]
+        for (key, detector) in hitDetectors {
+            if hitLayersForErase.contains(key) { continue }
+            if !detector.hit(p: p) { continue }
+            
+            hitLayersForErase.insert(key)
+            layers[key]?.isHidden = true
+        }
+    }
+    
+    func addToHistoryObjectEraser() {
+        let removedLayers = hitLayersForErase
+        let forward = History.Element(objectId: "", action: .closure) { (element, container, _) in
+            for key in removedLayers {
+                container.layers[key]?.isHidden = true
+            }
+        }
+        let backward = History.Element(objectId: "", action: .closure) { (element, container, _) in
+            for key in removedLayers {
+                container.layers[key]?.isHidden = false
+            }
+        }
+        history?.add(element: .init(forward: [forward], backward: [backward]))
     }
 }
