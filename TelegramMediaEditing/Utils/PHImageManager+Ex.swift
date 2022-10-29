@@ -15,7 +15,7 @@ extension PHImageManager {
         size: CGSize,
         completion: @escaping (UIImage?, Bool) -> Void
     ) -> Cancelable {
-        let size = size.mulitply(UIScreen.main.scale)
+        let size = size.multiply(UIScreen.main.scale)
         
         let options = PHImageRequestOptions()
         options.isNetworkAccessAllowed = true

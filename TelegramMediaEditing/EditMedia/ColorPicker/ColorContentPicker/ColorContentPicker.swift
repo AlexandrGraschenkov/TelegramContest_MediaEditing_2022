@@ -44,8 +44,8 @@ class ColorContentPicker: UIView {
     static func snapshot(content: UIView) -> UIImage? {
         let scale = UIScreen.main.scale
         var bounds = content.bounds
-        bounds.origin = bounds.origin.mulitply(scale)
-        bounds.size = bounds.size.mulitply(scale)
+        bounds.origin = bounds.origin.multiply(scale)
+        bounds.size = bounds.size.multiply(scale)
         let colorspace = CGColorSpaceCreateDeviceRGB()
         let context = CGContext(data: nil,
                                 width: Int(bounds.width),
@@ -200,9 +200,9 @@ class ColorContentPicker: UIView {
             return UIColor(red: r, green: g, blue: b, alpha: 1)
         }
         
-        let p = center.mulitply(UIScreen.main.scale)
-        let boundsScaled = CGRect(origin: activeBounds.origin.mulitply(UIScreen.main.scale),
-                                  size: activeBounds.size.mulitply(UIScreen.main.scale))
+        let p = center.multiply(UIScreen.main.scale)
+        let boundsScaled = CGRect(origin: activeBounds.origin.multiply(UIScreen.main.scale),
+                                  size: activeBounds.size.multiply(UIScreen.main.scale))
         
         CATransaction.begin()
         CATransaction.setValue(true, forKey: kCATransactionDisableActions)

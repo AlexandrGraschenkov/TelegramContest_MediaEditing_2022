@@ -69,7 +69,7 @@ final class EditorToolbar: UIView {
     }()
     
     private lazy var shapeSelector: ToolShapeSelector = {
-        let selector = ToolShapeSelector(frame: CGRect(x: self.bottomControlsContainer.width - 75, y: 0, width: 75, height: bottomControlsContainer.height))
+        let selector = ToolShapeSelector(frame: CGRect(x: self.bottomControlsContainer.width - 95, y: 0, width: 95, height: bottomControlsContainer.height))
         selector.autoresizingMask = [.flexibleLeftMargin]
         selector.shape = .circle
         return selector
@@ -290,6 +290,11 @@ final class EditorToolbar: UIView {
             }
             
             bottomControlsContainer.addSubview(shapeSelector)
+            if toolView.config.toolType == .eraser {
+                shapeSelector.allowShapes = ToolShape.eraser
+            } else {
+                shapeSelector.allowShapes = ToolShape.brush
+            }
             shapeSelector.shape = toolView.shape
             shapeSelector.alpha = 0
             shapeSelector.onShapeChange = { [weak self, weak toolView] shape in

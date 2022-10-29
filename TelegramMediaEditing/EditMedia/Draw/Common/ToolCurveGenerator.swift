@@ -189,7 +189,7 @@ class ToolCurveGenerator {
     private func markerOffset(normal: CGPoint) -> CGPoint {
         let dir = atan2(normal.x, normal.y) // swap x/y to get line direction
         let size = markerSize(direction: dir)
-        return normal.mulitply(size)
+        return normal.multiply(size)
     }
     
     private func markerEllipse(inPoint: CGPoint) -> UIBezierPath {
@@ -223,7 +223,7 @@ class ToolCurveGenerator {
         if (l2 == 0.0) { return (toLine.0, 0) }   // v == w case
         
         let t = point.substract(toLine.0).dot(lineVec) / l2
-        let proj = toLine.0.add(lineVec.mulitply(t))
+        let proj = toLine.0.add(lineVec.multiply(t))
         return (proj, t)
     }
 }
@@ -277,7 +277,7 @@ extension ToolCurveGenerator {
             } else {
                 // straight line
                 let norm = to.substract(from).norm.rot90
-                bezier.addLine(to: to.add(norm.mulitply(toSize)))
+                bezier.addLine(to: to.add(norm.multiply(toSize)))
 //                    debugBezier.addLine(to: to)
             }
 //            if let debugContext = debugContext, reversed {
@@ -335,9 +335,9 @@ extension ToolCurveGenerator {
             // check distance error, if it small we skip generating new point
             // don't forgot about offsets, it's final points
             localNormals = bezier.generateNormals(tArr: [p1.t, midT, p2.t], toRight: true)
-            let p1w = p1.p.add(localNormals[0].mulitply(calcWidth(p1.t)))
-            let midPw = midP.add(localNormals[1].mulitply(calcWidth(midT)))
-            let p2w = p2.p.add(localNormals[2].mulitply(calcWidth(p2.t)))
+            let p1w = p1.p.add(localNormals[0].multiply(calcWidth(p1.t)))
+            let midPw = midP.add(localNormals[1].multiply(calcWidth(midT)))
+            let p2w = p2.p.add(localNormals[2].multiply(calcWidth(p2.t)))
             
             let distSqr = sqrDist(point: midPw, toLine: (p1w, p2w))
             if distSqr > maxPixErrSqr {
@@ -353,7 +353,7 @@ extension ToolCurveGenerator {
         for i in 0..<pointsT.count {
             let t = pointsT[i].t
             let width = fromWidth * (1-t) + toWidth * t
-            let p = pointsT[i].p.add(normals[i].mulitply(width))
+            let p = pointsT[i].p.add(normals[i].multiply(width))
             if inOutBezier.isEmpty {
                 inOutBezier.move(to: p)
             } else {

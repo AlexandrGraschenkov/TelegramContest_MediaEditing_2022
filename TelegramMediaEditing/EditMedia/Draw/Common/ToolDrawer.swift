@@ -15,6 +15,7 @@ class ToolDrawer: NSObject {
         }
     }
     var toolType: ToolType { .pen }
+    var toolShape: ToolShape = .circle
     var color: UIColor = .white
     var toolSize: CGFloat = 10
     

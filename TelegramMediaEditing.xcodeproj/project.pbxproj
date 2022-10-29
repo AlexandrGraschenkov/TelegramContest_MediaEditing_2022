@@ -54,6 +54,7 @@
 		FACBB880290BD0EC005B6941 /* PencilDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB87F290BD0EC005B6941 /* PencilDrawer.swift */; };
 		FACBB882290BFA1F005B6941 /* ToolDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB881290BFA1F005B6941 /* ToolDefaults.swift */; };
 		FACBB884290C0DE6005B6941 /* EraserDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB883290C0DE6005B6941 /* EraserDrawer.swift */; };
+		FACBB886290D0A5D005B6941 /* UIView+Blur.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB885290D0A5D005B6941 /* UIView+Blur.swift */; };
 		FACE5BD3290057C600960A48 /* PenPlume.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD2290057C600960A48 /* PenPlume.swift */; };
 		FACE5BD5290147EF00960A48 /* DisplayLinkAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */; };
 		FACE5BD7290151DE00960A48 /* ToolDrawSplitOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD6290151DE00960A48 /* ToolDrawSplitOptimizer.swift */; };
@@ -125,6 +126,7 @@
 		FACBB87F290BD0EC005B6941 /* PencilDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PencilDrawer.swift; sourceTree = "<group>"; };
 		FACBB881290BFA1F005B6941 /* ToolDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDefaults.swift; sourceTree = "<group>"; };
 		FACBB883290C0DE6005B6941 /* EraserDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraserDrawer.swift; sourceTree = "<group>"; };
+		FACBB885290D0A5D005B6941 /* UIView+Blur.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Blur.swift"; sourceTree = "<group>"; };
 		FACE5BD2290057C600960A48 /* PenPlume.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenPlume.swift; sourceTree = "<group>"; };
 		FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayLinkAnimator.swift; sourceTree = "<group>"; };
 		FACE5BD6290151DE00960A48 /* ToolDrawSplitOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDrawSplitOptimizer.swift; sourceTree = "<group>"; };
@@ -244,6 +246,7 @@
 				FA39D93928F7FE1900CBA7A4 /* PHImageManager+Ex.swift */,
 				FA046F0628F569BE002D5023 /* GlobalFunctions.swift */,
 				FA046EFE28F558DF002D5023 /* UIView+Ex.swift */,
+				FACBB885290D0A5D005B6941 /* UIView+Blur.swift */,
 				FA046F0028F55953002D5023 /* Extensions.swift */,
 				FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */,
 				FA046F0228F55987002D5023 /* UIColor+Ex.swift */,
@@ -449,6 +452,7 @@
 				AAAB483928FB533D008373CB /* BackOrCancelButton.swift in Sources */,
 				AAAB482628F96B76008373CB /* UIControl+Ex.swift in Sources */,
 				AA79DEA228FF4EF400905FEF /* GradientView.swift in Sources */,
+				FACBB886290D0A5D005B6941 /* UIView+Blur.swift in Sources */,
 				AAAB483728FB14D8008373CB /* TestVC.swift in Sources */,
 				FA046EE528F54B23002D5023 /* AppDelegate.swift in Sources */,
 				AA79DEA429000CB000905FEF /* TextViewEditingOverlay.swift in Sources */,
