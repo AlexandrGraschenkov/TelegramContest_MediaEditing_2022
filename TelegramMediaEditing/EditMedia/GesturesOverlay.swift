@@ -10,7 +10,7 @@ import UIKit
 
 struct OverlayOperationState: Equatable {
     let transform: CGAffineTransform
-    let frame: CGRect
+    let center: CGPoint
 }
 
 protocol GesturesOverlayDelegate: AnyObject {
@@ -40,7 +40,7 @@ final class GesturesOverlay: UIView {
     private var activeOverlay: FigureView? {
         didSet {
             if let activeOverlay = activeOverlay {
-                startState = .init(transform: activeOverlay.transform, frame: activeOverlay.frame)
+                startState = .init(transform: activeOverlay.transform, center: activeOverlay.center)
             }
         }
     }
@@ -67,7 +67,7 @@ final class GesturesOverlay: UIView {
         didSet {
             guard userFingersOnScreen != oldValue else { return }
             if !userFingersOnScreen, let startState = self.startState, let overlay = activeOverlay {
-                delegate?.gestureOverlay(self, didFinishChangesOf: overlay, startState: startState, endState: .init(transform: overlay.transform, frame: overlay.frame))
+                delegate?.gestureOverlay(self, didFinishChangesOf: overlay, startState: startState, endState: .init(transform: overlay.transform, center: overlay.center))
             }
             if !userFingersOnScreen {
                 activeOverlay = nil

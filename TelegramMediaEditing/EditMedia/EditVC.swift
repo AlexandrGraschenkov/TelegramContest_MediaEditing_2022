@@ -21,8 +21,8 @@ final class TextContainer: UIView, Figure {
                 return
             }
             addSubview(content)
-            content.frame = bounds
-//            backgroundColor = .red
+            content.center = CGPoint(x: bounds.width / 2, y: bounds.height / 2)
+//            content.backgroundColor = .red
         }
     }
     
@@ -177,16 +177,16 @@ final class EditVC: UIViewController {
         let view = TextContainer()
         view.historyId = id
         view.frame = frame
-        view.content = result.view
         mediaContainer.addSubview(view)
         gesturesOverlay.overlays.append(view)
         let transform = view.transform.scaledBy(x: 1 / scroll.zoomScale, y: 1 / scroll.zoomScale)
-        view.content?.transform = transform
+        result.view.transform = transform
+        view.content = result.view
         
         let add = History.Element(
             objectId: id,
             action: .add(classType: TextContainer.self),
-            updateKeys: ["content": result.view, "frame": frame, "content.transform": transform, "historyId": id]
+            updateKeys: ["content": result.view, "frame": frame, "historyId": id]
         ) { [weak self] _, _, obj in
             guard let obj = obj as? FigureView else { return }
             self?.gesturesOverlay.overlays.append(obj)
@@ -290,8 +290,8 @@ extension EditVC: GesturesOverlayDelegate {
     
     func gestureOverlay(_ gesturesOverlay: GesturesOverlay, didFinishChangesOf overlay: FigureView, startState: OverlayOperationState, endState: OverlayOperationState) {
         guard startState != endState else { return }
-        let forward = History.Element.init(objectId: overlay.historyId, action: .update, updateKeys: ["frame" : endState.frame, "transform": endState.transform])
-        let backwards = History.Element.init(objectId: overlay.historyId, action: .update, updateKeys: ["frame" : startState.frame, "transform": startState.transform])
+        let forward = History.Element.init(objectId: overlay.historyId, action: .update, updateKeys: ["center" : endState.center, "transform": endState.transform])
+        let backwards = History.Element.init(objectId: overlay.historyId, action: .update, updateKeys: ["center" : startState.center, "transform": startState.transform])
         history.add(element: .init(forward: [forward], backward: [backwards]))
     }
 }
