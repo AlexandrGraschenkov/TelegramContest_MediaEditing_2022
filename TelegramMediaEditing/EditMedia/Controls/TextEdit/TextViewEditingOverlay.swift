@@ -8,13 +8,15 @@
 import UIKit
 
 final class TextEditingResultView: UIView {
-    var resultId: UUID?
-    var movedCenterInCanvas: CGPoint?
-    private var dashedBorderLayer: CAShapeLayer?
     
-    func setDashedBorderHidden(_ isHidden: Bool) {
-        if dashedBorderLayer == nil {
-            let borderLayer = CAShapeLayer()
+    private final class BorderView: UIView {
+        override class var layerClass: AnyClass {
+            CAShapeLayer.self
+        }
+        
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            let borderLayer = self.layer as! CAShapeLayer
             borderLayer.strokeColor = UIColor.white.cgColor
             borderLayer.fillColor = nil
             borderLayer.lineWidth = 2
@@ -22,17 +24,27 @@ final class TextEditingResultView: UIView {
             borderLayer.lineDashPattern = [12, 8]
             borderLayer.frame = self.bounds
             borderLayer.path = UIBezierPath(roundedRect: borderLayer.bounds, cornerRadius: 12).cgPath
-            layer.addSublayer(borderLayer)
-            dashedBorderLayer = borderLayer
         }
-        dashedBorderLayer?.isHidden = isHidden
-        setNeedsLayout()
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+    }
+    
+    var resultId: UUID?
+    var movedCenterInCanvas: CGPoint?
+    private var dashedBorder: BorderView?
+    
+    func setDashedBorderHidden(_ isHidden: Bool) {
+        let borderView = BorderView(frame: bounds)
+        addSubview(borderView)
+        borderView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        dashedBorder?.isHidden = isHidden
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        guard let dashedBorderLayer = dashedBorderLayer else { return }
-        dashedBorderLayer.frame = self.bounds
+//        guard let dashedBorderLayer = dashedBorderLayer else { return }
+//        dashedBorderLayer.frame = self.bounds
 //        var boundingRect = bounds
 //        for layer in (layer.sublayers ?? []) {
 //            boundingRect = boundingRect.union(layer.frame)
