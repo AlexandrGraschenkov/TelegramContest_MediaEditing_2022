@@ -87,6 +87,9 @@ final class EditVC: UIViewController {
                 self.tools[self.activeTool]?.toolSize = width
                 ToolDefaults.set(size: width, type: activeTool)
                 
+            case .toolShapeChanged(let toolShape):
+                self.tools[self.activeTool]?.toolShape = toolShape
+                
             case .openColorPicker(startColor: let startColor):
                 self.openColorPicker(startColor: startColor)
             case .textEditBegan(let overlay):
@@ -113,7 +116,7 @@ final class EditVC: UIViewController {
     fileprivate func setupZoomOutUI() {
         scroll.onZoom = { [weak self] zoom in
             guard let self = self else { return }
-            let contentSize = self.mediaContainer.bounds.size.mulitply(zoom)
+            let contentSize = self.mediaContainer.bounds.size.multiply(zoom)
             let scrollSize = self.scroll.bounds.size
             let zoomOutEnabled = contentSize.width > scrollSize.width && contentSize.height > scrollSize.height
             self.nav.setZoomOut(enabled: zoomOutEnabled, animated: true)

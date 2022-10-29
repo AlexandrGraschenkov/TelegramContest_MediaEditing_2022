@@ -104,7 +104,13 @@ extension ToolViewConfig {
     
     static let lasso = ToolViewConfig(baseImage: UIImage(named: "lasso_base")!, toolType: .lasso)
     
-    static let eraser = ToolViewConfig(baseImage: UIImage(named: "eraser_base")!, toolType: .eraser)
+    static let eraser = ToolViewConfig(
+        baseImage: UIImage(named: "eraser_base")!,
+        toolType: .eraser,
+        invariants: .init(
+            tipImage: UIImage(),
+            lineView: UIView())
+        )
     
     static let objectEraser = ToolViewConfig(baseImage: UIImage(named: "objectEraser_base")!, toolType: .objectEraser)
     
@@ -146,6 +152,10 @@ final class ToolView: UIView {
     init(config: ToolViewConfig) {
         self.config = config
         super.init(frame: .zero)
+        
+        if config.toolType == .eraser {
+            shape = .eraserNormal
+        }
         setup()
     }
     

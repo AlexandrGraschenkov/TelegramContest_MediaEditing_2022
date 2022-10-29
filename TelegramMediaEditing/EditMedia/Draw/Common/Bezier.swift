@@ -43,7 +43,7 @@ struct Bezier {
         let t1 = pow(1 - t, 2)
         let t2 = 2.0 * (1 - t) * t
         let t3 = pow(t, 2)
-        let p = from.mulitply(t1).add(control.mulitply(t2)).add(to.mulitply(t3))
+        let p = from.multiply(t1).add(control.multiply(t2)).add(to.multiply(t3))
         return p
     }
     

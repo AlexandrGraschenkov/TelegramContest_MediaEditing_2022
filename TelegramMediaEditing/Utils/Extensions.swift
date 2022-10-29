@@ -40,7 +40,7 @@ extension CGPoint {
         return CGPoint(x: x - p.x, y: y - p.y)
     }
     @inline(__always)
-    func mulitply(_ val: CGFloat) -> CGPoint {
+    func multiply(_ val: CGFloat) -> CGPoint {
         return CGPoint(x: x * val, y: y * val)
     }
     @inline(__always)
@@ -80,7 +80,7 @@ extension CGSize {
         return CGSize(width: width - other.width, height: height - other.height)
     }
     
-    func mulitply(_ val: CGFloat) -> CGSize {
+    func multiply(_ val: CGFloat) -> CGSize {
         return CGSize(width: width * val, height: height * val)
     }
     
@@ -111,7 +111,7 @@ extension CGPoint {
 
 extension CGRect {
     init(mid: CGPoint, size: CGSize) {
-        let origin = mid.substract(size.point.mulitply(0.5))
+        let origin = mid.substract(size.point.multiply(0.5))
         self.init(origin: origin, size: size)
     }
     

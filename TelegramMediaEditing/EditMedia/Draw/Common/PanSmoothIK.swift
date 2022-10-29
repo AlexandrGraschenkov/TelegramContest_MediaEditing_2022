@@ -94,7 +94,7 @@ class PanSmoothIK: NSObject {
             return
         }
         var offset = smoothPoints.last!.point.substract(point.point)
-        offset = offset.norm.mulitply(maxPanOffset)
+        offset = offset.norm.multiply(maxPanOffset)
         let newPoint = point.point.add(offset)
         if newPoint.distance(p: smoothPoints.last!.point) < 1 {
             return

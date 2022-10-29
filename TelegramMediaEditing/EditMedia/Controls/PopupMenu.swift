@@ -77,7 +77,8 @@ final class PopupMenuRow: UIView {
         
         imageView.translatesAutoresizingMaskIntoConstraints = true
         addSubview(imageView)
-        imageView.frame = .init(x: width - 16 - 24, y: (height - 24) / 2, width: 24, height: 24)
+        let imgSize: CGFloat = 17
+        imageView.frame = .init(x: width - 16 - imgSize, y: (height - imgSize) / 2, width: imgSize, height: imgSize)
         imageView.autoresizingMask = [.flexibleLeftMargin, .flexibleTopMargin, .flexibleBottomMargin]
         
         let px = 1 / UIScreen.main.scale

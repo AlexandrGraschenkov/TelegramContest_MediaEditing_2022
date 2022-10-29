@@ -7,11 +7,30 @@
 
 import UIKit
 
-enum ToolShape {
+enum ToolShape: String {
     case arrow
     case circle
+    case eraserNormal
+    case eraserObject
+    case eraserBlur
     
-    static let all: [ToolShape] = [.arrow, .circle]
+    static let brush: [ToolShape] = [.circle, .arrow]
+    static let eraser: [ToolShape] = [.eraserNormal, .eraserObject, .eraserBlur]
+    
+    var shortName: String {
+        switch self {
+        case .arrow:
+            return "Arrow"
+        case .circle:
+            return "Round"
+        case .eraserNormal:
+            return "Eraser"
+        case .eraserBlur:
+            return "Blur"
+        case .eraserObject:
+            return "Object"
+        }
+    }
     
     var name: String {
         switch self {
@@ -19,6 +38,12 @@ enum ToolShape {
             return "Arrow"
         case .circle:
             return "Round"
+        case .eraserNormal:
+            return "Eraser"
+        case .eraserBlur:
+            return "Background Blur"
+        case .eraserObject:
+            return "Object Eraser"
         }
     }
     
@@ -28,20 +53,27 @@ enum ToolShape {
             return .init(named: "circle_shape")!
         case .arrow:
             return .init(named: "arrow_shape")!
+        case .eraserNormal:
+            return .init(named: "circle_shape")!
+        case .eraserBlur:
+            return .init(named: "eraser_type_blur_icon")!
+        case .eraserObject:
+            return .init(named: "eraser_type_obj_shape")!
         }
     }
 }
 
 final class ToolShapeSelector: UIButton {
     private let shapePreview = UIImageView(frame: CGRect(origin: .zero, size: .square(side: 22)))
-    private let nameLabel = UILabel(frame: CGRect(origin: .zero, size: CGSize(width: 50, height: 22)))
+    private let nameLabel = UILabel(frame: CGRect(origin: .zero, size: CGSize(width: 65, height: 22)))
     
     var onShapeChange: ((ToolShape) -> Void)?
     
+    var allowShapes: [ToolShape] = ToolShape.brush
     var shape: ToolShape = .circle {
         didSet {
             shapePreview.image = shape.preview
-            nameLabel.text = shape.name
+            nameLabel.text = shape.shortName
         }
     }
     
@@ -64,6 +96,7 @@ final class ToolShapeSelector: UIButton {
         }
         shapePreview.x = width - shapePreview.width
         nameLabel.font = .systemFont(ofSize: 17)
+        nameLabel.textAlignment = .right
         shapePreview.contentMode = .scaleAspectFit
         nameLabel.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
         shapePreview.autoresizingMask = [.flexibleLeftMargin, .flexibleBottomMargin]
@@ -79,7 +112,7 @@ final class ToolShapeSelector: UIButton {
         container.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         window.addSubview(container)
         
-        let actions = ToolShape.all.map { shape in
+        let actions = allowShapes.map { shape in
             PopupMenu.Action(title: shape.name, image: shape.preview, action: { [weak self, weak container] in
                 self?.shape = shape
                 self?.onShapeChange?(shape)
@@ -106,12 +139,16 @@ final class ToolShapeSelector: UIButton {
         
         let selfFrame = self.frameIn(view: window)
         
-        let initialFrame = CGRect(x: selfFrame.origin.x - 50, y: selfFrame.origin.y - 50, width: 150, height: 10)
+        var width: CGFloat = 150
+        if allowShapes.contains(.eraserObject) {
+            width = 200
+        }
+        let initialFrame = CGRect(x: selfFrame.origin.x - 50, y: selfFrame.origin.y - 50, width: width, height: 10)
         
         let targetFrame = CGRect(
-            x: container.width - 150 - 8,
+            x: container.width - width - 8,
             y: selfFrame.origin.y - CGFloat(actions.count * 44) - 8,
-            width: 150,
+            width: width,
             height: CGFloat(actions.count) * 44
         )
         

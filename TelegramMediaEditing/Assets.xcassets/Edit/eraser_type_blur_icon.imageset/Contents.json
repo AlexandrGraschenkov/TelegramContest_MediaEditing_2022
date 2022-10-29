@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "eraser_type_blur_icon.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

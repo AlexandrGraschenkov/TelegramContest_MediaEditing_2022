@@ -56,8 +56,8 @@ class ZoomScrollView: UIScrollView {
         
         // contentSize changed during zoom, constraint it between min max sizes
         var size = contentSize
-        let minSize = content.bounds.size.mulitply(minimumZoomScale)
-        let maxSize = content.bounds.size.mulitply(maximumZoomScale)
+        let minSize = content.bounds.size.multiply(minimumZoomScale)
+        let maxSize = content.bounds.size.multiply(maximumZoomScale)
         size.width = size.width.clamp(minSize.width, maxSize.width)
         size.height = size.height.clamp(minSize.height, maxSize.height)
         
