@@ -64,6 +64,37 @@ final class FontsSelector: UIView {
         return layout
     }()
     
+    private(set) var maskGradient: GradientView!
+    
+    var isGradientVisible: Bool = true {
+        didSet {
+            if isGradientVisible {
+                UIView.animate(
+                    withDuration: 0.2,
+                    delay: 0,
+                    options: [],
+                    animations: {
+                        self.insets = .tm_insets(top: 0, left: self.bounds.width * 0.05, bottom: 0, right: self.bounds.width * 0.05)
+                        self.maskGradient.layer.frame = self.bounds
+                        self.layer.mask = self.maskGradient.layer
+                    },
+                    completion: nil
+                )
+            } else {
+                UIView.animate(
+                    withDuration: 0.2,
+                    delay: 0,
+                    options: [],
+                    animations: {
+                        self.insets = .zero
+                        self.layer.mask = nil
+                    },
+                    completion: nil
+                )
+            }
+        }
+    }
+    
     private func setup() {
         let collectionView = UICollectionView(frame: self.bounds, collectionViewLayout: layout)
         collectionView.dataSource = self
@@ -81,6 +112,19 @@ final class FontsSelector: UIView {
         addSubview(collectionView)
         collectionView.reloadData()
         collectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: .left)
+        
+        let gradientView = GradientView(frame: bounds)
+        gradientView.colors = [.clear, .black, .black, .clear]
+        gradientView.startPoint = CGPoint(x: 0, y: 0.5)
+        gradientView.endPoint = CGPoint(x: 1, y: 0.5)
+        gradientView.locations = [0, 0.05, 0.95, 1].map { NSNumber(value: $0) }
+        layer.mask = gradientView.layer
+        maskGradient = gradientView
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        maskGradient.layer.frame = bounds
     }
 }
 

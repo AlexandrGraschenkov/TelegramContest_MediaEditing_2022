@@ -16,6 +16,7 @@
 		AA79DEB1290343E200905FEF /* RectsUnion.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEB0290343E200905FEF /* RectsUnion.swift */; };
 		AA79DEB329034CCD00905FEF /* UIColor+Pair.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEB229034CCD00905FEF /* UIColor+Pair.swift */; };
 		AA79DEB72903E80400905FEF /* OutlineableTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEB62903E80400905FEF /* OutlineableTextView.swift */; };
+		AA79DEB9290B065C00905FEF /* GesturesOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEB8290B065C00905FEF /* GesturesOverlay.swift */; };
 		AAA335CC28F6CCE100B86B89 /* GalleryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA335CB28F6CCE100B86B89 /* GalleryViewController.swift */; };
 		AAA335CE28F6CE6F00B86B89 /* ImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA335CD28F6CE6F00B86B89 /* ImageCell.swift */; };
 		AAAB481E28F70891008373CB /* PhotoPermissionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB481D28F70891008373CB /* PhotoPermissionOverlay.swift */; };
@@ -89,6 +90,7 @@
 		AA79DEB0290343E200905FEF /* RectsUnion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RectsUnion.swift; sourceTree = "<group>"; };
 		AA79DEB229034CCD00905FEF /* UIColor+Pair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Pair.swift"; sourceTree = "<group>"; };
 		AA79DEB62903E80400905FEF /* OutlineableTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutlineableTextView.swift; sourceTree = "<group>"; };
+		AA79DEB8290B065C00905FEF /* GesturesOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesOverlay.swift; sourceTree = "<group>"; };
 		AAA335CB28F6CCE100B86B89 /* GalleryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryViewController.swift; sourceTree = "<group>"; };
 		AAA335CD28F6CE6F00B86B89 /* ImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCell.swift; sourceTree = "<group>"; };
 		AAAB481D28F70891008373CB /* PhotoPermissionOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPermissionOverlay.swift; sourceTree = "<group>"; };
@@ -272,6 +274,7 @@
 				FACBB877290A72D8005B6941 /* Draw */,
 				FA4BF3D328F6A4E800592051 /* EditVC.swift */,
 				FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */,
+				AA79DEB8290B065C00905FEF /* GesturesOverlay.swift */,
 			);
 			path = EditMedia;
 			sourceTree = "<group>";
@@ -435,6 +438,7 @@
 				AAAB482328F96A8F008373CB /* EditToolbar.swift in Sources */,
 				FADCE211290540F300E92CD9 /* ValueLabel.swift in Sources */,
 				FACBB876290A72D3005B6941 /* ToolDrawer.swift in Sources */,
+				AA79DEB9290B065C00905FEF /* GesturesOverlay.swift in Sources */,
 				AAAB484328FC58FC008373CB /* PopupMenu.swift in Sources */,
 				FACE5BD3290057C600960A48 /* PenPlume.swift in Sources */,
 				AAA335CE28F6CE6F00B86B89 /* ImageCell.swift in Sources */,
@@ -619,7 +623,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = RE82W8HD52;
+				DEVELOPMENT_TEAM = L3NMRMB3TX;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TelegramMediaEditing/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "For photo editing";
@@ -648,7 +652,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = RE82W8HD52;
+				DEVELOPMENT_TEAM = L3NMRMB3TX;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TelegramMediaEditing/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "For photo editing";

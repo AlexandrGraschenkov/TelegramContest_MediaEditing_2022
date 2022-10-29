@@ -161,6 +161,11 @@ class History {
             }
         }
         
+        if case .closure = element.action {
+            element.closure?(element, layers, nil)
+            return
+        }
+        
         guard let obj: NSObject = layers.views[element.objectId] ?? layers.layers[element.objectId] else {
             assert(false, "Can't find \(element.objectId) in collection")
             return
@@ -204,4 +209,8 @@ class History {
         
         var backgroundFill: UIColor? // TODO: don't forget implement it
     }
+}
+
+protocol HistoryManageableObject: AnyObject {
+    var historyId: String { get }
 }
