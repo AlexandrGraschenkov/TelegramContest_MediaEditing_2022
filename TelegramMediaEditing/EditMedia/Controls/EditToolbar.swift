@@ -525,8 +525,8 @@ extension EditorToolbar: TextViewEditingOverlayDelegate {
         guard let focusedResult = focusedResult else { return }
         let transform = focusedResult.view.transform
         let center = focusedResult.view.center
-        if let center = focusedResult.view.movedCenterInCanvas {
-            newResult.view.movedCenterInCanvas = center
+        if let mutation = focusedResult.view.moveState {
+            newResult.view.moveState = mutation
         }
         focusedResult.view.removeFromSuperview()
         newResult.view.transform = transform

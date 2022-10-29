@@ -179,7 +179,7 @@ final class GesturesOverlay: UIView {
 //            desiredCenter.y = max(overlay.height / 2, min(desiredCenter.y, self.bounds.size.height - overlay.height / 2))
             overlay.center = desiredCenter
             if let textView = overlay as? TextContainer {
-                textView.content?.movedCenterInCanvas = desiredCenter
+                textView.content?.moveState = .init(transform: textView.transform, center: desiredCenter)
             }
         } else {
             initialOffset = nil
@@ -201,6 +201,9 @@ final class GesturesOverlay: UIView {
 //        let updateSize = CGSize(width: currentSize.width * sender.scale, height: currentSize.height * sender.scale)
 //        overlay.bounds = CGRect(x: 0, y: 0, width: updateSize.width, height: updateSize.height)
         overlay.transform = overlay.transform.scaledBy(x: sender.scale, y: sender.scale)
+        if let textView = overlay as? TextContainer {
+            textView.content?.moveState = .init(transform: textView.transform, center: textView.center)
+        }
         sender.scale = 1
     }
     
@@ -216,6 +219,9 @@ final class GesturesOverlay: UIView {
         }
         guard let overlay = activeOverlay else { return }
         overlay.transform = overlay.transform.rotated(by: sender.rotation)
+        if let textView = overlay as? TextContainer {
+            textView.content?.moveState = .init(transform: textView.transform, center: textView.center)
+        }
         sender.rotation = 0
     }
 }

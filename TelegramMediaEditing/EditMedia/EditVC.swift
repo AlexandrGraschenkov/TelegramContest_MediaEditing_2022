@@ -167,7 +167,7 @@ final class EditVC: UIViewController {
 
     private func insertTextResult(result: TextEditingResult) {
         var frame = mediaContainer.convert(result.editingFrameInWindow, from: view.window)
-        if let center = result.view.movedCenterInCanvas {
+        if let center = result.view.moveState?.center {
             frame.origin.x = center.x - frame.width / 2
             frame.origin.y = center.y - frame.height / 2
         }
@@ -182,6 +182,9 @@ final class EditVC: UIViewController {
         let transform = view.transform.scaledBy(x: 1 / scroll.zoomScale, y: 1 / scroll.zoomScale)
         result.view.transform = transform
         view.content = result.view
+        if let transform = result.view.moveState?.transform {
+            view.transform = transform
+        }
         
         let add = History.Element(
             objectId: id,
@@ -283,8 +286,8 @@ private extension ToolDrawer {
 }
 
 extension EditVC: GesturesOverlayDelegate {
-    func gestureOverlay(_ gesturesOverlay: GesturesOverlay, didTapOnOverlay: FigureView) {
-        guard let textView = view as? TextEditingResultView else { return }
+    func gestureOverlay(_ gesturesOverlay: GesturesOverlay, didTapOnOverlay overlay: FigureView) {
+        guard let textContainer = overlay as? TextContainer, let textView = textContainer.content else { return }
         toolbar?.handleTap(on: textView)
     }
     

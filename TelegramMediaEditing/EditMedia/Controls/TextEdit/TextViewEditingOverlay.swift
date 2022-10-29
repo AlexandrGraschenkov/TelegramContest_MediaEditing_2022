@@ -22,7 +22,7 @@ final class TextEditingResultView: UIView {
             borderLayer.lineWidth = 2
             borderLayer.lineCap = .round
             borderLayer.lineDashPattern = [12, 8]
-            borderLayer.frame = self.bounds
+            borderLayer.frame = self.bounds.inset(by: .tm_insets(top: -7, left: -15, bottom: -7, right: -15   ))
             borderLayer.path = UIBezierPath(roundedRect: borderLayer.bounds, cornerRadius: 12).cgPath
         }
         required init?(coder: NSCoder) {
@@ -31,13 +31,16 @@ final class TextEditingResultView: UIView {
     }
     
     var resultId: UUID?
-    var movedCenterInCanvas: CGPoint?
+    var moveState: OverlayOperationState?
     private var dashedBorder: BorderView?
     
     func setDashedBorderHidden(_ isHidden: Bool) {
-        let borderView = BorderView(frame: bounds)
-        addSubview(borderView)
-        borderView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        if (dashedBorder == nil) {
+            let borderView = BorderView(frame: bounds)
+            addSubview(borderView)
+            borderView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            self.dashedBorder = borderView
+        }
         dashedBorder?.isHidden = isHidden
     }
     
