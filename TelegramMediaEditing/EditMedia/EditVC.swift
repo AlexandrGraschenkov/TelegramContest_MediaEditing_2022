@@ -22,7 +22,7 @@ final class TextContainer: UIView, Figure {
             }
             addSubview(content)
             content.frame = bounds
-            backgroundColor = .red
+//            backgroundColor = .red
         }
     }
     
