@@ -74,6 +74,7 @@ final class EditVC: UIViewController {
         scroll.setup(content: mediaContainer)
         
         toolbar = EditorToolbar.createAndAdd(toView: view)
+        toolbar.toolSizeDemoContainer = view
         toolbar.actionHandler = { [unowned self] action in
             switch action {
             case .toolChanged(let type):
