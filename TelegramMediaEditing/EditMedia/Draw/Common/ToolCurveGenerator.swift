@@ -8,14 +8,31 @@
 import UIKit
 
 struct PanPoint: Equatable {
-    internal init(point: CGPoint, time: CFTimeInterval = CACurrentMediaTime()) {
+    internal init(point: CGPoint, time: CFTimeInterval = CACurrentMediaTime(), speed: Double? = nil, bezierSmooth: Bool = true) {
         self.point = point
         self.time = time
+        self.speed = speed
+        self.bezierSmooth = bezierSmooth
     }
     
     let point: CGPoint
     let time: CFTimeInterval
     var speed: Double?
+    var bezierSmooth: Bool
+    
+    func mid(p: PanPoint) -> CGPoint {
+        return CGPoint(x: (point.x + p.point.x) / 2.0,
+                       y: (point.y + p.point.y) / 2.0)
+    }
+    func speed(p: PanPoint) -> Double {
+        if abs(time - p.time) < 0.00001 {
+            return 9999.0
+        }
+        
+        let dist = p.point.substract(point).distance()
+        let speed = dist / abs(time - p.time)
+        return speed
+    }
 }
 
 
@@ -121,7 +138,13 @@ class ToolCurveGenerator {
             let info = DrawBezierInfo(point: p1.mid(p: p2),
                                       control: p2.point,
                                       speed: p1.speed ?? p1.speed(p: p2))
-            result.append(info)
+            
+            if p1.bezierSmooth {
+                result.append(info)
+            }
+            if !p2.bezierSmooth {
+                result.append(DrawBezierInfo(point: p2.point, control: nil, speed: info.speed))
+            }
         }
         result[0] = DrawBezierInfo(point: points[0].point,
                                    control: nil,
@@ -225,22 +248,6 @@ class ToolCurveGenerator {
         let t = point.substract(toLine.0).dot(lineVec) / l2
         let proj = toLine.0.add(lineVec.multiply(t))
         return (proj, t)
-    }
-}
-
-private extension PanPoint {
-    func mid(p: PanPoint) -> CGPoint {
-        return CGPoint(x: (point.x + p.point.x) / 2.0,
-                       y: (point.y + p.point.y) / 2.0)
-    }
-    func speed(p: PanPoint) -> Double {
-        if abs(time - p.time) < 0.00001 {
-            return 9999.0
-        }
-        
-        let dist = p.point.substract(point).distance()
-        let speed = dist / abs(time - p.time)
-        return speed
     }
 }
 

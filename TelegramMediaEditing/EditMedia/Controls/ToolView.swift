@@ -20,13 +20,15 @@ enum ToolType: String {
 
 final class ToolViewConfig {
     final class Invariants {
-        init(tipImage: UIImage, lineView: UIView, shape: ToolShape = .circle) {
+        init(tipImage: UIImage, lineView: UIView? = nil, shapeView: UIView? = nil) {
             self.tipImage = tipImage
             self.lineView = lineView
+            self.shapeView = shapeView
         }
         
         let tipImage: UIImage
-        let lineView: UIView
+        let lineView: UIView?
+        let shapeView: UIView?
     }
     
     init(baseImage: UIImage, toolType: ToolType, invariants: Invariants? = nil) {
@@ -109,7 +111,7 @@ extension ToolViewConfig {
         toolType: .eraser,
         invariants: .init(
             tipImage: UIImage(),
-            lineView: UIView())
+            shapeView: UIImageView())
         )
     
     static let objectEraser = ToolViewConfig(baseImage: UIImage(named: "objectEraser_base")!, toolType: .objectEraser)
@@ -126,13 +128,26 @@ final class ToolView: UIView {
         }
     }
     
-    var shape: ToolShape = .circle
+    var shape: ToolShape = .circle {
+        didSet {
+            let shapeImage = shapeView as? UIImageView
+            switch shape {
+            case .eraserBlur: shapeImage?.image = UIImage(named: "eraser_type_blur_icon")
+            case .eraserObject: shapeImage?.image = UIImage(named: "eraser_type_obj_icon")
+            default: shapeImage?.image = nil
+            }
+        }
+    }
     
     override var frame: CGRect {
         didSet {
             let ratio = bounds.width / 20
             if let lineView = lineView, let lineWidth = lineWidth {
                 lineView.frame = .init(x: 1.5 * ratio, y: bounds.height * 0.45, width: bounds.width - 1.5 * ratio * 2, height: lineWidth * ratio)
+            }
+            if let shapeView = shapeView {
+                let xBounds = bounds.insetBy(dx: 5*ratio, dy: 0)
+                shapeView.frame = CGRect(x: xBounds.minX, y: bounds.height * 0.26, width: xBounds.width, height: xBounds.width)
             }
         }
     }
@@ -144,6 +159,7 @@ final class ToolView: UIView {
             lineView?.backgroundColor = tintColor
         }
     }
+    private var shapeView: UIView?
     private var lineView: UIView?
     private var baseView: UIView?
     private var tipView: UIImageView?
@@ -198,11 +214,18 @@ final class ToolView: UIView {
         tipView.frame = bounds
         tipView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
-        let lineView = invariants.lineView
-        self.lineView = lineView
-        addSubview(lineView)
-        lineView.translatesAutoresizingMaskIntoConstraints = true
-        self.lineWidth = ToolDefaults.getSize(type: config.toolType)
-        lineView.backgroundColor = toolColor
+        if let lineView = invariants.lineView {
+            self.lineView = lineView
+            addSubview(lineView)
+            lineView.translatesAutoresizingMaskIntoConstraints = true
+            self.lineWidth = ToolDefaults.getSize(type: config.toolType)
+            lineView.backgroundColor = toolColor
+        }
+        
+        if let shapeView = invariants.shapeView {
+            self.shapeView = shapeView
+            addSubview(shapeView)
+            shapeView.translatesAutoresizingMaskIntoConstraints = true
+        }
     }
 }

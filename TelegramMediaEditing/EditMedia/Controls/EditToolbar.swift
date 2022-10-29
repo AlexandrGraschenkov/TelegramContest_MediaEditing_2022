@@ -44,6 +44,8 @@ final class EditorToolbar: UIView {
         colorPickerControl.onColourChange?(color)
     }
     
+    /// this view will be used for displaying tool size on
+    weak var toolSizeDemoContainer: UIView?
     var actionHandler: ((EditToolbarAction) -> Void)?
     private var cancelButton = BackOrCancelButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
     private var saveButton = UIButton()
@@ -58,6 +60,7 @@ final class EditorToolbar: UIView {
     private var backgroundBlurMask: UIView!
     private var backgroundBlur: UIView!
     private var bottomSafeInset: CGFloat = 0
+    private var demoToolSizeView: DemoToolSizeView?
     
     private lazy var slider: ToolSlider = {
         let slider = ToolSlider(frame: CGRect(x: 46.5, y: 0, width: bounds.width - 150, height: bottomControlsContainer.height))
@@ -285,8 +288,22 @@ final class EditorToolbar: UIView {
             slider.alpha = 0
             slider.currentValue = toolView.lineWidth ?? 0
             slider.onChange = { [weak self, weak toolView] value in
+                guard let self = self else { return }
                 toolView?.lineWidth = value
-                self?.actionHandler?(.lineWidthChanged(value))
+                self.actionHandler?(.lineWidthChanged(value))
+                if self.demoToolSizeView == nil, let demoSizeContainer = self.toolSizeDemoContainer {
+                    self.demoToolSizeView = DemoToolSizeView(frame: CGRect(mid: demoSizeContainer.bounds.mid, size: .square(side: value*2)))
+                    self.demoToolSizeView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                    demoSizeContainer.addSubview(self.demoToolSizeView!)
+                    self.demoToolSizeView?.animateAppear()
+                }
+                if let demoSize = self.demoToolSizeView {
+                    demoSize.frame = CGRect(mid: demoSize.frame.mid, size: .square(side: value*2))
+                }
+            }
+            slider.onEndInteraction = { [weak self] in
+                self?.demoToolSizeView?.animateDisappearAndRemove()
+                self?.demoToolSizeView = nil
             }
             
             bottomControlsContainer.addSubview(shapeSelector)

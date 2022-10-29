@@ -55,6 +55,8 @@
 		FACBB882290BFA1F005B6941 /* ToolDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB881290BFA1F005B6941 /* ToolDefaults.swift */; };
 		FACBB884290C0DE6005B6941 /* EraserDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB883290C0DE6005B6941 /* EraserDrawer.swift */; };
 		FACBB886290D0A5D005B6941 /* UIView+Blur.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB885290D0A5D005B6941 /* UIView+Blur.swift */; };
+		FACBB8A8290D5F96005B6941 /* ShapeLayerHitDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB8A7290D5F96005B6941 /* ShapeLayerHitDetector.swift */; };
+		FACBB8AA290D7733005B6941 /* DemoToolSizeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB8A9290D7733005B6941 /* DemoToolSizeView.swift */; };
 		FACE5BD3290057C600960A48 /* PenPlume.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD2290057C600960A48 /* PenPlume.swift */; };
 		FACE5BD5290147EF00960A48 /* DisplayLinkAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */; };
 		FACE5BD7290151DE00960A48 /* ToolDrawSplitOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE5BD6290151DE00960A48 /* ToolDrawSplitOptimizer.swift */; };
@@ -127,6 +129,8 @@
 		FACBB881290BFA1F005B6941 /* ToolDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDefaults.swift; sourceTree = "<group>"; };
 		FACBB883290C0DE6005B6941 /* EraserDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraserDrawer.swift; sourceTree = "<group>"; };
 		FACBB885290D0A5D005B6941 /* UIView+Blur.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Blur.swift"; sourceTree = "<group>"; };
+		FACBB8A7290D5F96005B6941 /* ShapeLayerHitDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeLayerHitDetector.swift; sourceTree = "<group>"; };
+		FACBB8A9290D7733005B6941 /* DemoToolSizeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoToolSizeView.swift; sourceTree = "<group>"; };
 		FACE5BD2290057C600960A48 /* PenPlume.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenPlume.swift; sourceTree = "<group>"; };
 		FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayLinkAnimator.swift; sourceTree = "<group>"; };
 		FACE5BD6290151DE00960A48 /* ToolDrawSplitOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDrawSplitOptimizer.swift; sourceTree = "<group>"; };
@@ -197,6 +201,7 @@
 				AAAB483228FAD13A008373CB /* CorneredSegmentedControl.swift */,
 				AAAB484528FC76AB008373CB /* ColourPickerButton.swift */,
 				AAAB483428FAD161008373CB /* ColourPickerCirlce.swift */,
+				FACBB8A9290D7733005B6941 /* DemoToolSizeView.swift */,
 				AAAB483628FB14D8008373CB /* TestVC.swift */,
 				AAAB483A28FB6022008373CB /* ToolSlider.swift */,
 				AAAB484028FC4E54008373CB /* ToolShapeSelector.swift */,
@@ -294,6 +299,7 @@
 				FACE5BD2290057C600960A48 /* PenPlume.swift */,
 				FACE5BD6290151DE00960A48 /* ToolDrawSplitOptimizer.swift */,
 				FACBB87B290AAE52005B6941 /* Bezier.swift */,
+				FACBB8A7290D5F96005B6941 /* ShapeLayerHitDetector.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -413,6 +419,7 @@
 				FA4BF3D428F6A4E800592051 /* EditVC.swift in Sources */,
 				FADCE22129092F3400E92CD9 /* LayerContainer.swift in Sources */,
 				AA77710F28FC891600CF73C0 /* PassthroughView.swift in Sources */,
+				FACBB8A8290D5F96005B6941 /* ShapeLayerHitDetector.swift in Sources */,
 				FA4BF3D828F6AAC700592051 /* ZoomScrollView.swift in Sources */,
 				FACBB87A290A791A005B6941 /* MarkerDrawer.swift in Sources */,
 				FACE5BDB2902D13200960A48 /* ColorPickerVC.swift in Sources */,
@@ -464,6 +471,7 @@
 				FA046EFF28F558DF002D5023 /* UIView+Ex.swift in Sources */,
 				AA79DEAB290320BE00905FEF /* FontsSelector.swift in Sources */,
 				FA046F0728F569BE002D5023 /* GlobalFunctions.swift in Sources */,
+				FACBB8AA290D7733005B6941 /* DemoToolSizeView.swift in Sources */,
 				FACE5BDE2902E75E00960A48 /* ColorGridView.swift in Sources */,
 				FACBB884290C0DE6005B6941 /* EraserDrawer.swift in Sources */,
 				FACE5BD7290151DE00960A48 /* ToolDrawSplitOptimizer.swift in Sources */,

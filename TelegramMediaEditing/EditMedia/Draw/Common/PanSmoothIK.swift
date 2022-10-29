@@ -86,8 +86,9 @@ class PanSmoothIK: NSObject {
 //        print(speed, maxPanOffset, log(speed/2/scale+1) * 2)
         
         // чем меньше кисточка, тем точней необходимо рисовать
-        let mult = toolSize.percent(min: 1, max: 30).percentToRange(min: 0.2, max: 2)
-        maxPanOffset *= mult * smoothMultiplier
+//        let mult = toolSize.percent(min: 1, max: 30).percentToRange(min: 0.2, max: 2)
+//        maxPanOffset *= mult * smoothMultiplier
+        maxPanOffset *= smoothMultiplier
         
         let dist = smoothPoints.last!.point.distance(p: point.point)
         if dist < maxPanOffset {
@@ -96,7 +97,7 @@ class PanSmoothIK: NSObject {
         var offset = smoothPoints.last!.point.substract(point.point)
         offset = offset.norm.multiply(maxPanOffset)
         let newPoint = point.point.add(offset)
-        if newPoint.distance(p: smoothPoints.last!.point) < 1 {
+        if newPoint.distance(p: smoothPoints.last!.point) < scale {
             return
         }
         smoothPoints.append(PanPoint(point: newPoint, time: point.time))

@@ -81,5 +81,35 @@ class PenDrawer: ToolDrawer {
         let backward = History.Element(objectId: name, action: .remove)
         history.add(element: .init(forward: [forward], backward: [backward]))
     }
+    
+    override func makeArrowOnEnd(points: inout [PanPoint]) {
+        if points.count < 2 {
+            return
+        }
+        let finalToolSize = contentScale * toolSize
+        let idx1 = points.count-1
+        let idx2 = max(0, points.count-4) // index from back
+        let averageSpeed = points[idx1].speed(p: points[idx2])
+        let time = points[idx1].time
+        
+        
+        let dir = points[idx1].point.substract(points[idx2].point)
+        let angle = atan2(dir.y, dir.x)
+        let angle1 = angle + .pi * 3.2 / 4
+        let angle2 = angle - .pi * 3.2 / 4
+        let distOffset1 = finalToolSize * 5
+        let distOffset2 = distOffset1// * 0.7
+        let p1 = points[idx1].point.add(CGPoint(x: cos(angle1) * distOffset1, y: sin(angle1) * distOffset1))
+        let p2 = points[idx1].point.add(CGPoint(x: cos(angle2) * distOffset2, y: sin(angle2) * distOffset2))
+        
+        // fine tune by hand
+        let pCenter = points[idx1].point.add(dir.norm.multiply(finalToolSize*1.2))
+        let pCenter2 = points[idx1].point.substract(dir.norm.multiply(finalToolSize*0.5))
+        
+        points.append(PanPoint(point: p1, time: time, speed: averageSpeed))
+        points.append(PanPoint(point: pCenter, time: time, speed: averageSpeed))
+        points.append(PanPoint(point: p2, time: time, speed: averageSpeed))
+        points.append(PanPoint(point: pCenter2, time: time, speed: averageSpeed))
+    }
 }
 

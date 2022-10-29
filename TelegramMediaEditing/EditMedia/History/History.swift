@@ -102,7 +102,7 @@ class History {
     
     private func apply(element: Element) {
         guard let layers = layerContainer, let mediaView = layers.mediaView else {
-            assert(false, "Don't forget initalize all values in `setup(container:)`")
+            assert(false, "Don't forget initialize all values in `setup(container:)`")
             return
         }
         
@@ -144,6 +144,7 @@ class History {
             
         case .closure:
             element.closure!(element, layers, nil)
+            return
         }
         
         
