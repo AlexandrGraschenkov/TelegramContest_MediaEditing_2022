@@ -371,6 +371,7 @@ final class TextViewEditingOverlay: UIView {
         )
         textSize.width *= scaleX
         textSize.height *= scaleY
+
         textView.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin, .flexibleRightMargin, .flexibleBottomMargin]
         let oldSize = textViewCenteringContainer.frame.size
 

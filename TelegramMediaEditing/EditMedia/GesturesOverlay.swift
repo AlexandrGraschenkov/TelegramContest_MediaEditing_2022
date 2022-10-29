@@ -8,19 +8,43 @@
 import Foundation
 import UIKit
 
+struct OverlayOperationState: Equatable {
+    let transform: CGAffineTransform
+    let frame: CGRect
+}
+
+protocol GesturesOverlayDelegate: AnyObject {
+    func gestureOverlay(_ gesturesOverlay: GesturesOverlay, didTapOnOverlay: FigureView)
+    
+    func gestureOverlay(
+        _ gesturesOverlay: GesturesOverlay,
+        didFinishChangesOf overlay: FigureView,
+        startState: OverlayOperationState,
+        endState: OverlayOperationState
+    )
+}
+
+typealias FigureView = UIView & Figure
+
 final class GesturesOverlay: UIView {
     
     private weak var overlaysContainer: UIView?
+    weak var delegate: GesturesOverlayDelegate?
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    var overlays: [UIView] = []
+    var overlays: [FigureView] = []
     
-    var onTap: ((UIView) -> Void)?
-    
-    private var activeOverlay: UIView?
+    private var activeOverlay: FigureView? {
+        didSet {
+            if let activeOverlay = activeOverlay {
+                startState = .init(transform: activeOverlay.transform, frame: activeOverlay.frame)
+            }
+        }
+    }
+    private var startState: OverlayOperationState?
 
     private var rotateGRIsActive: Bool = false {
         didSet {
@@ -42,16 +66,11 @@ final class GesturesOverlay: UIView {
     private var userFingersOnScreen: Bool = false {
         didSet {
             guard userFingersOnScreen != oldValue else { return }
+            if !userFingersOnScreen, let startState = self.startState, let overlay = activeOverlay {
+                delegate?.gestureOverlay(self, didFinishChangesOf: overlay, startState: startState, endState: .init(transform: overlay.transform, frame: overlay.frame))
+            }
             if !userFingersOnScreen {
                 activeOverlay = nil
-            }
-            UIView.animate(withDuration: 0.1) {
-                if self.userFingersOnScreen {
-//                    self.delegate?.overlayBeginMovementEvents(self)
-                }
-                else {
-//                    self.delegate?.overlayEndMovementEvents(self)
-                }
             }
         }
     }
@@ -91,9 +110,13 @@ final class GesturesOverlay: UIView {
     }
     
     override public func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        guard bounds.contains(point) else {
+            activeOverlay = nil
+            return false
+        }
         guard activeOverlay == nil || !userFingersOnScreen else { return true }
         
-        var hitViews: [(UIView, Bool)] = []
+        var hitViews: [(FigureView, Bool)] = []
         for view in overlays.reversed() {
             if view.superview == nil { continue }
             let convertPoint = convert(point, to: view)
@@ -106,7 +129,10 @@ final class GesturesOverlay: UIView {
             return false
         } else {
             let opaque = hitViews.filter { $0.1 }.first
-            let active = hitViews.filter { $0.0 == activeOverlay }.first
+            let active = hitViews.filter { pair in
+                guard let activeOverlay = activeOverlay else { return false }
+                return pair.0 == activeOverlay
+            }.first
             if let (view, _) = opaque {
                 activeOverlay = view
                 return true
@@ -122,7 +148,7 @@ final class GesturesOverlay: UIView {
     @objc
     private func tapGestureRecognizerDidFire(_ sender: UITapGestureRecognizer) {
         guard let overlay = activeOverlay else { return }
-        onTap?(overlay)
+        delegate?.gestureOverlay(self, didTapOnOverlay: overlay)
         activeOverlay = nil
     }
 
@@ -146,13 +172,14 @@ final class GesturesOverlay: UIView {
             initialPoint = center
         }
         else if sender.state == .changed, let overlay = activeOverlay, let initialCenter = initialPoint {
+//            let scrollScale = overlay.frameIn(view: self).width / overlay.frame.width
             let translation = sender.translation(in: self)
             var desiredCenter = CGPoint(x: initialCenter.x + translation.x, y: initialCenter.y + translation.y)
             desiredCenter = convert(desiredCenter, to: overlaysContainer)
-            desiredCenter.y = max(overlay.height / 2, min(desiredCenter.y, self.bounds.size.height - overlay.height / 2))
+//            desiredCenter.y = max(overlay.height / 2, min(desiredCenter.y, self.bounds.size.height - overlay.height / 2))
             overlay.center = desiredCenter
-            if let textView = overlay as? TextEditingResultView {
-                textView.movedCenterInCanvas = desiredCenter
+            if let textView = overlay as? TextContainer {
+                textView.content?.movedCenterInCanvas = desiredCenter
             }
         } else {
             initialOffset = nil
@@ -170,6 +197,9 @@ final class GesturesOverlay: UIView {
             break
         }
         guard let overlay = activeOverlay else { return }
+//        let currentSize = overlay.bounds.size
+//        let updateSize = CGSize(width: currentSize.width * sender.scale, height: currentSize.height * sender.scale)
+//        overlay.bounds = CGRect(x: 0, y: 0, width: updateSize.width, height: updateSize.height)
         overlay.transform = overlay.transform.scaledBy(x: sender.scale, y: sender.scale)
         sender.scale = 1
     }

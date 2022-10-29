@@ -8,6 +8,29 @@
 import UIKit
 import Photos
 
+protocol Figure: NSObjectProtocol {
+    var historyId: String { get set }
+    var isText: Bool { get }
+}
+
+final class TextContainer: UIView, Figure {
+    @objc
+    var content: TextEditingResultView? {
+        didSet {
+            guard let content = content else {
+                return
+            }
+            addSubview(content)
+            content.frame = bounds
+            backgroundColor = .red
+        }
+    }
+    
+    @objc
+    var historyId: String = ""
+    
+    var isText: Bool { true }
+}
 
 final class EditVC: UIViewController {
 
@@ -27,7 +50,7 @@ final class EditVC: UIViewController {
     var tools: [ToolType: ToolDrawer] = [:]
     var activeTool: ToolType = .pen
     
-    private lazy var gesturesOverlay = GesturesOverlay(overlaysContainer: self.view, frame: self.view.bounds)
+    private lazy var gesturesOverlay = GesturesOverlay(overlaysContainer: self.mediaContainer, frame: self.mediaContainer.frameIn(view: self.view))
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -95,23 +118,7 @@ final class EditVC: UIViewController {
                 self.setTopControlsHidden(isHidden: true)
                 self.addTextView(overlay: overlay)
             case .textEditEnded(let result):
-                result.view.frame = self.view.convert(result.editingFrameInWindow, from: view.window)
-                if let center = result.view.movedCenterInCanvas {
-                    result.view.center = center
-                }
-                let addView = {
-                    self.view.insertSubview(result.view, belowSubview: self.gesturesOverlay)
-                    self.gesturesOverlay.overlays.append(result.view)
-                }
-                let add = History.Element(objectId: result.id.uuidString, action: .add(classType: TextEditingResultView.self)) { _, _, _ in
-                    addView()
-                }
-                let remove = History.Element(objectId: result.id.uuidString, action: .remove) { _, _, _ in
-                    result.view.removeFromSuperview()
-                }
-                addView()
-                self.history.add(element: .init(forward: [add], backward: [remove]))
-                self.setTopControlsHidden(isHidden: false)
+                insertTextResult(result: result)
             case .close:
                 dismiss(animated: true)
             case .switchedToDraw:
@@ -133,10 +140,7 @@ final class EditVC: UIViewController {
         
         view.addSubview(gesturesOverlay)
         gesturesOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        gesturesOverlay.onTap = { [weak toolbar] view in
-            guard let textView = view as? TextEditingResultView else { return }
-            toolbar?.handleTap(on: textView)
-        }
+        gesturesOverlay.delegate = self
     }
     
     fileprivate func setupZoomOutUI() {
@@ -157,6 +161,43 @@ final class EditVC: UIViewController {
         }
     }
 
+    private func insertTextResult(result: TextEditingResult) {
+        var frame = mediaContainer.convert(result.editingFrameInWindow, from: view.window)
+        if let center = result.view.movedCenterInCanvas {
+            frame.origin.x = center.x - frame.width / 2
+            frame.origin.y = center.y - frame.height / 2
+        }
+        
+        let id = history.layerContainer?.generateUniqueName(prefix: "text") ?? result.id.uuidString
+        
+        let view = TextContainer()
+        view.historyId = id
+        view.frame = frame
+        view.content = result.view
+        mediaContainer.addSubview(view)
+        gesturesOverlay.overlays.append(view)
+        let transform = view.transform.scaledBy(x: 1 / scroll.zoomScale, y: 1 / scroll.zoomScale)
+        view.content?.transform = transform
+        
+        let add = History.Element(
+            objectId: id,
+            action: .add(classType: TextContainer.self),
+            updateKeys: ["content": result.view, "frame": frame, "content.transform": transform, "historyId": id]
+        ) { [weak self] _, _, obj in
+            guard let obj = obj as? FigureView else { return }
+            self?.gesturesOverlay.overlays.append(obj)
+        }
+
+        let remove = History.Element(objectId: id, action: .remove) { [weak self] element, _, content in
+            self?.gesturesOverlay.overlays.removeAll(where: { overlay in
+                guard let text = overlay as? TextContainer else { return false }
+                return text.content?.resultId == result.id
+            })
+        }
+        history.layerContainer?.views[id] = view
+        self.history.add(element: .init(forward: [add], backward: [remove]))
+        self.setTopControlsHidden(isHidden: false)
+    }
     
     private func openColorPicker(startColor: UIColor) {
         let picker = ColorPickerVC()
@@ -234,5 +275,19 @@ private extension ToolDrawer {
         case .objectEraser: return nil
         case .blurEraser: return nil
         }
+    }
+}
+
+extension EditVC: GesturesOverlayDelegate {
+    func gestureOverlay(_ gesturesOverlay: GesturesOverlay, didTapOnOverlay: FigureView) {
+        guard let textView = view as? TextEditingResultView else { return }
+        toolbar?.handleTap(on: textView)
+    }
+    
+    func gestureOverlay(_ gesturesOverlay: GesturesOverlay, didFinishChangesOf overlay: FigureView, startState: OverlayOperationState, endState: OverlayOperationState) {
+        guard startState != endState else { return }
+        let forward = History.Element.init(objectId: overlay.historyId, action: .update, updateKeys: ["frame" : endState.frame, "transform": endState.transform])
+        let backwards = History.Element.init(objectId: overlay.historyId, action: .update, updateKeys: ["frame" : startState.frame, "transform": startState.transform])
+        history.add(element: .init(forward: [forward], backward: [backwards]))
     }
 }
