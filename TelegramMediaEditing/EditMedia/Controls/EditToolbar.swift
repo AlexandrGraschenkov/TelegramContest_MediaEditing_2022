@@ -30,10 +30,10 @@ enum EditMode {
 
 final class EditorToolbar: UIView {
     
-    static func createAndAdd(toView view: UIView) -> EditorToolbar {
+    static func createAndAdd(toView view: UIView, history: History) -> EditorToolbar {
         let botInset = UIApplication.shared.tm_keyWindow.safeAreaInsets.bottom
         let height = botInset + 162
-        let toolbar = EditorToolbar(frame: CGRect(x: 0, y: view.bounds.height - height, width: view.bounds.width, height: height), bottomInset: botInset)
+        let toolbar = EditorToolbar(frame: CGRect(x: 0, y: view.bounds.height - height, width: view.bounds.width, height: height), bottomInset: botInset, history: history)
         toolbar.translatesAutoresizingMaskIntoConstraints = true
         toolbar.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         view.addSubview(toolbar)
@@ -87,17 +87,18 @@ final class EditorToolbar: UIView {
     }()
     
     private var mode: EditMode = .base
+    
+    private let history: History
 
-    init(frame: CGRect, bottomInset: CGFloat) {
+    init(frame: CGRect, bottomInset: CGFloat, history: History) {
+        self.history = history
         super.init(frame: frame)
         bottomSafeInset = bottomInset
         setup()
     }
     
     required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        bottomSafeInset = superview?.safeInsets.bottom ?? 0
-        setup()
+        fatalError("init(coder:) has not been implemented")
     }
     
     private func setup() {
@@ -381,8 +382,10 @@ final class EditorToolbar: UIView {
                 color: .white,
                 style: .regular,
                 alignment: .center
-            ), previousResultId: nil,
-            frame: UIScreen.main.bounds
+            ),
+            previousResultId: nil,
+            frame: UIScreen.main.bounds,
+            history: history
         )
         lastOverlay = overlay
         overlay.delegate = self

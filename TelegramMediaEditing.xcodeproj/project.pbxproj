@@ -17,6 +17,7 @@
 		AA79DEB329034CCD00905FEF /* UIColor+Pair.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEB229034CCD00905FEF /* UIColor+Pair.swift */; };
 		AA79DEB72903E80400905FEF /* OutlineableTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEB62903E80400905FEF /* OutlineableTextView.swift */; };
 		AA79DEB9290B065C00905FEF /* GesturesOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEB8290B065C00905FEF /* GesturesOverlay.swift */; };
+		AA79DEBB290DD4C100905FEF /* UIApplication+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEBA290DD4C100905FEF /* UIApplication+Ex.swift */; };
 		AAA335CC28F6CCE100B86B89 /* GalleryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA335CB28F6CCE100B86B89 /* GalleryViewController.swift */; };
 		AAA335CE28F6CE6F00B86B89 /* ImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA335CD28F6CE6F00B86B89 /* ImageCell.swift */; };
 		AAAB481E28F70891008373CB /* PhotoPermissionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB481D28F70891008373CB /* PhotoPermissionOverlay.swift */; };
@@ -28,7 +29,6 @@
 		AAAB483128F9C876008373CB /* ToolsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB483028F9C876008373CB /* ToolsContainer.swift */; };
 		AAAB483328FAD13A008373CB /* CorneredSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB483228FAD13A008373CB /* CorneredSegmentedControl.swift */; };
 		AAAB483528FAD161008373CB /* ColourPickerCirlce.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB483428FAD161008373CB /* ColourPickerCirlce.swift */; };
-		AAAB483728FB14D8008373CB /* TestVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB483628FB14D8008373CB /* TestVC.swift */; };
 		AAAB483928FB533D008373CB /* BackOrCancelButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB483828FB533D008373CB /* BackOrCancelButton.swift */; };
 		AAAB483B28FB6022008373CB /* ToolSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB483A28FB6022008373CB /* ToolSlider.swift */; };
 		AAAB484128FC4E54008373CB /* ToolShapeSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB484028FC4E54008373CB /* ToolShapeSelector.swift */; };
@@ -91,6 +91,7 @@
 		AA79DEB229034CCD00905FEF /* UIColor+Pair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Pair.swift"; sourceTree = "<group>"; };
 		AA79DEB62903E80400905FEF /* OutlineableTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutlineableTextView.swift; sourceTree = "<group>"; };
 		AA79DEB8290B065C00905FEF /* GesturesOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesOverlay.swift; sourceTree = "<group>"; };
+		AA79DEBA290DD4C100905FEF /* UIApplication+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+Ex.swift"; sourceTree = "<group>"; };
 		AAA335CB28F6CCE100B86B89 /* GalleryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryViewController.swift; sourceTree = "<group>"; };
 		AAA335CD28F6CE6F00B86B89 /* ImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCell.swift; sourceTree = "<group>"; };
 		AAAB481D28F70891008373CB /* PhotoPermissionOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPermissionOverlay.swift; sourceTree = "<group>"; };
@@ -102,7 +103,6 @@
 		AAAB483028F9C876008373CB /* ToolsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsContainer.swift; sourceTree = "<group>"; };
 		AAAB483228FAD13A008373CB /* CorneredSegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorneredSegmentedControl.swift; sourceTree = "<group>"; };
 		AAAB483428FAD161008373CB /* ColourPickerCirlce.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColourPickerCirlce.swift; sourceTree = "<group>"; };
-		AAAB483628FB14D8008373CB /* TestVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestVC.swift; sourceTree = "<group>"; };
 		AAAB483828FB533D008373CB /* BackOrCancelButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackOrCancelButton.swift; sourceTree = "<group>"; };
 		AAAB483A28FB6022008373CB /* ToolSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolSlider.swift; sourceTree = "<group>"; };
 		AAAB484028FC4E54008373CB /* ToolShapeSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolShapeSelector.swift; sourceTree = "<group>"; };
@@ -204,7 +204,6 @@
 				AAAB484528FC76AB008373CB /* ColourPickerButton.swift */,
 				AAAB483428FAD161008373CB /* ColourPickerCirlce.swift */,
 				FACBB8A9290D7733005B6941 /* DemoToolSizeView.swift */,
-				AAAB483628FB14D8008373CB /* TestVC.swift */,
 				AAAB483A28FB6022008373CB /* ToolSlider.swift */,
 				AAAB484028FC4E54008373CB /* ToolShapeSelector.swift */,
 				AAAB484228FC58FC008373CB /* PopupMenu.swift */,
@@ -261,6 +260,7 @@
 				AAAB482828F97F82008373CB /* Array+Zip3.swift */,
 				AAAB482B28F982BB008373CB /* UIEdgeInsets+Ex.swift */,
 				FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */,
+				AA79DEBA290DD4C100905FEF /* UIApplication+Ex.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -420,6 +420,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA4BF3D428F6A4E800592051 /* EditVC.swift in Sources */,
+				AA79DEBB290DD4C100905FEF /* UIApplication+Ex.swift in Sources */,
 				FADCE22129092F3400E92CD9 /* LayerContainer.swift in Sources */,
 				AA77710F28FC891600CF73C0 /* PassthroughView.swift in Sources */,
 				FACBB8A8290D5F96005B6941 /* ShapeLayerHitDetector.swift in Sources */,
@@ -464,7 +465,6 @@
 				AAAB482628F96B76008373CB /* UIControl+Ex.swift in Sources */,
 				AA79DEA228FF4EF400905FEF /* GradientView.swift in Sources */,
 				FACBB886290D0A5D005B6941 /* UIView+Blur.swift in Sources */,
-				AAAB483728FB14D8008373CB /* TestVC.swift in Sources */,
 				FA046EE528F54B23002D5023 /* AppDelegate.swift in Sources */,
 				AA79DEA429000CB000905FEF /* TextViewEditingOverlay.swift in Sources */,
 				AAAB482E28F9A99D008373CB /* ToolView.swift in Sources */,

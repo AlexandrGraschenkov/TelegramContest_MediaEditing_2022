@@ -124,6 +124,7 @@ final class TextViewEditingOverlay: UIView {
     private let colourPicker: ColourPickerButton
     private var panelContainer: UIView!
     private var textView: OutlineableTextView!
+    private let history: History
     
     init(
         panelView: TextPanel,
@@ -131,11 +132,13 @@ final class TextViewEditingOverlay: UIView {
         panelContainer: UIView,
         state: ImageEditingTextState,
         previousResultId: UUID?,
-        frame: CGRect
+        frame: CGRect,
+        history: History
     ) {
         self.panelView = panelView
         self.colourPicker = colourPicker
         self.state = state
+        self.history = history
         super.init(frame: frame)
         setup(panelOriginalContainer: panelContainer)
     }
@@ -219,7 +222,7 @@ final class TextViewEditingOverlay: UIView {
             self?.scheduleSliderHide()
         }
         
-        textStyleChangeHandler = TextStyleChangeHandler(textView: textView)
+        textStyleChangeHandler = TextStyleChangeHandler(textView: textView, history: history)
         textStyleChangeHandler.assignControls(textPanel: panelView, colourPicker: colourPicker)
         
         NotificationCenter.default.addObserver(
@@ -450,6 +453,7 @@ extension TextViewEditingOverlay: UITextViewDelegate {
 
 
 final class TextStyleChangeHandler {
+    private let historyId = UUID().uuidString
     private let textView: OutlineableTextView
     fileprivate(set) var textHighlightLayer: CAShapeLayer?
     private(set) var currentColor: UIColor! {
@@ -459,6 +463,7 @@ final class TextStyleChangeHandler {
     }
     private var textPanel: TextPanel?
     private var colourPicker: ColourPickerButton?
+    private let history: History
     
     var currentState: ImageEditingTextState {
         .init(
@@ -470,8 +475,9 @@ final class TextStyleChangeHandler {
         )
     }
     
-    init(textView: OutlineableTextView) {
+    init(textView: OutlineableTextView, history: History) {
         self.textView = textView
+        self.history = history
     }
     
     func assignControls(textPanel: TextPanel, colourPicker: ColourPickerButton) {
@@ -479,10 +485,56 @@ final class TextStyleChangeHandler {
         self.colourPicker = colourPicker
         
         colourPicker.onColourChange = { [weak self] color in
-            self?.currentColor = color
+            guard let self = self else { return }
+            let oldColor = self.currentColor
+            self.currentColor = color
+            guard !self.textView.isFirstResponder else { return }
+            let forward = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
+                self.colourPicker?.selectedColour = color
+                self.currentColor = color
+            }
+            let back = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
+                self.colourPicker?.selectedColour = oldColor ?? .white
+                self.currentColor = oldColor
+            }
+            self.history.add(element: History.ElementGroup(forward: [forward], backward: [back]))
         }
-        textPanel.onAnyAttributeChange = { [weak self] in
-            self?.updateTextViewAttributes()
+        textPanel.onAttributeChange = { [weak self] change in
+            guard let self = self else { return }
+            let forward: History.Element
+            let back: History.Element
+            switch change {
+            case .font(let change):
+                forward = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
+                    self.textPanel?.selectedFont = change.newValue
+                    self.updateTextViewAttributes()
+                }
+                back = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
+                    self.textPanel?.selectedFont = change.oldValue ?? ImageEditingTextState.defaultState.font
+                    self.updateTextViewAttributes()
+                }
+            case .alignment(let change):
+                forward = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
+                    self.textPanel?.alignmentButton.textAlignment = change.newValue
+                    self.updateTextViewAttributes()
+                }
+                back = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
+                    self.textPanel?.alignmentButton.textAlignment = change.oldValue ?? ImageEditingTextState.defaultState.alignment
+                    self.updateTextViewAttributes()
+                }
+            case .style(let change):
+                forward = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
+                    self.textPanel?.styleButton.setStyle(change.newValue, animated: true)
+                    self.updateTextViewAttributes()
+                }
+                back = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
+                    let style = change.oldValue ?? ImageEditingTextState.defaultState.style
+                    self.textPanel?.styleButton.setStyle(style, animated: true)
+                    self.updateTextViewAttributes()
+                }
+            }
+            self.history.add(element: History.ElementGroup(forward: [forward], backward: [back]))
+            self.updateTextViewAttributes()
         }
     }
     
@@ -502,7 +554,7 @@ final class TextStyleChangeHandler {
         let textLayer = textView.layer
         textView.clipsToBounds = false
         let textContainerInset = textView.textContainerInset
-        let uiInset: CGFloat = -10//CGFloat(insetSlider.value)
+        let uiInset: CGFloat = -10
         let radius: CGFloat = 6 * UIScreen.main.scale
         let highlightLayer: CAShapeLayer
         if let textHighlightLayer = textHighlightLayer {

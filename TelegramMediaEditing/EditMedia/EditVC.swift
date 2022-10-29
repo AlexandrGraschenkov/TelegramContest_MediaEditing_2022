@@ -98,7 +98,7 @@ final class EditVC: UIViewController {
         view.addSubview(scroll)
         scroll.setup(content: mediaContainer)
         
-        toolbar = EditorToolbar.createAndAdd(toView: view)
+        toolbar = EditorToolbar.createAndAdd(toView: view, history: history)
         toolbar.toolSizeDemoContainer = view
         toolbar.actionHandler = { [unowned self] action in
             switch action {
