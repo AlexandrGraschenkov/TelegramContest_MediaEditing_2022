@@ -114,17 +114,17 @@ class ToolDrawer: NSObject {
         let finalToolSize = contentScale * toolSize
         let idx1 = points.count-1
         let idx2 = max(0, points.count-4) // index from back
-        let averageSpeed = points[idx1].speed(p: points[idx2])
+        let averageSpeed = points[idx1].getSpeed(p: points[idx2])
         let time = points[idx1].time
         
-        let dir = points[idx1].point.substract(points[idx2].point)
+        let dir = points[idx1].point.subtract(points[idx2].point)
         let angle = atan2(dir.y, dir.x)
         let angle1 = angle + .pi * 3 / 4
         let angle2 = angle - .pi * 3 / 4
         let distOffset = finalToolSize * 5
         let p1 = points[idx1].point.add(CGPoint(x: cos(angle1) * distOffset, y: sin(angle1) * distOffset))
         let p2 = points[idx1].point.add(CGPoint(x: cos(angle2) * distOffset, y: sin(angle2) * distOffset))
-        let pCenter = points[idx1].point.substract(dir.norm.multiply(0.1))
+        let pCenter = points[idx1].point.subtract(dir.norm.multiply(0.1))
         
         points.append(PanPoint(point: p1, time: time, speed: averageSpeed, bezierSmooth: false))
         points.append(PanPoint(point: pCenter, time: time, speed: averageSpeed, bezierSmooth: false))

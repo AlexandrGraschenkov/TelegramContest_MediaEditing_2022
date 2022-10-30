@@ -1,5 +1,5 @@
 //
-//  GausianSmooth.swift
+//  GaussianSmooth.swift
 //  TelegramMediaEditing
 //
 //  Created by Alexander Graschenkov on 15.10.2022.
@@ -7,8 +7,8 @@
 
 import UIKit
 
-class GausianSmooth {
-    static func smoothSpeed(points: inout [PanPoint], distWindow: CGFloat) {
+class GaussianSmooth {
+    static func smoothSpeed(points: inout [PanPoint], distWindow: CGFloat, overrideFirstPoints: [Double] = []) {
 //        if points.count > 10 {
 //            print("test")
 //        }
@@ -22,7 +22,16 @@ class GausianSmooth {
             speeds.append(speed)
         }
         for idx in 0..<points.count {
-            points[idx].speed = speeds[idx]
+            points[idx].speed = idx < overrideFirstPoints.count ? overrideFirstPoints[idx] : speeds[idx]
+        }
+    }
+    
+    
+    static func smoothSpeed2(points: inout [PanPoint], distWindow: CGFloat, overrideFirstPoints: [Double] = []) {
+        let filter = ABFilter(a: 0.06, b: 0.001)
+        for idx in 0..<points.count {
+            let speed = filter.process(val: CGFloat(points[idx].speed!))
+            points[idx].speed = idx < overrideFirstPoints.count ? overrideFirstPoints[idx] : Double(speed)
         }
     }
     
@@ -97,4 +106,52 @@ class GausianSmooth {
         }
         return (lower, upper)
     }
+}
+
+final class ABFilter {
+    
+    public init(a: CGFloat = 0.1, b: CGFloat = 0.001) {
+        self.a = a
+        self.b = b
+    }
+    
+    public var a: CGFloat // value change
+    public var b: CGFloat // velocity change
+    
+    public func process(val: CGFloat, dt: CGFloat = 0.01) -> CGFloat {
+        
+        if prevVal != nil {
+            if dt < 0 { return prevVal }
+            
+            var curVal = prevVal + prevVelocity * dt
+            var curVelocity = prevVelocity
+            let dVal = val - curVal
+            curVal += a * dVal
+            curVelocity += b * dVal / dt
+            
+            prevVelocity = curVelocity
+            prevVal = curVal
+        } else {
+            prevVal = val
+        }
+        
+        return prevVal
+    }
+    
+    public func reset(value: CGFloat?) {
+        prevVal = value
+        prevVelocity = 0
+    }
+    
+    public func predict(dt: CGFloat = 0.01) -> CGFloat? {
+        if let prevVal = prevVal {
+            return prevVal + prevVelocity * dt
+        } else {
+            return nil
+        }
+    }
+    
+    // mark: private
+    private var prevVal: CGFloat!
+    private var prevVelocity: CGFloat = 0
 }

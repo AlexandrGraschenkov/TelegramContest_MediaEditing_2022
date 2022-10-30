@@ -230,7 +230,7 @@ final class EditVC: UIViewController {
                          y: max(bounds.minY, scrollBounds.minY))
         let br = CGPoint(x: min(bounds.maxX, scrollBounds.maxX),
                          y: min(bounds.maxY, scrollBounds.maxY))
-        return CGRect(origin: tl, size: br.substract(tl).size)
+        return CGRect(origin: tl, size: br.subtract(tl).size)
     }
     
     @objc

@@ -13,8 +13,8 @@ class ToolDrawSplitOptimizer: NSObject {
     fileprivate(set) var shapeArr: [CAShapeLayer] = []
     fileprivate(set) var penGen: ToolCurveGenerator!
     fileprivate(set) var frozenCount: Int = 0
-    let splitThreshCount = 100
-    let splitCount = 80
+    let splitThreshCount = 1100
+    let splitCount = 800
     fileprivate(set) var isPrepared: Bool = false
     
     func start(layer: CAShapeLayer, penGen: ToolCurveGenerator) {
@@ -23,6 +23,7 @@ class ToolDrawSplitOptimizer: NSObject {
         bezierArr = [UIBezierPath()]
         self.penGen = penGen
         frozenCount = 0
+        penGen.overrideStartSmoothSpeeds = []
     }
     
     func finish() {
@@ -41,6 +42,7 @@ class ToolDrawSplitOptimizer: NSObject {
     
     func updatePath(points: [PanPoint]) {
         if points.count - frozenCount > splitThreshCount {
+            penGen.overrideStartSmoothSpeeds = penGen.lastProcessedSpeeds
             let poly = penGen.generatePolygon(points: Array<PanPoint>(points[frozenCount..<frozenCount+splitCount+1]), withPlume: false)
             shapeArr.last!.path = poly.cgPath
             let newShape = shapeArr.last!.customCopy()
@@ -48,6 +50,7 @@ class ToolDrawSplitOptimizer: NSObject {
 //            shapeArr.last!.strokeColor = UIColor.red.cgColor
 //            shapeArr.last!.lineWidth = 2
             
+            penGen.overrideStartSmoothSpeeds = Array(penGen.overrideStartSmoothSpeeds[splitCount..<splitCount+10])
             frozenCount += splitCount
             shapeArr.append(newShape)
             bezierArr.append(UIBezierPath())

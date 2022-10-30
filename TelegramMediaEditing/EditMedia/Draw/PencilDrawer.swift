@@ -131,7 +131,7 @@ class PencilDrawer: ToolDrawer {
         br.x = min(br.x, bounds.maxX)
         br.y = min(br.y, bounds.maxY)
         
-        return CGRect(origin: tl, size: br.substract(tl).size)
+        return CGRect(origin: tl, size: br.subtract(tl).size)
     }
     
 }

@@ -9,6 +9,16 @@ import UIKit
 
 class PenDrawer: ToolDrawer {
     fileprivate var parentLayer: CAShapeLayer?
+    override var toolShape: ToolShape {
+        didSet {
+            if oldValue == toolShape { return }
+            if toolShape == .circle {
+                curveGen.pen.plumePointsCount = 15
+            } else {
+                curveGen.pen.plumePointsCount = 0
+            }
+        }
+    }
     
     override func updateDrawLayer() {
         if !splitOpt.isPrepared {
@@ -56,7 +66,9 @@ class PenDrawer: ToolDrawer {
             addToHistory()
             
             // run pretty animation with plume shrinks
-            curveGen.finishPlumAnimation(points: drawPath.suffix(suffCount), onLayer: splitOpt.shapeArr.last!, duration: 0.24)
+            if toolShape == .circle {
+                curveGen.finishPlumAnimation(points: drawPath.suffix(suffCount), onLayer: splitOpt.shapeArr.last!, duration: 0.24)
+            }
         }
         parentLayer = nil
 //        currentDrawDebugLayer = nil
@@ -89,11 +101,11 @@ class PenDrawer: ToolDrawer {
         let finalToolSize = contentScale * toolSize
         let idx1 = points.count-1
         let idx2 = max(0, points.count-4) // index from back
-        let averageSpeed = points[idx1].speed(p: points[idx2])
+        let averageSpeed = points[idx1].getSpeed(p: points[idx2])
         let time = points[idx1].time
         
         
-        let dir = points[idx1].point.substract(points[idx2].point)
+        let dir = points[idx1].point.subtract(points[idx2].point)
         let angle = atan2(dir.y, dir.x)
         let angle1 = angle + .pi * 3.2 / 4
         let angle2 = angle - .pi * 3.2 / 4
@@ -104,7 +116,7 @@ class PenDrawer: ToolDrawer {
         
         // fine tune by hand
         let pCenter = points[idx1].point.add(dir.norm.multiply(finalToolSize*1.2))
-        let pCenter2 = points[idx1].point.substract(dir.norm.multiply(finalToolSize*0.5))
+        let pCenter2 = points[idx1].point.subtract(dir.norm.multiply(finalToolSize*0.5))
         
         points.append(PanPoint(point: p1, time: time, speed: averageSpeed))
         points.append(PanPoint(point: pCenter, time: time, speed: averageSpeed))

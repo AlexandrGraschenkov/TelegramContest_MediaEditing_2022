@@ -27,7 +27,7 @@ struct Bezier {
             let q = sqrt(d.x * d.x + d.y * d.y)
             let normal: CGPoint
             if q == 0 {
-                let n = to.substract(from).norm
+                let n = to.subtract(from).norm
                 normal = toRight ? n.rot90 : n.rot270
             } else if toRight {
                 normal = CGPoint(x: d.y / q, y: -d.x / q)
@@ -64,13 +64,13 @@ struct Bezier {
         // math behind
         // https://microbians.com/math/Gabriel_Suchowolski_Quadratic_bezier_offsetting_with_selective_subdivision.pdf
         var tToReturn: CGFloat = 0.5
-        let v0 = control.substract(from)
-        let v1 = to.substract(control)
+        let v0 = control.subtract(from)
+        let v1 = to.subtract(control)
         
         let c0 = -v0.dot(v0)
         let c1 = 3*v0.dot(v0)-v1.dot(v0)
         let c2 = 3*(v1.dot(v0)-v0.dot(v0))
-        let c3 = (v1.substract(v0)).dot(v1.substract(v0))
+        let c3 = (v1.subtract(v0)).dot(v1.subtract(v0))
         
         var roots: [CGFloat] = []
         

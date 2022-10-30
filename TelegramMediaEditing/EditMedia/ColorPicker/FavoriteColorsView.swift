@@ -196,7 +196,7 @@ final class FavoriteColorsView: UIView {
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         if bounds.insetBy(dx: -10, dy: -10).contains(point) {
             for sub in subviews {
-                if let v = sub.hitTest(point.substract(sub.frame.origin), with: event) {
+                if let v = sub.hitTest(point.subtract(sub.frame.origin), with: event) {
                     return v
                 }
             }

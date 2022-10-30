@@ -36,7 +36,7 @@ extension CGPoint {
         return CGPoint(x: x + p.x, y: y + p.y)
     }
     @inline(__always)
-    func substract(_ p: CGPoint) -> CGPoint {
+    func subtract(_ p: CGPoint) -> CGPoint {
         return CGPoint(x: x - p.x, y: y - p.y)
     }
     @inline(__always)
@@ -111,7 +111,7 @@ extension CGPoint {
 
 extension CGRect {
     init(mid: CGPoint, size: CGSize) {
-        let origin = mid.substract(size.point.multiply(0.5))
+        let origin = mid.subtract(size.point.multiply(0.5))
         self.init(origin: origin, size: size)
     }
     

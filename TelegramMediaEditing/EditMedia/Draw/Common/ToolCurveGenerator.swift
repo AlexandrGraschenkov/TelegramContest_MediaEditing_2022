@@ -24,12 +24,12 @@ struct PanPoint: Equatable {
         return CGPoint(x: (point.x + p.point.x) / 2.0,
                        y: (point.y + p.point.y) / 2.0)
     }
-    func speed(p: PanPoint) -> Double {
+    func getSpeed(p: PanPoint) -> Double {
         if abs(time - p.time) < 0.00001 {
             return 9999.0
         }
         
-        let dist = p.point.substract(point).distance()
+        let dist = p.point.subtract(point).distance()
         let speed = dist / abs(time - p.time)
         return speed
     }
@@ -58,6 +58,11 @@ class ToolCurveGenerator {
     var toolSize: CGFloat = 30
     var scrollZoomScale: CGFloat = 1
     var markerBendPoints: [CGPoint] = []
+    
+    // Извне у нас идет разбиение на саблееры, при котором бывает некорректно отображается ширина линий на стыке
+    // данным подходом мы запоминаем последнее сглаживание скорости и "замораживаем" его
+    var lastProcessedSpeeds: [Double] = []
+    var overrideStartSmoothSpeeds: [Double] = []
     
     // Only for pen
     func finishPlumAnimation(points: [PanPoint], onLayer: CAShapeLayer, duration: Double) {
@@ -112,16 +117,21 @@ class ToolCurveGenerator {
         }
         var points = points
         for idx in 0..<points.count {
+            if points[idx].speed != nil {
+                continue
+            }
             if idx == points.count-1 {
                 points[idx].speed = points[idx-1].speed
             } else {
-                points[idx].speed = points[idx+1].speed(p: points[idx])
+                points[idx].speed = points[idx+1].getSpeed(p: points[idx])
             }
         }
         points = points.filter({$0.speed ?? 0 > 0})
-        GausianSmooth.smoothSpeed(points: &points, distWindow: gausDistWindow * scrollZoomScale)
+        GaussianSmooth.smoothSpeed2(points: &points, distWindow: gausDistWindow * scrollZoomScale, overrideFirstPoints: overrideStartSmoothSpeeds)
+        lastProcessedSpeeds = points.map({ $0.speed ?? 0 })
         if plumePointsCount > 0 {
             let lastPlumSpeed = pen.plumeLastSpeedPercent * (pen.maxPixSpeed - pen.minPixSpeed) * scrollZoomScale
+//            PenPlume.makePlumeOnEndPath(points: &points, lastTimePoints: 0.5, lastPointOverrideSpeed: lastPlumSpeed)
             PenPlume.makePlumeOnEndPath(points: &points, lastNPoints: plumePointsCount, lastPointOverrideSpeed: lastPlumSpeed)
         }
         
@@ -137,7 +147,7 @@ class ToolCurveGenerator {
             let p2 = points[i]
             let info = DrawBezierInfo(point: p1.mid(p: p2),
                                       control: p2.point,
-                                      speed: p1.speed ?? p1.speed(p: p2))
+                                      speed: p1.speed ?? p1.getSpeed(p: p2))
             
             if p1.bezierSmooth {
                 result.append(info)
@@ -232,7 +242,7 @@ class ToolCurveGenerator {
     }
     
     fileprivate func calcCosVal(p1: CGPoint, p2: CGPoint, p3: CGPoint) -> CGFloat {
-        return p3.substract(p2).normDot(p2.substract(p1))
+        return p3.subtract(p2).normDot(p2.subtract(p1))
     }
     
     fileprivate func sqrDist(point: CGPoint, toLine: (CGPoint, CGPoint)) -> CGFloat {
@@ -241,11 +251,11 @@ class ToolCurveGenerator {
     
     fileprivate func project(point: CGPoint, toLine: (CGPoint, CGPoint)) -> (p: CGPoint, t: CGFloat) {
         // based on https://stackoverflow.com/a/1501725/820795
-        let lineVec = toLine.1.substract(toLine.0)
+        let lineVec = toLine.1.subtract(toLine.0)
         let l2 = lineVec.distanceSqr()  // i.e. |w-v|^2 -  avoid a sqrt
         if (l2 == 0.0) { return (toLine.0, 0) }   // v == w case
         
-        let t = point.substract(toLine.0).dot(lineVec) / l2
+        let t = point.subtract(toLine.0).dot(lineVec) / l2
         let proj = toLine.0.add(lineVec.multiply(t))
         return (proj, t)
     }
@@ -254,7 +264,7 @@ class ToolCurveGenerator {
 // MARK: - Pen
 extension ToolCurveGenerator {
     fileprivate func penStartCirleLeftRightConterClock(start: DrawBezierInfo, end: DrawBezierInfo, moveToStart: Bool, bezier: inout UIBezierPath) {
-        let dirNorm = end.point.substract(start.point).norm
+        let dirNorm = end.point.subtract(start.point).norm
         let startSize = penSize(speed: start.speed)
         let angl = atan2(dirNorm.y, dirNorm.x)
         bezier.addArc(withCenter: start.point, radius: startSize, startAngle: angl+CGFloat.pi*0.5, endAngle: angl+CGFloat.pi*1.5, clockwise: true)
@@ -283,7 +293,7 @@ extension ToolCurveGenerator {
                 optimizedManualBezier(from: from, to: to, control: control, fromWidth: fromSize, toWidth: toSize, inOutBezier: &bezier)
             } else {
                 // straight line
-                let norm = to.substract(from).norm.rot90
+                let norm = to.subtract(from).norm.rot90
                 bezier.addLine(to: to.add(norm.multiply(toSize)))
 //                    debugBezier.addLine(to: to)
             }

@@ -40,11 +40,13 @@ class PanSmoothIK: NSObject {
     var scale: CGFloat = 1.0
     var toolSize: CGFloat = 1
     var debugView: UIView?
+//    var speedFilter = ABFilter()
     
     func start() {
         lastPoint = nil
         smoothPoints.removeAll()
         lastPoints.removeAll()
+//        speedFilter.reset(value: nil)
 //        if let debugView = debugView {
 //
 //            DispatchQueue.main.async {
@@ -70,7 +72,7 @@ class PanSmoothIK: NSObject {
 //            updateDebug2()
             return
         }
-        lastPoint = PanPoint(point: point.point, time: point.time+2)
+        lastPoint = PanPoint(point: point.point, time: point.time+0.001)
 //        defer {
 //            let path = UIBezierPath()
 //            path.move(to: lastPoint!.point)
@@ -80,9 +82,19 @@ class PanSmoothIK: NSObject {
         
         let lineLenght = calcLineLength(points: lastPoints)
         let dt = lastPoints.last!.time - lastPoints.first!.time
-        let speed = dt > 0.00001 ? lineLenght / dt : 0
+        var speed = dt > 0.00001 ? lineLenght / dt : 0
+//        if speed > 0 {
+//            let dist = lastPoints[lastPoints.count-1].point.distance(p: lastPoints[lastPoints.count-2].point)
+//            speed = Double(speedFilter.process(val: CGFloat(speed), dt: dist))
+//            lastPoint?.speed = speed
+//            for idx in 0..<smoothPoints.count {
+//                if smoothPoints[idx].speed == nil {
+//                    smoothPoints[idx].speed = speed
+//                }
+//            }
+//        }
         // larger speed => larger offset dist
-        var maxPanOffset = log(speed/2/scale+1) * 2 * scale // just gogle it to understand formula of log
+        var maxPanOffset = log(speed/2/scale+1) * 3 * scale // just gogle it to understand formula of log
 //        print(speed, maxPanOffset, log(speed/2/scale+1) * 2)
         
         // чем меньше кисточка, тем точней необходимо рисовать
@@ -94,28 +106,14 @@ class PanSmoothIK: NSObject {
         if dist < maxPanOffset {
             return
         }
-        var offset = smoothPoints.last!.point.substract(point.point)
+        var offset = smoothPoints.last!.point.subtract(point.point)
         offset = offset.norm.multiply(maxPanOffset)
         let newPoint = point.point.add(offset)
-        if newPoint.distance(p: smoothPoints.last!.point) < scale {
+        if newPoint.distance(p: smoothPoints.last!.point) < scale*2 {
             return
         }
-        smoothPoints.append(PanPoint(point: newPoint, time: point.time))
-//        updateDebug2()
-        
-//        if points.count > 1 && points[points.count-1].time - points[points.count-2].time < skipTime {
-//            _ = points.popLast()
-//        }
-//        points.append(point)
+        smoothPoints.append(PanPoint(point: newPoint, time: point.time, speed: speed))
     }
-    
-//    fileprivate func updateDebug2() {
-//        let bezier = UIBezierPath()
-//        for p in smoothPoints {
-//            bezier.append(UIBezierPath(ovalIn: CGRect(mid: p.point, size: CGSize(width: 5*scale, height: 5*scale))))
-//        }
-//        debugLayer2.path = bezier.cgPath
-//    }
     
     fileprivate func calcLineLength(points: [PanPoint]) -> CGFloat {
         var sumDist: CGFloat = 0

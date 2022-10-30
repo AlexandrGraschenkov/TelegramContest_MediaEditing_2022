@@ -30,4 +30,24 @@ class PenPlume: NSObject {
             }
         }
     }
+    
+    /// оставляем шлейф за линией, перезаписываем скорость только если она больше
+    static func makePlumeOnEndPath(points: inout [PanPoint], lastTimePoints: Double, lastPointOverrideSpeed: Double) {
+        var pointsCount: CGFloat = 0
+        var idx = points.count-2
+        var lastTimePoints = lastTimePoints
+        while idx >= 0 {
+            let dt = points[idx+1].time - points[idx].time
+            if dt < lastTimePoints {
+                lastTimePoints -= dt
+                pointsCount += 1
+            } else {
+                pointsCount += lastTimePoints / dt
+                break
+            }
+            idx -= 1
+        }
+        print(pointsCount, points.count)
+        makePlumeOnEndPath(points: &points, lastNPoints: pointsCount, lastPointOverrideSpeed: lastPointOverrideSpeed)
+    }
 }
