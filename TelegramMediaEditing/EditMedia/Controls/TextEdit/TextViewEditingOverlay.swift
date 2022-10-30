@@ -22,9 +22,10 @@ final class TextEditingResultView: UIView {
             borderLayer.lineWidth = 2
             borderLayer.lineCap = .round
             borderLayer.lineDashPattern = [12, 8]
-            borderLayer.frame = self.bounds.inset(by: .tm_insets(top: -7, left: -15, bottom: -7, right: -15   ))
+            borderLayer.frame = self.bounds.inset(by: .tm_insets(top: -7, left: -15, bottom: -7, right: -15))
             borderLayer.path = UIBezierPath(roundedRect: borderLayer.bounds, cornerRadius: 12).cgPath
         }
+
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
@@ -33,6 +34,7 @@ final class TextEditingResultView: UIView {
     var resultId: UUID?
     var moveState: OverlayOperationState?
     private var dashedBorder: BorderView?
+    weak var textView: UITextView?
     
     func setDashedBorderHidden(_ isHidden: Bool) {
         if (dashedBorder == nil) {
@@ -42,26 +44,6 @@ final class TextEditingResultView: UIView {
             self.dashedBorder = borderView
         }
         dashedBorder?.isHidden = isHidden
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-//        guard let dashedBorderLayer = dashedBorderLayer else { return }
-//        dashedBorderLayer.frame = self.bounds
-//        var boundingRect = bounds
-//        for layer in (layer.sublayers ?? []) {
-//            boundingRect = boundingRect.union(layer.frame)
-//        }
-        
-//        for view in subviews {
-//            for layer in (view.layer.sublayers ?? []) {
-//                var rectInSelf = layer.frame
-//                rectInSelf.origin.x += view.x
-//                rectInSelf.origin.y += view.y
-//                boundingRect = boundingRect.union(rectInSelf)
-//            }
-//        }
-//        dashedBorderLayer.frame = boundingRect.inset(top: -10, left: -10, bottom: -10, right: -10)
     }
 }
 
@@ -205,6 +187,7 @@ final class TextViewEditingOverlay: UIView {
         textView.backgroundColor = .clear
         textView.spellCheckingType = .no
         textView.autocorrectionType = .no
+        textViewCenteringContainer.textView = textView
         
         self.slider = ToolSlider(frame: CGRect(origin: .zero, size: CGSize(width: 256, height: 56)))
         slider.valuesRange = 20...60
@@ -396,7 +379,17 @@ final class TextViewEditingOverlay: UIView {
         textSize.width *= scaleX
         textSize.height *= scaleY
 
+        func scaleView(view: UIView, scale: CGFloat) {
+            view.contentScaleFactor = scale
+            print(view.contentScaleFactor)
+            for vi in view.subviews {
+                scaleView(view: vi, scale: scale)
+            }
+        }
+        
         textView.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin, .flexibleRightMargin, .flexibleBottomMargin]
+        scaleView(view: textView.subviews[1], scale: UIScreen.main.scale * 6)
+        
         let oldSize = textViewCenteringContainer.frame.size
 
         switch panelView.alignmentButton.textAlignment {

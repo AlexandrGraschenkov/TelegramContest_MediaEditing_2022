@@ -196,15 +196,17 @@ final class GesturesOverlay: UIView {
         default:
             break
         }
+        defer { sender.scale = 1 }
         guard let overlay = activeOverlay else { return }
-//        let currentSize = overlay.bounds.size
-//        let updateSize = CGSize(width: currentSize.width * sender.scale, height: currentSize.height * sender.scale)
-//        overlay.bounds = CGRect(x: 0, y: 0, width: updateSize.width, height: updateSize.height)
+        let desiredScale = sender.scale * overlay.transform.a
+        let maxScale: CGFloat = 8
+        if desiredScale > maxScale {
+            return
+        }
         overlay.transform = overlay.transform.scaledBy(x: sender.scale, y: sender.scale)
         if let textView = overlay as? TextContainer {
             textView.content?.moveState = .init(transform: textView.transform, center: textView.center)
         }
-        sender.scale = 1
     }
     
     @objc
