@@ -69,6 +69,11 @@ final class EditVC: UIViewController {
         tools[activeTool]!.toolSize = ToolDefaults.getSize(type: activeTool)
         tools[activeTool]!.color = ToolDefaults.getColor(type: activeTool) ?? .white
         toolbar.colorChangeOutside(color: tools[activeTool]!.color)
+        
+        history.onHistoryUpdate = { [weak self] in
+            guard let self = self else { return }
+            self.toolbar.saveButton.isEnabled = self.history.elements.count > 0
+        }
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -129,7 +134,9 @@ final class EditVC: UIViewController {
                 self.tools[self.activeTool]?.active = true
             case .switchedToText:
                 self.tools[self.activeTool]?.active = false
-            case .save, .add, .toolShapeChanged:
+            case .save:
+                self.saveResults()
+            case .add:
                 // TODO: implement
                 break
             }
@@ -264,7 +271,59 @@ final class EditVC: UIViewController {
     
     // MARK: -
     
-
+    private func saveResults() {
+        insertLoader()
+        self.mediaContainer.snapshotInBackground { image in
+            guard let image = image else {
+                return
+            }
+            let uiImage = UIImage(cgImage: image)
+            UIImageWriteToSavedPhotosAlbum(uiImage, self, #selector(EditVC.image(_:didFinishSavingWithError:contextInfo:)), nil)
+        }
+    }
+    
+    @objc
+    private func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        DispatchQueue.main.async {
+            self.loaderView?.removeFromSuperview()
+            self.view.isUserInteractionEnabled = true
+            if let error = error {
+                let alert = UIAlertController(title: "Save error", message: error.localizedDescription, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(alert, animated: true)
+            } else {
+                let alert = UIAlertController(title: "Saved!", message: "You can find the resuts in your photos", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+                    self.dismiss(animated: true)
+                }))
+                self.present(alert, animated: true)
+            }
+        }
+    }
+    
+    private weak var loaderView: UIView?
+    private func insertLoader() {
+        let style: UIActivityIndicatorView.Style
+        if #available(iOS 13.0, *) {
+            style = .large
+        } else {
+            style = .white
+        }
+  
+        let loaderContainer = UIView(frame: CGRect(origin: .zero, size: .square(side: 70)))
+        view.addSubview(loaderContainer)
+        loaderContainer.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
+        loaderContainer.backgroundColor = .black
+        loaderContainer.layer.cornerRadius = 12
+        loaderView = loaderContainer
+        
+        let loader = UIActivityIndicatorView(style: style)
+        loaderContainer.addSubview(loader)
+        loader.hidesWhenStopped = true
+        loader.center = CGPoint(x: loaderContainer.bounds.midX, y: loaderContainer.bounds.midY)
+        loader.startAnimating()
+        view.isUserInteractionEnabled = false
+    }
 }
 
 private extension ToolDrawer {
