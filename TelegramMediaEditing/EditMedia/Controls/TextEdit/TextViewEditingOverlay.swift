@@ -47,20 +47,30 @@ final class TextEditingResultView: UIView {
     }
 }
 
-struct ImageEditingTextState: Equatable {
-    let text: String?
-    let font: UIFont
-    let color: UIColor
-    let style: TextStyle
-    let alignment: NSTextAlignment
+final class ImageEditingTextState {
+    internal init(text: String? = nil, font: UIFont, color: UIColor, style: TextStyle, alignment: NSTextAlignment) {
+        self.text = text
+        self.font = font
+        self.color = color
+        self.style = style
+        self.alignment = alignment
+    }
     
-    static let defaultState = ImageEditingTextState(
-        text: "",
-        font: .systemFont(ofSize: 32),
-        color: .white,
-        style: .regular,
-        alignment: .center
-    )
+    var text: String?
+    var font: UIFont
+    var color: UIColor
+    var style: TextStyle
+    var alignment: NSTextAlignment
+
+    static func defaultState() -> ImageEditingTextState {
+        ImageEditingTextState(
+            text: "",
+            font: .systemFont(ofSize: 32),
+            color: .white,
+            style: .regular,
+            alignment: .center
+        )
+    }
 }
 
 final class TextEditingResult: Equatable {
@@ -106,7 +116,7 @@ final class TextViewEditingOverlay: UIView {
     
     weak var delegate: TextViewEditingOverlayDelegate?
     
-    private let state: ImageEditingTextState?
+    private let state: ImageEditingTextState
         
     private let panelView: TextPanel
     private let colourPicker: ColourPickerButton
@@ -183,7 +193,7 @@ final class TextViewEditingOverlay: UIView {
         textViewCenteringContainer.addSubview(textView)
         textView.delegate = self
         self.textView = textView
-        textView.textColor = state?.color
+        textView.textColor = state.color
         textView.backgroundColor = .clear
         textView.spellCheckingType = .no
         textView.autocorrectionType = .no
@@ -191,7 +201,7 @@ final class TextViewEditingOverlay: UIView {
         
         self.slider = ToolSlider(frame: CGRect(origin: .zero, size: CGSize(width: 256, height: 56)))
         slider.valuesRange = 20...60
-        slider.currentValue = state!.font.pointSize
+        slider.currentValue = state.font.pointSize
         addSubview(slider)
         slider.center.y = textViewCenteringContainer.center.y - textViewCenteringContainer.height / 2
         slider.transform = CGAffineTransform(rotationAngle: -CGFloat.pi / 2)
@@ -212,7 +222,7 @@ final class TextViewEditingOverlay: UIView {
         }
         
         textStyleChangeHandler = TextStyleChangeHandler(textView: textView, history: history)
-        textStyleChangeHandler.assignControls(textPanel: panelView, colourPicker: colourPicker)
+        textStyleChangeHandler.assignControls(textPanel: panelView, colourPicker: colourPicker, state: state)
         
         NotificationCenter.default.addObserver(
             forName: UIApplication.keyboardWillShowNotification,
@@ -239,14 +249,10 @@ final class TextViewEditingOverlay: UIView {
             }
         }
         
-        guard let state = state else {
-            return
-        }
-        
         performAsyncIn(.main, closure: {
-            self.textStyleChangeHandler.applyState(state)
+            self.textStyleChangeHandler.applyState(self.state)
             self.textStyleChangeHandler.updateTextViewAttributes()
-            if let text = state.text {
+            if let text = self.state.text {
                 self.textView.text = text
                 self.textViewDidChange(self.textView)
             }
@@ -305,7 +311,7 @@ final class TextViewEditingOverlay: UIView {
         
         let result = TextEditingResult(
             view: textViewCenteringContainer,
-            state: textStyleChangeHandler.currentState,
+            state: state,
             editingFrameInWindow: textViewCenteringContainer.frameIn(view: window),
             changeHandler: self.textStyleChangeHandler
         )
@@ -447,6 +453,7 @@ extension TextViewEditingOverlay: UITextViewDelegate {
         } else if panelView.styleButton.textStyle == .outlined {
             self.textView.outline()
         }
+        state.text = textView.text
     }
 }
 
@@ -463,76 +470,101 @@ final class TextStyleChangeHandler {
     private var textPanel: TextPanel?
     private var colourPicker: ColourPickerButton?
     private let history: History
-    
-    var currentState: ImageEditingTextState {
-        .init(
-            text: textView.text,
-            font: textView.font!,
-            color: currentColor,
-            style: textPanel?.styleButton.textStyle ?? .regular,
-            alignment: textPanel?.alignmentButton.textAlignment ?? .center
-        )
-    }
-    
+    private var state: ImageEditingTextState?
+//
+//    var currentState: ImageEditingTextState {
+//        .init(
+//            text: textView.text,
+//            font: textView.font!,
+//            color: currentColor,
+//            style: textPanel?.styleButton.textStyle ?? .regular,
+//            alignment: textPanel?.alignmentButton.textAlignment ?? .center
+//        )
+//    }
+//
     init(textView: OutlineableTextView, history: History) {
         self.textView = textView
         self.history = history
     }
     
-    func assignControls(textPanel: TextPanel, colourPicker: ColourPickerButton) {
+    func assignControls(textPanel: TextPanel, colourPicker: ColourPickerButton, state: ImageEditingTextState) {
         self.textPanel = textPanel
         self.colourPicker = colourPicker
+        self.state = state
         
-        colourPicker.onColourChange = { [weak self] color in
+        colourPicker.onColourChange = { [weak self] change, isFinal in
             guard let self = self else { return }
-            let oldColor = self.currentColor
-            self.currentColor = color
-            guard !self.textView.isFirstResponder else { return }
+            self.currentColor = change.newValue
+            self.state?.color = change.newValue
+            
+            guard !self.textView.isFirstResponder, isFinal else { return }
             let forward = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
-                self.colourPicker?.selectedColour = color
-                self.currentColor = color
+                self.colourPicker?.selectedColour = change.newValue
+                self.currentColor = change.newValue
+                self.state?.color = change.newValue
             }
             let back = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
-                self.colourPicker?.selectedColour = oldColor ?? .white
-                self.currentColor = oldColor
+                let oldValue = change.oldValue ?? .white
+                self.colourPicker?.selectedColour = change.oldValue ?? .white
+                self.currentColor = oldValue
+                self.state?.color = oldValue
             }
             self.history.add(element: History.ElementGroup(forward: [forward], backward: [back]))
         }
         textPanel.onAttributeChange = { [weak self] change in
             guard let self = self else { return }
-            let forward: History.Element
-            let back: History.Element
+            var forward: History.Element?
+            var back: History.Element?
+            let defaultState = ImageEditingTextState.defaultState()
             switch change {
             case .font(let change):
+                self.state?.font = change.newValue
+                guard !self.textView.isFirstResponder else { break }
                 forward = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
                     self.textPanel?.selectedFont = change.newValue
+                    self.state?.font = change.newValue
                     self.updateTextViewAttributes()
                 }
                 back = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
-                    self.textPanel?.selectedFont = change.oldValue ?? ImageEditingTextState.defaultState.font
+                    let oldValue = change.oldValue ?? defaultState.font
+                    self.textPanel?.selectedFont = oldValue
+                    self.state?.font = oldValue
                     self.updateTextViewAttributes()
                 }
+                self.state?.font = change.newValue
             case .alignment(let change):
+                self.state?.alignment = change.newValue
+                guard !self.textView.isFirstResponder else { break }
                 forward = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
                     self.textPanel?.alignmentButton.textAlignment = change.newValue
+                    self.state?.alignment = change.newValue
                     self.updateTextViewAttributes()
                 }
                 back = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
-                    self.textPanel?.alignmentButton.textAlignment = change.oldValue ?? ImageEditingTextState.defaultState.alignment
+                    let oldValue = change.oldValue ?? defaultState.alignment
+                    self.textPanel?.alignmentButton.textAlignment = oldValue
+                    self.state?.alignment = oldValue
                     self.updateTextViewAttributes()
                 }
             case .style(let change):
+                self.state?.style = change.newValue
+                guard !self.textView.isFirstResponder else { break }
                 forward = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
                     self.textPanel?.styleButton.setStyle(change.newValue, animated: true)
+                    self.state?.style = change.newValue
                     self.updateTextViewAttributes()
                 }
                 back = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
-                    let style = change.oldValue ?? ImageEditingTextState.defaultState.style
+                    let style = change.oldValue ?? defaultState.style
                     self.textPanel?.styleButton.setStyle(style, animated: true)
+                    self.state?.style = style
                     self.updateTextViewAttributes()
                 }
+                self.state?.style = change.newValue
             }
-            self.history.add(element: History.ElementGroup(forward: [forward], backward: [back]))
+            if let forward = forward, let back = back {
+                self.history.add(element: History.ElementGroup(forward: [forward], backward: [back]))
+            }
             self.updateTextViewAttributes()
         }
     }

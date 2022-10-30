@@ -123,6 +123,8 @@ final class EditVC: UIViewController {
                 self.addTextView(overlay: overlay)
             case .textEditEnded(let result):
                 insertTextResult(result: result)
+            case .textEditCanceled:
+                self.setTopControlsHidden(isHidden: false)
             case .close:
                 dismiss(animated: true)
             case .switchedToDraw:

@@ -18,6 +18,7 @@ enum EditToolbarAction {
     case openColorPicker(startColor: UIColor)
     case textEditBegan(TextViewEditingOverlay)
     case textEditEnded(TextEditingResult)
+    case textEditCanceled
     case switchedToDraw
     case switchedToText
 }
@@ -42,8 +43,9 @@ final class EditorToolbar: UIView {
     
     func colorChangeOutside(color: UIColor) {
         toolsContainer.selectedTool?.tintColor = color.withAlphaComponent(1)
+        let oldColor = colorPickerControl.selectedColour
         colorPickerControl.selectedColour = color
-        colorPickerControl.onColourChange?(color)
+        colorPickerControl.onColourChange?(.init(oldValue: oldColor, newValue: color), true)
     }
     
     /// this view will be used for displaying tool size on
@@ -136,9 +138,9 @@ final class EditorToolbar: UIView {
         topControlsContainer.addSubview(colorPickerControl)
         colorPickerControl.frame.size = .square(side: 33)
         colorPickerControl.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
-        colorPickerControl.onColourChange = { [weak self] color in
-            self?.actionHandler?(.colorChange(color))
-            self?.toolsContainer.selectedTool?.tintColor = color.withAlphaComponent(1)
+        colorPickerControl.onColourChange = { [weak self] change, _ in
+            self?.actionHandler?(.colorChange(change.newValue))
+            self?.toolsContainer.selectedTool?.tintColor = change.newValue.withAlphaComponent(1)
         }
         colorPickerControl.onPress = { [weak self] butt in
             self?.actionHandler?(.openColorPicker(startColor: butt.selectedColour))
@@ -216,9 +218,9 @@ final class EditorToolbar: UIView {
     }
     
     private func assignColourPickerActionToDrawing() {
-        colorPickerControl.onColourChange = { [weak self] color in
-            self?.actionHandler?(.colorChange(color))
-            self?.toolsContainer.selectedTool?.tintColor = color.withAlphaComponent(1)
+        colorPickerControl.onColourChange = { [weak self] change, _ in
+            self?.actionHandler?(.colorChange(change.newValue))
+            self?.toolsContainer.selectedTool?.tintColor = change.newValue.withAlphaComponent(1)
         }
     }
 
@@ -363,7 +365,6 @@ final class EditorToolbar: UIView {
         })
     }
     
-    private var lastOverlay: TextViewEditingOverlay? // retain to propogate actions when the keyboard is hidden
     private func animateToTextMode(state: ImageEditingTextState? = nil) {
         plusButton.isHidden = true
         topControlsContainer.addSubview(textPanel)
@@ -376,18 +377,11 @@ final class EditorToolbar: UIView {
             panelView: textPanel,
             colourPicker: colorPickerControl,
             panelContainer: topControlsContainer,
-            state: state ?? .init(
-                text: "",
-                font: textPanel.selectedFont,
-                color: .white,
-                style: .regular,
-                alignment: .center
-            ),
+            state: state ?? .defaultState(),
             previousResultId: nil,
             frame: UIScreen.main.bounds,
             history: history
         )
-        lastOverlay = overlay
         overlay.delegate = self
         
         self.actionHandler?(.textEditBegan(overlay))
@@ -433,8 +427,13 @@ final class EditorToolbar: UIView {
                 if let focusedResult = self.focusedResult {
                     // show it back in canvas
                     focusedResult.view.isHidden = false
-                    focusedResult.changeHandler.assignControls(textPanel: self.textPanel, colourPicker: self.colorPickerControl)
+                    focusedResult.changeHandler.assignControls(
+                        textPanel: self.textPanel,
+                        colourPicker: self.colorPickerControl,
+                        state: focusedResult.state
+                    )
                 }
+                self.actionHandler?(.textEditCanceled)
             }
             overlay.removeFromSuperview()
         })
@@ -536,13 +535,14 @@ extension EditorToolbar: TextViewEditingOverlayDelegate {
         newResult.view.center = center
         textEditingResults[focusedResult.id] = nil
     }
+
     private func focus(on textResult: TextEditingResult) {
         if let focused = self.focusedResult, focused != textResult {
             unfocus(from: focused)
         }
         self.focusedResult = textResult
         textResult.view.setDashedBorderHidden(false)
-        textResult.changeHandler.assignControls(textPanel: textPanel, colourPicker: colorPickerControl)
+        textResult.changeHandler.assignControls(textPanel: textPanel, colourPicker: colorPickerControl, state: textResult.state)
     }
     
     private func unfocus(from textResult: TextEditingResult) {

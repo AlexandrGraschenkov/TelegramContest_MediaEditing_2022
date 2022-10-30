@@ -64,7 +64,7 @@ final class TextPanel: UIView {
             let index = styles.firstIndex(of: self.styleButton.textStyle)!
             let nextIndex = (index + 1) % styles.count
             self.styleButton.setStyle(styles[nextIndex], animated: true)
-            self.onAttributeChange?(.style(.init(oldValue: oldValue, newValue: styles[index])))
+            self.onAttributeChange?(.style(.init(oldValue: oldValue, newValue: styles[nextIndex])))
         }
         styleButton.setStyle(.regular, animated: true)
         
