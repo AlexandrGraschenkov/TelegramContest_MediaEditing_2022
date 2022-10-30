@@ -72,7 +72,13 @@ struct ImageEditingTextState: Equatable {
     let style: TextStyle
     let alignment: NSTextAlignment
     
-    static let defaultState = ImageEditingTextState(text: "", font: .systemFont(ofSize: 32), color: .white, style: .regular, alignment: .center)
+    static let defaultState = ImageEditingTextState(
+        text: "",
+        font: .systemFont(ofSize: 32),
+        color: .white,
+        style: .regular,
+        alignment: .center
+    )
 }
 
 final class TextEditingResult: Equatable {

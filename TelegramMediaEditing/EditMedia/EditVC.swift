@@ -21,8 +21,8 @@ final class TextContainer: UIView, Figure {
                 return
             }
             addSubview(content)
-            content.center = CGPoint(x: bounds.width / 2, y: bounds.height / 2)
-//            content.backgroundColor = .red
+            content.frame = bounds
+            content.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         }
     }
     
@@ -129,7 +129,7 @@ final class EditVC: UIViewController {
                 self.tools[self.activeTool]?.active = true
             case .switchedToText:
                 self.tools[self.activeTool]?.active = false
-            case .save, .add, .toolShapeChanged:
+            case .save, .add:
                 // TODO: implement
                 break
             }
