@@ -266,6 +266,7 @@ final class TextViewEditingOverlay: UIView {
             addSubview(btn)
             btn.y = 10 + safeArea.top
             btn.setTitleColor(.white, for: .normal)
+            btn.setTitleColor(.white.withAlphaComponent(0.6), for: .disabled)
         }
         
         cancelButton.addAction { [weak self] in
@@ -286,6 +287,7 @@ final class TextViewEditingOverlay: UIView {
         doneButton.addAction { [weak self] in
             self?.done()
         }
+        doneButton.isEnabled = false
         doneButton.setTitle("Done", for: .normal)
         doneButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
         doneButton.sizeToFit()
@@ -453,6 +455,7 @@ extension TextViewEditingOverlay: UITextViewDelegate {
         } else if panelView.styleButton.textStyle == .outlined {
             self.textView.outline()
         }
+        doneButton.isEnabled = !textView.text.isEmpty
         state.text = textView.text
     }
 }
