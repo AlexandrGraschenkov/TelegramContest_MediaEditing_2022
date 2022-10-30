@@ -126,7 +126,7 @@ final class EditVC: UIViewController {
             case .textEditCanceled:
                 self.setTopControlsHidden(isHidden: false)
             case .close:
-                dismiss(animated: true)
+                self.close()
             case .switchedToDraw:
                 self.tools[self.activeTool]?.active = true
             case .switchedToText:
@@ -238,10 +238,19 @@ final class EditVC: UIViewController {
         return CGRect(origin: tl, size: br.substract(tl).size)
     }
     
-    @objc
     private func close() {
-        dismiss(animated: true)
+        if history.elements.isEmpty {
+            dismiss(animated: true)
+        } else {
+            let alert = UIAlertController(title: "Are you sure?", message: "You will lose all changes", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Close", style: .default, handler: { [weak self] _ in
+                self?.dismiss(animated: true)
+            }))
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            present(alert, animated: true)
+        }
     }
+    
     private func addTextView(overlay: TextViewEditingOverlay) {
         view.addSubview(overlay)
         overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
