@@ -67,7 +67,7 @@ final class EditorToolbar: UIView {
     private var demoToolSizeView: DemoToolSizeView?
     
     private lazy var slider: ToolSlider = {
-        let slider = ToolSlider(frame: CGRect(x: 46.5, y: 0, width: bounds.width - 150, height: bottomControlsContainer.height))
+        let slider = ToolSlider(frame: CGRect(x: 46.5, y: 0, width: bounds.width - 158, height: bottomControlsContainer.height))
         slider.translatesAutoresizingMaskIntoConstraints = true
         slider.autoresizingMask = [.flexibleWidth]
         slider.valuesRange = 2...20
@@ -76,7 +76,7 @@ final class EditorToolbar: UIView {
     }()
     
     private lazy var shapeSelector: ToolShapeSelector = {
-        let selector = ToolShapeSelector(frame: CGRect(x: self.bottomControlsContainer.width - 95, y: 0, width: 95, height: bottomControlsContainer.height))
+        let selector = ToolShapeSelector(frame: CGRect(x: self.bottomControlsContainer.width - 103, y: 0, width: 95, height: bottomControlsContainer.height))
         selector.autoresizingMask = [.flexibleLeftMargin]
         selector.shape = .circle
         return selector
@@ -358,7 +358,7 @@ final class EditorToolbar: UIView {
                 self.modeSwitcher.alpha = 1
                 self.slider.alpha = 0
                 self.shapeSelector.alpha = 0
-                self.saveButton.frame = .init(x: self.bottomControlsContainer.width - 33, y: 0, width: 33, height: 33)
+                self.saveButton.frame = .init(x: self.bottomControlsContainer.width - 44 - 2.5, y: 0, width: 44, height: 44)
             },
             completion: { _ in
                 self.slider.removeFromSuperview()
