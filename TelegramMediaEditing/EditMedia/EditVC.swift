@@ -144,7 +144,7 @@ final class EditVC: UIViewController {
         
         setupZoomOutUI()
         
-        view.addSubview(gesturesOverlay)
+        view.insertSubview(gesturesOverlay, belowSubview: toolbar)
         gesturesOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         gesturesOverlay.delegate = self
     }
