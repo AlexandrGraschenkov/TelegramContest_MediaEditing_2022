@@ -33,7 +33,7 @@ final class EditorToolbar: UIView {
     
     static func createAndAdd(toView view: UIView, history: History) -> EditorToolbar {
         let botInset = UIApplication.shared.tm_keyWindow.safeAreaInsets.bottom
-        let toolbar = EditorToolbar(frame: self.frame(in: view), bottomInset: botInset)
+        let toolbar = EditorToolbar(frame: self.frame(in: view), bottomInset: botInset, history: history)
         toolbar.translatesAutoresizingMaskIntoConstraints = true
         toolbar.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         view.addSubview(toolbar)
@@ -265,13 +265,13 @@ final class EditorToolbar: UIView {
         let blur = UIVisualEffectView(frame: bounds.inset(top: 30))
         blur.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         blur.effect = UIBlurEffect(style: .regular)
-        for sub in blur.subviews {
-            let className = NSStringFromClass(type(of: sub))
-            if className == "_UIVisualEffectSubview" {
-                sub.backgroundColor = UIColor(white: 0, alpha: 0.3)
-            }
-//            print(NSStringFromClass(type(of: sub)))
-        }
+//        for sub in blur.subviews {
+//            let className = NSStringFromClass(type(of: sub))
+//            if className == "_UIVisualEffectSubview" {
+//                sub.backgroundColor = UIColor(white: 0, alpha: 0.3)
+//            }
+////            print(NSStringFromClass(type(of: sub)))
+//        }
         
         let mask = GradientView(frame: blur.frame)
         mask.startPoint = CGPoint(x: 0.5, y: 0)

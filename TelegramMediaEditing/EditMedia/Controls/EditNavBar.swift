@@ -165,13 +165,13 @@ class EditNavBar: UIView {
         let blur = UIVisualEffectView(frame: bounds)
         blur.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         blur.effect = UIBlurEffect(style: .regular)
-        for sub in blur.subviews {
-            let className = NSStringFromClass(type(of: sub))
-            if className == "_UIVisualEffectSubview" {
-                sub.backgroundColor = UIColor(white: 0, alpha: 0.3)
-            }
-//            print(NSStringFromClass(type(of: sub)))
-        }
+//        for sub in blur.subviews {
+//            let className = NSStringFromClass(type(of: sub))
+//            if className == "_UIVisualEffectSubview" {
+//                sub.backgroundColor = UIColor(white: 0, alpha: 0.3)
+//            }
+////            print(NSStringFromClass(type(of: sub)))
+//        }
         
         let mask = GradientView(frame: bounds)
         mask.startPoint = CGPoint(x: 0.5, y: 0)
