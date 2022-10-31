@@ -309,3 +309,45 @@ extension EditVC: GesturesOverlayDelegate {
         history.add(element: .init(forward: [forward], backward: [backwards]))
     }
 }
+
+extension EditVC: ImageDetailAnimatorDelegate {
+    
+    private var viewsToMove: [UIView] { [toolbar, nav].compactMap { $0 } }
+    
+    func transitionWillStartWith(imageDetailAnimator: ImageDetailAnimator) {
+        guard imageDetailAnimator.isPresenting else { return }
+        
+        for view in viewsToMove {
+            view.alpha = 0
+            let frame = view.frameIn(view: imageDetailAnimator.transitionContainer)
+            view.removeFromSuperview()
+            if let bar = view as? EditNavBar, let container = imageDetailAnimator.transitionContainer {
+                bar.insert(to: container)
+            } else {
+                imageDetailAnimator.transitionContainer?.addSubview(view)
+            }
+            view.frame = frame
+        }
+        
+        UIView.animate(withDuration: 0.3, delay: 0, options: [], animations: {
+            self.viewsToMove.forEach { $0.alpha = 1 }
+        }, completion: nil)
+    }
+    
+    func transitionDidEndWith(imageDetailAnimator: ImageDetailAnimator) {
+        toolbar.removeFromSuperview()
+        view.addSubview(toolbar)
+        toolbar.frame = EditorToolbar.frame(in: view)
+        
+        nav.removeFromSuperview()
+        nav.insert(to: view)
+    }
+    
+    func referenceImageView(for imageDetailAnimator: ImageDetailAnimator) -> UIImageView? {
+        mediaContainer as? UIImageView
+    }
+    
+    func referenceImageViewFrameInTransitioningView(for imageDetailAnimator: ImageDetailAnimator) -> CGRect? {
+        mediaContainer.frameIn(view: view)
+    }
+}

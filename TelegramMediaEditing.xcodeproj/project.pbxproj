@@ -18,6 +18,8 @@
 		AA79DEB72903E80400905FEF /* OutlineableTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEB62903E80400905FEF /* OutlineableTextView.swift */; };
 		AA79DEB9290B065C00905FEF /* GesturesOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEB8290B065C00905FEF /* GesturesOverlay.swift */; };
 		AA79DEBB290DD4C100905FEF /* UIApplication+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEBA290DD4C100905FEF /* UIApplication+Ex.swift */; };
+		AA79DEC0290EEF8900905FEF /* ImageDetailAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEBF290EEF8900905FEF /* ImageDetailAnimator.swift */; };
+		AA79DEC6290F06B900905FEF /* ImageDetailTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA79DEC5290F06B900905FEF /* ImageDetailTransition.swift */; };
 		AAA335CC28F6CCE100B86B89 /* GalleryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA335CB28F6CCE100B86B89 /* GalleryViewController.swift */; };
 		AAA335CE28F6CE6F00B86B89 /* ImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA335CD28F6CE6F00B86B89 /* ImageCell.swift */; };
 		AAAB481E28F70891008373CB /* PhotoPermissionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB481D28F70891008373CB /* PhotoPermissionOverlay.swift */; };
@@ -92,6 +94,8 @@
 		AA79DEB62903E80400905FEF /* OutlineableTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutlineableTextView.swift; sourceTree = "<group>"; };
 		AA79DEB8290B065C00905FEF /* GesturesOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesOverlay.swift; sourceTree = "<group>"; };
 		AA79DEBA290DD4C100905FEF /* UIApplication+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+Ex.swift"; sourceTree = "<group>"; };
+		AA79DEBF290EEF8900905FEF /* ImageDetailAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDetailAnimator.swift; sourceTree = "<group>"; };
+		AA79DEC5290F06B900905FEF /* ImageDetailTransition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageDetailTransition.swift; sourceTree = "<group>"; };
 		AAA335CB28F6CCE100B86B89 /* GalleryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryViewController.swift; sourceTree = "<group>"; };
 		AAA335CD28F6CE6F00B86B89 /* ImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCell.swift; sourceTree = "<group>"; };
 		AAAB481D28F70891008373CB /* PhotoPermissionOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPermissionOverlay.swift; sourceTree = "<group>"; };
@@ -181,9 +185,19 @@
 			path = TextEdit;
 			sourceTree = "<group>";
 		};
+		AA79DEBC290EEF4C00905FEF /* Transition */ = {
+			isa = PBXGroup;
+			children = (
+				AA79DEC5290F06B900905FEF /* ImageDetailTransition.swift */,
+				AA79DEBF290EEF8900905FEF /* ImageDetailAnimator.swift */,
+			);
+			path = Transition;
+			sourceTree = "<group>";
+		};
 		AAA335CA28F6CCC100B86B89 /* Gallery */ = {
 			isa = PBXGroup;
 			children = (
+				AA79DEBC290EEF4C00905FEF /* Transition */,
 				AAAB481D28F70891008373CB /* PhotoPermissionOverlay.swift */,
 				AAA335CB28F6CCE100B86B89 /* GalleryViewController.swift */,
 				AAA335CD28F6CE6F00B86B89 /* ImageCell.swift */,
@@ -452,6 +466,7 @@
 				AAAB483128F9C876008373CB /* ToolsContainer.swift in Sources */,
 				AAAB483328FAD13A008373CB /* CorneredSegmentedControl.swift in Sources */,
 				AAAB483B28FB6022008373CB /* ToolSlider.swift in Sources */,
+				AA79DEC6290F06B900905FEF /* ImageDetailTransition.swift in Sources */,
 				FADCE2232909568F00E92CD9 /* EditNavBar.swift in Sources */,
 				FADCE21F290921F800E92CD9 /* History.swift in Sources */,
 				FA046F0328F55987002D5023 /* UIColor+Ex.swift in Sources */,
@@ -469,6 +484,7 @@
 				AA79DEA429000CB000905FEF /* TextViewEditingOverlay.swift in Sources */,
 				AAAB482E28F9A99D008373CB /* ToolView.swift in Sources */,
 				AAAB481E28F70891008373CB /* PhotoPermissionOverlay.swift in Sources */,
+				AA79DEC0290EEF8900905FEF /* ImageDetailAnimator.swift in Sources */,
 				FADCE20B2903DFBB00E92CD9 /* ColorSpectrumView.swift in Sources */,
 				FADCE21C2907FDAA00E92CD9 /* ColorContentPicker.swift in Sources */,
 				AAAB484128FC4E54008373CB /* ToolShapeSelector.swift in Sources */,

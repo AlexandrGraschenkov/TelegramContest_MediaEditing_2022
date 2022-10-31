@@ -33,12 +33,17 @@ final class EditorToolbar: UIView {
     
     static func createAndAdd(toView view: UIView, history: History) -> EditorToolbar {
         let botInset = UIApplication.shared.tm_keyWindow.safeAreaInsets.bottom
-        let height = botInset + 162
-        let toolbar = EditorToolbar(frame: CGRect(x: 0, y: view.bounds.height - height, width: view.bounds.width, height: height), bottomInset: botInset, history: history)
+        let toolbar = EditorToolbar(frame: self.frame(in: view), bottomInset: botInset)
         toolbar.translatesAutoresizingMaskIntoConstraints = true
         toolbar.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         view.addSubview(toolbar)
         return toolbar
+    }
+    
+    static func frame(in view: UIView) -> CGRect {
+        let botInset = UIApplication.shared.tm_keyWindow.safeAreaInsets.bottom
+        let height = botInset + 162
+        return CGRect(x: 0, y: view.bounds.height - height, width: view.bounds.width, height: height)
     }
     
     func colorChangeOutside(color: UIColor) {
