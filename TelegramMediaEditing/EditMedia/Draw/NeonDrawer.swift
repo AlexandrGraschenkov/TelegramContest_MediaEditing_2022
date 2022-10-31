@@ -11,6 +11,7 @@ class NeonDrawer: ToolDrawer {
     override var toolType: ToolType { .neon }
     
     fileprivate var parentLayer: CALayer?
+    fileprivate var suggestLayer: CAShapeLayer?
     
     override func updateDrawLayer() {
         if !splitOpt.isPrepared {

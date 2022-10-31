@@ -8,7 +8,9 @@
 import UIKit
 
 class PenDrawer: ToolDrawer {
+    
     fileprivate var parentLayer: CAShapeLayer?
+    fileprivate var suggestLayer: CAShapeLayer?
     override var toolShape: ToolShape {
         didSet {
             if oldValue == toolShape { return }
@@ -57,20 +59,27 @@ class PenDrawer: ToolDrawer {
     }
     
     override func finishDraw(canceled: Bool) {
+        
         if canceled {
             parentLayer?.removeFromSuperlayer()
+            suggestLayer?.removeFromSuperlayer()
         } else {
             let suffCount = drawPath.count - splitOpt.frozenCount
             // generate last layer without plume
-            splitOpt.finish(updateLayer: false, points: drawPath)
+            if suggestLayer == nil {
+                splitOpt.finish(updateLayer: false, points: drawPath)
+            } else {
+                splitOpt.finish()
+            }
             addToHistory()
             
             // run pretty animation with plume shrinks
-            if toolShape == .circle {
+            if toolShape == .circle && suggestLayer == nil {
                 curveGen.finishPlumAnimation(points: drawPath.suffix(suffCount), onLayer: splitOpt.shapeArr.last!, duration: 0.24)
             }
         }
         parentLayer = nil
+        suggestLayer = nil
 //        currentDrawDebugLayer = nil
     }
     
@@ -84,14 +93,28 @@ class PenDrawer: ToolDrawer {
 
         // WARNING: For optimization purpose we have layer with multiple sublayers; Possible some bugs in future;
         let name = layers.generateUniqueName(prefix: toolType.rawValue)
-        history.layerContainer?.layers[name] = parentLayer
-        let bezier = UIBezierPath()
-        for b in splitOpt.bezierArr {
-            bezier.append(b)
+        if let suggestLayer = suggestLayer {
+            history.layerContainer?.layers[name] = suggestLayer
+            let forward = History.Element(objectId: name, action: .add(classType: CAShapeLayer.self), updateKeys: [
+                "path": suggestLayer.path as Any,
+                "fillColor": UIColor.clear.cgColor,
+                "strokeColor": suggestLayer.strokeColor as Any,
+                "lineJoin": suggestLayer.lineJoin,
+                "lineCap": suggestLayer.lineCap,
+                "lineWidth": suggestLayer.lineWidth
+            ])
+            let backward = History.Element(objectId: name, action: .remove)
+            history.add(element: .init(forward: [forward], backward: [backward]))
+        } else {
+            history.layerContainer?.layers[name] = parentLayer
+            let bezier = UIBezierPath()
+            for b in splitOpt.bezierArr {
+                bezier.append(b)
+            }
+            let forward = History.Element(objectId: name, action: .add(classType: CAShapeLayer.self), updateKeys: ["path": bezier.cgPath, "fillColor": color.cgColor])
+            let backward = History.Element(objectId: name, action: .remove)
+            history.add(element: .init(forward: [forward], backward: [backward]))
         }
-        let forward = History.Element(objectId: name, action: .add(classType: CAShapeLayer.self), updateKeys: ["path": bezier.cgPath, "fillColor": color.cgColor])
-        let backward = History.Element(objectId: name, action: .remove)
-        history.add(element: .init(forward: [forward], backward: [backward]))
     }
     
     override func makeArrowOnEnd(points: inout [PanPoint]) {
@@ -122,6 +145,32 @@ class PenDrawer: ToolDrawer {
         points.append(PanPoint(point: pCenter, time: time, speed: averageSpeed))
         points.append(PanPoint(point: p2, time: time, speed: averageSpeed))
         points.append(PanPoint(point: pCenter2, time: time, speed: averageSpeed))
+    }
+    
+    override func onShapeSuggested(path: UIBezierPath?) {
+        if path == nil && suggestLayer == nil { return }
+        if suggestLayer == nil {
+            suggestLayer = CAShapeLayer()
+            suggestLayer!.opacity = 0
+            suggestLayer!.lineWidth = contentScale * toolSize * 1.5
+            suggestLayer?.strokeColor = color.cgColor
+            suggestLayer?.fillColor = nil
+            suggestLayer?.lineCap = .round
+            suggestLayer?.lineJoin = .round
+            content?.layer.addSublayer(suggestLayer!)
+
+            suggestLayer?.opacity = 1
+            parentLayer?.opacity = 0
+        }
+        if let path = path {
+            suggestLayer?.path = path.cgPath
+        } else if let layer = suggestLayer {
+            suggestLayer = nil
+            
+            layer.opacity = 0
+            parentLayer?.opacity = Float(color.components.a)
+            delay(0.3) { layer.removeFromSuperlayer() }
+        }
     }
 }
 

@@ -14,6 +14,12 @@ class ToolDrawer: NSObject {
             pan?.isEnabled = active
         }
     }
+    open var enableSuggestion: Bool {
+        switch toolShape {
+        case .circle, .eraserBlur, .eraserNormal: return true
+        default: return false
+        }
+    }
     var toolType: ToolType { .pen }
     var toolShape: ToolShape = .circle
     var color: UIColor = .white
@@ -35,6 +41,9 @@ class ToolDrawer: NSObject {
         
         self.content = content
         self.history = history
+        shapeSuggestion.onShape = { [weak self] path in
+            self?.onShapeSuggested(path: path)
+        }
     }
     
 //    var debugBegunFlag = false
@@ -71,9 +80,15 @@ class ToolDrawer: NSObject {
             
             updateDrawLayer()
             finishDraw(canceled: false)
-        default:
+        case .failed, .cancelled:
             smooth.end()
             finishDraw(canceled: true)
+        default:
+            break
+        }
+        
+        if enableSuggestion {
+            shapeSuggestion.onPanClassify(pan, drawPath: drawPath)
         }
     }
     
@@ -90,6 +105,8 @@ class ToolDrawer: NSObject {
     }()
     let splitOpt = ToolDrawSplitOptimizer()
     fileprivate var parentLayer: CAShapeLayer?
+    let shapeSuggestion = ToolShapeSuggestion()
+    
     
     open func updateDrawLayer() {
         // draw path was updated
@@ -129,5 +146,9 @@ class ToolDrawer: NSObject {
         points.append(PanPoint(point: p1, time: time, speed: averageSpeed, bezierSmooth: false))
         points.append(PanPoint(point: pCenter, time: time, speed: averageSpeed, bezierSmooth: false))
         points.append(PanPoint(point: p2, time: time, speed: averageSpeed, bezierSmooth: false))
+    }
+    
+    open func onShapeSuggested(path: UIBezierPath?) {
+//        assert(false, "Override method")
     }
 }

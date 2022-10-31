@@ -94,7 +94,7 @@ class PanSmoothIK: NSObject {
 //            }
 //        }
         // larger speed => larger offset dist
-        var maxPanOffset = log(speed/2/scale+1) * 3 * scale // just gogle it to understand formula of log
+        var maxPanOffset = log(speed/2/scale+1) * 3 * scale + 2 // just gogle it to understand formula of log
 //        print(speed, maxPanOffset, log(speed/2/scale+1) * 2)
         
         // чем меньше кисточка, тем точней необходимо рисовать
@@ -111,6 +111,9 @@ class PanSmoothIK: NSObject {
         let newPoint = point.point.add(offset)
         if newPoint.distance(p: smoothPoints.last!.point) < scale*2 {
             return
+        }
+        if newPoint.x.isNaN {
+            print("wtf")
         }
         smoothPoints.append(PanPoint(point: newPoint, time: point.time, speed: speed))
     }

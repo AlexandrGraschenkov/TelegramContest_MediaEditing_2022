@@ -50,6 +50,12 @@
 		FA4BF3D628F6A80100592051 /* UIImage+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */; };
 		FA4BF3D828F6AAC700592051 /* ZoomScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */; };
 		FA4BF3DB28F6B42400592051 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = FA4BF3DA28F6B42400592051 /* Lottie */; };
+		FA8DDBD6290FC6240065E9DC /* ConvexHull.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8DDBD2290FC6240065E9DC /* ConvexHull.swift */; };
+		FA8DDBD7290FC6240065E9DC /* ShapeClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8DDBD3290FC6240065E9DC /* ShapeClassifier.swift */; };
+		FA8DDBD8290FC6240065E9DC /* Moments.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8DDBD4290FC6240065E9DC /* Moments.swift */; };
+		FA8DDBD9290FC6240065E9DC /* ShapeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8DDBD5290FC6240065E9DC /* ShapeGenerator.swift */; };
+		FA8DDBDB290FC6350065E9DC /* DrawnImageClassifier_8.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = FA8DDBDA290FC6350065E9DC /* DrawnImageClassifier_8.mlmodel */; };
+		FA8DDBDD290FD0990065E9DC /* ToolShapeSuggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8DDBDC290FD0990065E9DC /* ToolShapeSuggestion.swift */; };
 		FACBB876290A72D3005B6941 /* ToolDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB875290A72D3005B6941 /* ToolDrawer.swift */; };
 		FACBB87A290A791A005B6941 /* MarkerDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB879290A791A005B6941 /* MarkerDrawer.swift */; };
 		FACBB87C290AAE52005B6941 /* Bezier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB87B290AAE52005B6941 /* Bezier.swift */; };
@@ -127,6 +133,12 @@
 		FA4BF3D328F6A4E800592051 /* EditVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditVC.swift; sourceTree = "<group>"; };
 		FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ex.swift"; sourceTree = "<group>"; };
 		FA4BF3D728F6AAC700592051 /* ZoomScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomScrollView.swift; sourceTree = "<group>"; };
+		FA8DDBD2290FC6240065E9DC /* ConvexHull.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConvexHull.swift; sourceTree = "<group>"; };
+		FA8DDBD3290FC6240065E9DC /* ShapeClassifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShapeClassifier.swift; sourceTree = "<group>"; };
+		FA8DDBD4290FC6240065E9DC /* Moments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Moments.swift; sourceTree = "<group>"; };
+		FA8DDBD5290FC6240065E9DC /* ShapeGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShapeGenerator.swift; sourceTree = "<group>"; };
+		FA8DDBDA290FC6350065E9DC /* DrawnImageClassifier_8.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = DrawnImageClassifier_8.mlmodel; sourceTree = "<group>"; };
+		FA8DDBDC290FD0990065E9DC /* ToolShapeSuggestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolShapeSuggestion.swift; sourceTree = "<group>"; };
 		FACBB875290A72D3005B6941 /* ToolDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDrawer.swift; sourceTree = "<group>"; };
 		FACBB879290A791A005B6941 /* MarkerDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerDrawer.swift; sourceTree = "<group>"; };
 		FACBB87B290AAE52005B6941 /* Bezier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bezier.swift; sourceTree = "<group>"; };
@@ -252,6 +264,7 @@
 				FA4BF3D228F6A41E00592051 /* EditMedia */,
 				AAA335CA28F6CCC100B86B89 /* Gallery */,
 				FA046EFB28F5586F002D5023 /* Utils */,
+				FA8DDBD1290FC5F80065E9DC /* ShapeClassifier */,
 				FA046EED28F54B25002D5023 /* Assets.xcassets */,
 				FA046EEF28F54B25002D5023 /* LaunchScreen.storyboard */,
 				FA046EF228F54B25002D5023 /* Info.plist */,
@@ -293,6 +306,18 @@
 			path = EditMedia;
 			sourceTree = "<group>";
 		};
+		FA8DDBD1290FC5F80065E9DC /* ShapeClassifier */ = {
+			isa = PBXGroup;
+			children = (
+				FA8DDBDA290FC6350065E9DC /* DrawnImageClassifier_8.mlmodel */,
+				FA8DDBD2290FC6240065E9DC /* ConvexHull.swift */,
+				FA8DDBD4290FC6240065E9DC /* Moments.swift */,
+				FA8DDBD3290FC6240065E9DC /* ShapeClassifier.swift */,
+				FA8DDBD5290FC6240065E9DC /* ShapeGenerator.swift */,
+			);
+			path = ShapeClassifier;
+			sourceTree = "<group>";
+		};
 		FACBB877290A72D8005B6941 /* Draw */ = {
 			isa = PBXGroup;
 			children = (
@@ -310,6 +335,7 @@
 			isa = PBXGroup;
 			children = (
 				FACBB875290A72D3005B6941 /* ToolDrawer.swift */,
+				FA8DDBDC290FD0990065E9DC /* ToolShapeSuggestion.swift */,
 				FAEDF41A28F9F49200094ADF /* ToolCurveGenerator.swift */,
 				FAEDF42228FB3D7900094ADF /* GaussianSmooth.swift */,
 				FAEDF42428FC082F00094ADF /* PanSmoothIK.swift */,
@@ -445,13 +471,16 @@
 				FA39D93A28F7FE1900CBA7A4 /* PHImageManager+Ex.swift in Sources */,
 				FA046F0528F56996002D5023 /* PHPhotoLibrary+Ex.swift in Sources */,
 				AAAB483528FAD161008373CB /* ColourPickerCirlce.swift in Sources */,
+				FA8DDBD7290FC6240065E9DC /* ShapeClassifier.swift in Sources */,
 				FACBB880290BD0EC005B6941 /* PencilDrawer.swift in Sources */,
 				AA79DEB72903E80400905FEF /* OutlineableTextView.swift in Sources */,
 				FA4BF3D628F6A80100592051 /* UIImage+Ex.swift in Sources */,
 				FAEDF41828F9B7BF00094ADF /* PenDrawer.swift in Sources */,
 				FADCE20D290430FF00E92CD9 /* ColorSlidersView.swift in Sources */,
 				AAAB482328F96A8F008373CB /* EditToolbar.swift in Sources */,
+				FA8DDBD8290FC6240065E9DC /* Moments.swift in Sources */,
 				FADCE211290540F300E92CD9 /* ValueLabel.swift in Sources */,
+				FA8DDBDB290FC6350065E9DC /* DrawnImageClassifier_8.mlmodel in Sources */,
 				FACBB876290A72D3005B6941 /* ToolDrawer.swift in Sources */,
 				AA79DEB9290B065C00905FEF /* GesturesOverlay.swift in Sources */,
 				AAAB484328FC58FC008373CB /* PopupMenu.swift in Sources */,
@@ -461,6 +490,7 @@
 				FAEDF42328FB3D7900094ADF /* GaussianSmooth.swift in Sources */,
 				FA046F0128F55953002D5023 /* Extensions.swift in Sources */,
 				FACBB87C290AAE52005B6941 /* Bezier.swift in Sources */,
+				FA8DDBDD290FD0990065E9DC /* ToolShapeSuggestion.swift in Sources */,
 				FADCE2192906AFE400E92CD9 /* FavoriteColorsView.swift in Sources */,
 				FACBB87E290BBCD3005B6941 /* NeonDrawer.swift in Sources */,
 				AAAB483128F9C876008373CB /* ToolsContainer.swift in Sources */,
@@ -486,6 +516,7 @@
 				AAAB481E28F70891008373CB /* PhotoPermissionOverlay.swift in Sources */,
 				AA79DEC0290EEF8900905FEF /* ImageDetailAnimator.swift in Sources */,
 				FADCE20B2903DFBB00E92CD9 /* ColorSpectrumView.swift in Sources */,
+				FA8DDBD9290FC6240065E9DC /* ShapeGenerator.swift in Sources */,
 				FADCE21C2907FDAA00E92CD9 /* ColorContentPicker.swift in Sources */,
 				AAAB484128FC4E54008373CB /* ToolShapeSelector.swift in Sources */,
 				FA046EFF28F558DF002D5023 /* UIView+Ex.swift in Sources */,
@@ -493,6 +524,7 @@
 				FA046F0728F569BE002D5023 /* GlobalFunctions.swift in Sources */,
 				FACBB8AA290D7733005B6941 /* DemoToolSizeView.swift in Sources */,
 				FACE5BDE2902E75E00960A48 /* ColorGridView.swift in Sources */,
+				FA8DDBD6290FC6240065E9DC /* ConvexHull.swift in Sources */,
 				FACBB884290C0DE6005B6941 /* EraserDrawer.swift in Sources */,
 				FACE5BD7290151DE00960A48 /* ToolDrawSplitOptimizer.swift in Sources */,
 				AA79DEB1290343E200905FEF /* RectsUnion.swift in Sources */,
@@ -639,7 +671,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = L3NMRMB3TX;
+				DEVELOPMENT_TEAM = RE82W8HD52;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TelegramMediaEditing/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "For photo editing";
@@ -668,7 +700,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = L3NMRMB3TX;
+				DEVELOPMENT_TEAM = RE82W8HD52;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TelegramMediaEditing/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "For photo editing";

@@ -18,6 +18,8 @@ class MarkerDrawer: ToolDrawer {
     override var toolType: ToolType { .marker }
     
     fileprivate var parentLayer: CAReplicatorLayer?
+    fileprivate var suggestLayer: CAShapeLayer?
+    fileprivate var suggestReplicatorLayer: CAReplicatorLayer?
     fileprivate var bendStrokeLayer: CAShapeLayer?
     fileprivate var bendStrokePath: UIBezierPath?
     fileprivate var bendTranslate: CGPoint = .zero
@@ -94,6 +96,8 @@ class MarkerDrawer: ToolDrawer {
             addToHistory()
         }
         parentLayer = nil
+        suggestLayer = nil
+        suggestReplicatorLayer = nil
 //        currentDrawDebugLayer = nil
     }
     
@@ -107,11 +111,21 @@ class MarkerDrawer: ToolDrawer {
 
         // WARNING: For optimization purpose we have layer with multiple sublayers; Possible some bugs in future;
         let name = layers.generateUniqueName(prefix: toolType.rawValue)
-        history.layerContainer?.layers[name] = parentLayer
-        let bezier = UIBezierPath()
-        for b in splitOpt.bezierArr {
-            bezier.append(b)
+        let cgPath: CGPath
+        if let suggestRep = suggestReplicatorLayer {
+            history.layerContainer?.layers[name] = suggestRep
+            cgPath = suggestLayer!.path!
+            parentLayer.removeFromSuperlayer()
+        } else {
+            history.layerContainer?.layers[name] = parentLayer
+            let bezier = UIBezierPath()
+            for b in splitOpt.bezierArr {
+                bezier.append(b)
+            }
+            cgPath = bezier.cgPath
+            suggestReplicatorLayer?.removeFromSuperlayer()
         }
+        
         var shapeDict: [String: Any] = [:]
         if let l = parentLayer.sublayers?.first as? CAShapeLayer {
             shapeDict["lineWidth"] = l.lineWidth
@@ -127,7 +141,7 @@ class MarkerDrawer: ToolDrawer {
             }
             
             let shape = CAShapeLayer()
-            shape.path = bezier.cgPath
+            shape.path = cgPath
             shape.fillColor = nil
             for (k, v) in shapeDict {
                 shape.setValue(v, forKeyPath: k)
@@ -148,4 +162,46 @@ class MarkerDrawer: ToolDrawer {
 //            bendStrokeLayer?.path = bendStrokePath?.cgPath
 //        }
 //    }
+    
+    override func onShapeSuggested(path: UIBezierPath?) {
+        if path == nil && suggestLayer == nil { return }
+        guard let parentLayer = parentLayer else { return }
+        if suggestLayer == nil {
+            let origShape = parentLayer.sublayers?.first as? CAShapeLayer
+            suggestLayer = CAShapeLayer()
+            suggestLayer!.opacity = 0
+            suggestLayer!.lineWidth = origShape!.lineWidth
+            suggestLayer?.strokeColor = color.cgColor
+            suggestLayer?.transform = origShape!.transform
+            suggestLayer?.fillColor = nil
+            suggestLayer?.lineCap = .round
+            suggestLayer?.lineJoin = .round
+            
+            let rep = CAReplicatorLayer()
+            rep.instanceTransform = parentLayer.instanceTransform
+            rep.instanceCount = parentLayer.instanceCount
+            rep.addSublayer(suggestLayer!)
+            parentLayer.superlayer?.addSublayer(rep)
+            suggestReplicatorLayer = rep
+            
+            DispatchQueue.main.async {
+                self.suggestLayer!.opacity = 1
+                self.parentLayer?.opacity = 0
+            }
+        }
+        if let path = path {
+            suggestLayer?.path = path.cgPath
+        } else if let layer = suggestLayer {
+            suggestLayer = nil
+            suggestReplicatorLayer = nil
+            let rep = suggestReplicatorLayer
+            
+            layer.opacity = 0
+            parentLayer.opacity = Float(color.components.a)
+            delay(0.3) {
+                layer.removeFromSuperlayer();
+                rep?.removeFromSuperlayer()
+            }
+        }
+    }
 }
