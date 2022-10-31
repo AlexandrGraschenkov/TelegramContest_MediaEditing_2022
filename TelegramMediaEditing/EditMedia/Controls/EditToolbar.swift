@@ -540,6 +540,11 @@ extension EditorToolbar: TextViewEditingOverlayDelegate {
         textEditingResults[focusedResult.id] = nil
     }
 
+    func focus(on textView: TextEditingResultView) {
+        guard let id = textView.resultId, let result = textEditingResults[id] else { return }
+        focus(on: result)
+    }
+
     private func focus(on textResult: TextEditingResult) {
         if let focused = self.focusedResult, focused != textResult {
             unfocus(from: focused)
