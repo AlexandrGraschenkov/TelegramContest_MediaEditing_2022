@@ -178,7 +178,7 @@ final class ToolShapeSelector: UIButton {
 }
 
 
-private final class MenuOverlayView: UIView {
+final class MenuOverlayView: UIView {
     var onInteraction: VoidBlock?
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
         for subview in subviews {
