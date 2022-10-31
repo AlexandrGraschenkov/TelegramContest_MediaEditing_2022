@@ -168,14 +168,33 @@ class ToolDrawer: NSObject {
     }
     
     func generateForwardAddHistory(layer: CALayer, objectId: String, overrideKeys: [String: Any?]? = nil) -> History.Element {
-        var layerClass: AnyClass = CALayer.self
-        if layer is CAReplicatorLayer {
-            layerClass = CAReplicatorLayer.self
-        } else if layer is CAShapeLayer {
-            layerClass = CAShapeLayer.self
-        }
+        let layerClass: AnyClass = layer.classForCoder
         let keys = layer.getKeys(override: overrideKeys)
-        let elem = History.Element(objectId: objectId, action: .add(classType: layerClass), updateKeys: keys)
+        var elem = History.Element(objectId: objectId, action: .add(classType: layerClass), updateKeys: keys)
+        
+        if layer.mask != nil || layer.sublayers?.count ?? 0 > 0 {
+            let maskClass: AnyClass? = layer.mask?.classForCoder
+            let maskKeys: [String: Any?]? = layer.mask?.getKeys()
+            let subClass: AnyClass? = layer.sublayers?.first?.classForCoder
+            let subKeys: [String: Any?]? = layer.sublayers?.first?.getKeys()
+            
+            elem.closure = { (elem, container, parent) in
+                guard let parent = parent as? CALayer else {
+                    return
+                }
+                
+                if let maskClass = maskClass as? CALayer.Type, let keys = maskKeys {
+                    parent.mask = maskClass.init()
+                    parent.mask?.apply(keys: keys)
+                }
+                if let subClass = subClass as? CALayer.Type, let keys = subKeys {
+                    let sub = subClass.init()
+                    sub.apply(keys: keys)
+                    parent.addSublayer(sub)
+                }
+            }
+        }
+        
         return elem
     }
 }
