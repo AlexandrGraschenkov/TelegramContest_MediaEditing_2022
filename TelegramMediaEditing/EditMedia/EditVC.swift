@@ -190,7 +190,9 @@ final class EditVC: UIViewController {
             case .save:
                 self.saveResults()
             case .addShape:
-                // TODO: implement
+                let alert = UIAlertController(title: "Work in progress", message: "Sorry, not implemented yet, here is cookie while you wait 🍪", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "Take the cookie", style: .default, handler: nil))
+                present(alert, animated: true)
                 break
             }
         }
@@ -567,7 +569,9 @@ extension EditVC: FigureContextMenuActionDelegate {
                 return text.content?.resultId == sender.content?.resultId
             })
         case .duplicate:
-            // TODO: implement
+            let alert = UIAlertController(title: "Work in progress", message: "Sorry, not implemented yet, here is cookie while you wait 🍪", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Take the cookie", style: .default, handler: nil))
+            present(alert, animated: true)
             break
         }
     }
