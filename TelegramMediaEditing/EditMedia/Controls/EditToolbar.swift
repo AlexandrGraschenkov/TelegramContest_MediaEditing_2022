@@ -57,7 +57,7 @@ final class EditorToolbar: UIView {
     weak var toolSizeDemoContainer: UIView?
     var actionHandler: ((EditToolbarAction) -> Void)?
     private var cancelButton = BackOrCancelButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
-    private var saveButton = UIButton()
+    private(set) var saveButton = UIButton()
     private var plusButton = UIButton()
     private let topControlsContainer = PassthroughView()
     private let bottomControlsContainer = PassthroughView()
@@ -162,6 +162,7 @@ final class EditorToolbar: UIView {
     
     private func setupButtons() {
         let btns = [cancelButton, saveButton, plusButton]
+        saveButton.isEnabled = false
         let actions: [EditToolbarAction] = [.close, .save, .add]
         let images = ["cancel_empty", "edit_save", "edit_plus"]
         

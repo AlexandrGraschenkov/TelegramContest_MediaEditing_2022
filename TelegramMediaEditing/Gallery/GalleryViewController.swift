@@ -23,13 +23,15 @@ final class GalleryViewController: UIViewController {
     private var transitionController: ImageDetailTransitionController?
 
     
-    private lazy var allPhotos: PHFetchResult<PHAsset> = {
+    private static func generateResults() -> PHFetchResult<PHAsset> {
         let fetchOptions = PHFetchOptions()
         fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate",ascending: false)]
         fetchOptions.predicate = NSPredicate(format: "mediaType = %d || mediaType = %d", PHAssetMediaType.image.rawValue, PHAssetMediaType.video.rawValue)
         
         return PHAsset.fetchAssets(with: fetchOptions)
-    }()
+    }
+    
+    private lazy var allPhotos: PHFetchResult<PHAsset> = Self.generateResults()
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -43,8 +45,7 @@ final class GalleryViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .black
         if PHPhotoLibrary.authorizationStatus() == .authorized {
-            setupCollection()
-            collection.reloadData()
+            showPhotos()
         } else {
             insertOverlayIfNeeded()
         }
@@ -108,13 +109,18 @@ final class GalleryViewController: UIViewController {
             overlay?.dismiss {
                 overlay?.removeFromSuperview()
             }
-            self?.setupCollection()
-            self?.collection?.reloadData()
+            self?.showPhotos()
         }
         overlay.onNavigationIntent = { [weak self] viewController in
             self?.present(viewController, animated: true)
         }
         self.overlay = overlay
+    }
+    
+    private func showPhotos() {
+        PHPhotoLibrary.shared().register(self)
+        setupCollection()
+        collection?.reloadData()
     }
 }
 
@@ -208,6 +214,15 @@ extension GalleryViewController: UICollectionViewDelegate, UICollectionViewDataS
     func getFrameFromCollectionViewCell(for indexPath: IndexPath) -> CGRect {
         let defaultFrame = CGRect(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY, width: 100.0, height: 100.0)
         return getCell(for: indexPath)?.frame ?? defaultFrame
+    }
+}
+
+extension GalleryViewController: PHPhotoLibraryChangeObserver {
+    func photoLibraryDidChange(_ changeInstance: PHChange) {
+        allPhotos = Self.generateResults()
+        DispatchQueue.main.async {
+            self.collection.reloadData()
+        }
     }
 }
 
