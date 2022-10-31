@@ -14,6 +14,7 @@ final class OutlineableTextView: UITextView {
         didSet {
             for layer in outlinedChars {
                 layer.strokeColor = outlineColor.cgColor
+                layer.shadowColor = outlineColor.cgColor
             }
         }
     }
@@ -41,17 +42,33 @@ final class OutlineableTextView: UITextView {
             self.layer.insertSublayer(layer, at: 0)
             layer.path = letterPath
             layer.strokeColor = outlineColor.cgColor
-            layer.lineWidth = 4
-            layer.shadowRadius = 2
+            layer.lineWidth = (font?.pointSize ?? 32) / 8
+            layer.shadowRadius = layer.lineWidth / 2
             layer.shadowColor = outlineColor.cgColor
             layer.shadowOffset = .zero
             layer.shadowOpacity = 1
 
-//            let shift = (glyphRect.height - glyphPath.boundingBox.height) / 2
-            
-            let shift = font!.pointSize * 0.219 // TODO: figure out why it's shifted and come up with universal solution for all fonts
+            let shift = font!.glyphShift // TODO: figure out why it's shifted and come up with universal solution for all fonts
             layer.frame = CGRect(x: glyphRect.minX + textContainerInset.left, y: glyphRect.minY + textContainerInset.top - shift, width: glyphRect.width, height: glyphRect.height)
             outlinedChars.append(layer)
+        }
+    }
+}
+
+
+private extension UIFont {
+    var glyphShift: CGFloat {
+        switch familyName {
+        case "Helvetica", "Menlo":
+            return pointSize * 0.219
+        case "Snell Roundhand":
+            return pointSize * 0.32
+        case "Noteworthy":
+            return pointSize * 0.219
+        case "Courier New":
+            return pointSize * 0.3
+        default:
+            return pointSize * 0.219
         }
     }
 }

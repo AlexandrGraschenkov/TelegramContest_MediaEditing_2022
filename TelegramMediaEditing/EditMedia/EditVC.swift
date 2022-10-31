@@ -21,8 +21,8 @@ final class TextContainer: UIView, Figure {
                 return
             }
             addSubview(content)
-            content.center = CGPoint(x: bounds.width / 2, y: bounds.height / 2)
-//            content.backgroundColor = .red
+            content.frame = bounds
+            content.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         }
     }
     
@@ -98,7 +98,7 @@ final class EditVC: UIViewController {
         view.addSubview(scroll)
         scroll.setup(content: mediaContainer)
         
-        toolbar = EditorToolbar.createAndAdd(toView: view)
+        toolbar = EditorToolbar.createAndAdd(toView: view, history: history)
         toolbar.toolSizeDemoContainer = view
         toolbar.actionHandler = { [unowned self] action in
             switch action {
@@ -123,13 +123,15 @@ final class EditVC: UIViewController {
                 self.addTextView(overlay: overlay)
             case .textEditEnded(let result):
                 insertTextResult(result: result)
+            case .textEditCanceled:
+                self.setTopControlsHidden(isHidden: false)
             case .close:
-                dismiss(animated: true)
+                self.close()
             case .switchedToDraw:
                 self.tools[self.activeTool]?.active = true
             case .switchedToText:
                 self.tools[self.activeTool]?.active = false
-            case .save, .add, .toolShapeChanged:
+            case .save, .add:
                 // TODO: implement
                 break
             }
@@ -142,7 +144,7 @@ final class EditVC: UIViewController {
         
         setupZoomOutUI()
         
-        view.addSubview(gesturesOverlay)
+        view.insertSubview(gesturesOverlay, belowSubview: toolbar)
         gesturesOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         gesturesOverlay.delegate = self
     }
@@ -167,7 +169,7 @@ final class EditVC: UIViewController {
 
     private func insertTextResult(result: TextEditingResult) {
         var frame = mediaContainer.convert(result.editingFrameInWindow, from: view.window)
-        if let center = result.view.movedCenterInCanvas {
+        if let center = result.view.moveState?.center {
             frame.origin.x = center.x - frame.width / 2
             frame.origin.y = center.y - frame.height / 2
         }
@@ -182,6 +184,9 @@ final class EditVC: UIViewController {
         let transform = view.transform.scaledBy(x: 1 / scroll.zoomScale, y: 1 / scroll.zoomScale)
         result.view.transform = transform
         view.content = result.view
+        if let transform = result.view.moveState?.transform {
+            view.transform = transform
+        }
         
         let add = History.Element(
             objectId: id,
@@ -233,10 +238,19 @@ final class EditVC: UIViewController {
         return CGRect(origin: tl, size: br.substract(tl).size)
     }
     
-    @objc
     private func close() {
-        dismiss(animated: true)
+        if history.elements.isEmpty {
+            dismiss(animated: true)
+        } else {
+            let alert = UIAlertController(title: "Are you sure?", message: "You will lose all changes", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Close", style: .default, handler: { [weak self] _ in
+                self?.dismiss(animated: true)
+            }))
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            present(alert, animated: true)
+        }
     }
+    
     private func addTextView(overlay: TextViewEditingOverlay) {
         view.addSubview(overlay)
         overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -283,8 +297,8 @@ private extension ToolDrawer {
 }
 
 extension EditVC: GesturesOverlayDelegate {
-    func gestureOverlay(_ gesturesOverlay: GesturesOverlay, didTapOnOverlay: FigureView) {
-        guard let textView = view as? TextEditingResultView else { return }
+    func gestureOverlay(_ gesturesOverlay: GesturesOverlay, didTapOnOverlay overlay: FigureView) {
+        guard let textContainer = overlay as? TextContainer, let textView = textContainer.content else { return }
         toolbar?.handleTap(on: textView)
     }
     

@@ -13,11 +13,21 @@ protocol TextPanelDelegate: AnyObject {
     func textPanel(_ textPanel: TextPanel, didChangeFont: UIFont)
 }
 
+enum TextPanelPropertyChange {
+    struct Change<T> {
+        let oldValue: T?
+        let newValue: T
+    }
+    case font(Change<UIFont>)
+    case alignment(Change<NSTextAlignment>)
+    case style(Change<TextStyle>)
+}
+
 final class TextPanel: UIView {
     let styleButton = TextStyleButton(frame: CGRect(origin: .zero, size: .square(side: 44)))
     let alignmentButton = TextAlignmentButton(frame: CGRect(origin: .zero, size: .square(side: 44)))
     
-    var onAnyAttributeChange: VoidBlock?
+    var onAttributeChange: ((TextPanelPropertyChange) -> Void)?
 
     var selectedFont: UIFont {
         get { fontsView.selectedFont! }
@@ -41,7 +51,6 @@ final class TextPanel: UIView {
     }
     
     private func setup() {
-        let onChange = { [weak self] in self?.onAnyAttributeChange?() }
         
         for view in [styleButton, alignmentButton] {
             addSubview(view)
@@ -50,11 +59,12 @@ final class TextPanel: UIView {
         styleButton.autoresizingMask = [.flexibleRightMargin]
         styleButton.addAction { [weak self] in
             guard let self = self else { return }
+            let oldValue = self.styleButton.textStyle
             let styles: [TextStyle] = [.regular, .outlined, .framed]
             let index = styles.firstIndex(of: self.styleButton.textStyle)!
             let nextIndex = (index + 1) % styles.count
             self.styleButton.setStyle(styles[nextIndex], animated: true)
-            onChange()
+            self.onAttributeChange?(.style(.init(oldValue: oldValue, newValue: styles[nextIndex])))
         }
         styleButton.setStyle(.regular, animated: true)
         
@@ -62,22 +72,27 @@ final class TextPanel: UIView {
         alignmentButton.autoresizingMask = [.flexibleRightMargin]
         alignmentButton.addAction { [weak self] in
             guard let self = self else { return }
+            var textAlginment: NSTextAlignment = .center
             switch self.alignmentButton.textAlignment {
             case .left:
-                self.alignmentButton.textAlignment = .center
+                textAlginment = .center
             case .right:
-                self.alignmentButton.textAlignment = .left
+                textAlginment = .left
             case .center:
-                self.alignmentButton.textAlignment = .right
+                textAlginment = .right
             default:
                 break
             }
-            onChange()
+            let oldValue = self.alignmentButton.textAlignment
+            self.alignmentButton.textAlignment = textAlginment
+            self.onAttributeChange?(.alignment(.init(oldValue: oldValue, newValue: textAlginment)))
         }
         
         fontsView = FontsSelector(frame: CGRect(x: alignmentButton.frame.maxX, y: (bounds.height - 33) / 2, width: bounds.width - alignmentButton.frame.maxX, height: 33))
         addSubview(fontsView)
-        fontsView.onFontSelect = { _ in onChange() }
+        fontsView.onFontSelect = { [weak self] oldFont, font in
+            self?.onAttributeChange?(.font(.init(oldValue: oldFont, newValue: font)))
+        }
         
         fontsView.autoresizingMask = [.flexibleWidth]
     }
