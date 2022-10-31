@@ -197,4 +197,16 @@ class ToolDrawer: NSObject {
         
         return elem
     }
+    
+    // for shape creation
+    func applyNewPath(layer: CALayer, path: UIBezierPath) {
+        guard let shape = layer.mask as? CAShapeLayer ??
+            layer.sublayers?.first as? CAShapeLayer ??
+                layer as? CAShapeLayer else {
+            assert(false, "something wrong")
+            return
+        }
+        
+        shape.path = path.cgPath
+    }
 }
