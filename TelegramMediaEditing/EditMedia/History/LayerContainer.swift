@@ -11,6 +11,7 @@ class LayerContainer {
     var layers: [String: CALayer] = [:]
     var views: [String: UIView] = [:] // for handle UIView manually
     var mediaView: UIView?
+    var fillView: UIView?
     
     func generateUniqueName(prefix: String? = nil) -> String { // use prefix to distinguish object type
         generatedCount += 1

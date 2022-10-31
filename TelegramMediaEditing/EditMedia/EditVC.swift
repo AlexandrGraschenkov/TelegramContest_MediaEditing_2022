@@ -196,6 +196,12 @@ final class EditVC: UIViewController {
         }
         
         layerContainer.mediaView = mediaContainer
+        let fillView = UIView(frame: mediaContainer.bounds)
+        fillView.isUserInteractionEnabled = false
+        fillView.backgroundColor = UIColor.clear
+        mediaContainer.addSubview(fillView)
+        layerContainer.fillView = fillView
+        
         nav = EditNavBar.createAndAdd(toView: view)
         history.connect(forwardButton: nav.forward, backwardButton: nav.backward, clearAllButton: nav.clearAll)
         history.setup(container: layerContainer)

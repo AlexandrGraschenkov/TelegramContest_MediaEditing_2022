@@ -12,6 +12,7 @@ class ToolDrawer: NSObject {
         didSet {
             if oldValue == active { return }
             pan?.isEnabled = active
+            longPress?.isEnabled = active
         }
     }
     open var enableSuggestion: Bool {
@@ -33,6 +34,11 @@ class ToolDrawer: NSObject {
     }
     
     func setup(content: UIView, history: History) {
+        longPress = UILongPressGestureRecognizer(target: self, action: #selector(onLongPress(gesture:)))
+        longPress.minimumPressDuration = 1.0
+        longPress.isEnabled = active
+        content.addGestureRecognizer(longPress)
+        
         pan = UIPanGestureRecognizer(target: self, action: #selector(onPan(pan:)))
         pan.isEnabled = active
         pan.maximumNumberOfTouches = 1
@@ -54,7 +60,6 @@ class ToolDrawer: NSObject {
         let pp = PanPoint(point: p, time: t)
         switch pan.state {
         case .began:
-            
 //// MARK: - FOR DEBUG
 //            if debugBegunFlag {
 //                return
@@ -95,6 +100,7 @@ class ToolDrawer: NSObject {
     fileprivate(set) var smooth = PanSmoothIK()
 //    fileprivate var smooth = PanSmoothTime()
     fileprivate var pan: UIPanGestureRecognizer!
+    fileprivate var longPress: UILongPressGestureRecognizer!
     fileprivate(set) weak var content: UIView?
     fileprivate(set) weak var history: History?
     fileprivate(set) var drawPath: [PanPoint] = []
@@ -208,5 +214,50 @@ class ToolDrawer: NSObject {
         }
         
         shape.path = path
+    }
+    
+    
+    @objc func onLongPress(gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began,
+              let container = history?.layerContainer,
+              let fillView = container.fillView else {
+            return
+        }
+        
+        pan.isEnabled = false
+        delay(0.1) { self.pan.isEnabled = true }
+        let point = gesture.location(in: gesture.view)
+        
+        let prevFillView = UIView(frame: fillView.frame)
+        prevFillView.backgroundColor = fillView.backgroundColor
+        fillView.superview?.insertSubview(prevFillView, belowSubview: fillView)
+        
+        let prevColor = container.fillView?.backgroundColor
+        let newColor = color.withAlphaComponent(1)
+        
+        let mask = UIView(frame: CGRect(mid: point, size: .square(side: 6)))
+        mask.backgroundColor = UIColor.white
+        mask.layer.masksToBounds = true
+        mask.layer.cornerRadius = mask.width / 2
+        
+        container.fillView?.mask = mask
+        container.fillView?.backgroundColor = newColor
+        let diameter = container.fillView!.bounds.size.point.distance()
+        let scale = diameter / mask.width
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseIn]) {
+            mask.transform = .init(scaleX: scale, y: scale)
+        } completion: { _ in
+            mask.removeFromSuperview()
+            prevFillView.removeFromSuperview()
+        }
+        
+        // History
+        let forward = History.Element(objectId: "", action: .closure) { _, container, _ in
+            container.fillView?.backgroundColor = newColor
+        }
+        let backward = History.Element(objectId: "", action: .closure) { _, container, _ in
+            container.fillView?.backgroundColor = prevColor
+        }
+        history?.add(element: History.ElementGroup(forward: [forward], backward: [backward]))
     }
 }
