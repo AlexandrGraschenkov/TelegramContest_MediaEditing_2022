@@ -16,6 +16,13 @@ class ToolDrawSplitOptimizer: NSObject {
     let splitThreshCount = 1100
     let splitCount = 800
     fileprivate(set) var isPrepared: Bool = false
+    var resultBezier: UIBezierPath {
+        let bezier = UIBezierPath()
+        for b in bezierArr {
+            bezier.append(b)
+        }
+        return bezier
+    }
     
     func start(layer: CAShapeLayer, penGen: ToolCurveGenerator) {
         isPrepared = true
@@ -59,22 +66,5 @@ class ToolDrawSplitOptimizer: NSObject {
         let poly = penGen.generatePolygon(points: points.suffix(suffixCount))
         bezierArr[bezierArr.count-1] = poly
         shapeArr.last!.path = poly.cgPath
-    }
-}
-
-fileprivate extension CAShapeLayer {
-    func customCopy() -> CAShapeLayer {
-        let res = CAShapeLayer()
-        res.fillColor = fillColor
-        res.strokeColor = strokeColor
-        res.lineWidth = lineWidth
-        res.lineCap = .round
-        res.lineJoin = .round
-        res.transform = transform
-        res.shadowColor = shadowColor
-        res.shadowOffset = shadowOffset
-        res.shadowRadius = shadowRadius
-        res.shadowOpacity = shadowOpacity
-        return res
     }
 }

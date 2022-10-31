@@ -33,7 +33,7 @@ final class FontsSelector: UIView {
             collectionView.selectItem(
                 at: IndexPath(item: index, section: 0),
                 animated: false,
-                scrollPosition: .left
+                scrollPosition: .centeredHorizontally
             )
         }
     }
@@ -49,13 +49,15 @@ final class FontsSelector: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private let allFonts: [UIFont] = [
+    static let defaultFonts: [UIFont] = [
         .init(name: "Helvetica-Bold", size: 32),
         .init(name: "Menlo-Bold", size: 32),
         .init(name: "SnellRoundhand-Black", size: 32),
         .init(name: "Noteworthy-Bold ", size: 32),
         .init(name: "CourierNewPS-BoldMT", size: 32),
     ].compactMap { $0 }
+    
+    private let allFonts: [UIFont] = FontsSelector.defaultFonts
     
     private let layout: UICollectionViewFlowLayout = {
         let layout = UICollectionViewFlowLayout()

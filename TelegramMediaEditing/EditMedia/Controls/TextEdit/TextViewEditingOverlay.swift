@@ -65,7 +65,7 @@ final class ImageEditingTextState {
     static func defaultState() -> ImageEditingTextState {
         ImageEditingTextState(
             text: "",
-            font: .systemFont(ofSize: 32),
+            font: FontsSelector.defaultFonts.first!,
             color: .white,
             style: .regular,
             alignment: .center
@@ -498,6 +498,11 @@ final class TextStyleChangeHandler {
         self.textPanel = textPanel
         self.colourPicker = colourPicker
         self.state = state
+        
+        colourPicker.selectedColour = state.color
+        textPanel.styleButton.setStyle(state.style, animated: true)
+        textPanel.alignmentButton.textAlignment = state.alignment
+        textPanel.selectedFont = state.font
         
         colourPicker.onColourChange = { [weak self] change, isFinal in
             guard let self = self else { return }
