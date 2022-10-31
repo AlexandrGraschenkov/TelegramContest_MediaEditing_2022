@@ -188,7 +188,7 @@ final class EditVC: UIViewController {
         view.frame = frame
         mediaContainer.addSubview(view)
         gesturesOverlay.overlays.append(view)
-        let transform = view.transform.scaledBy(x: 1 / scroll.zoomScale, y: 1 / scroll.zoomScale)
+        let transform = result.view.transform.scaledBy(x: 1 / scroll.zoomScale, y: 1 / scroll.zoomScale)
         result.view.transform = transform
         view.content = result.view
         if let transform = result.view.moveState?.transform {
