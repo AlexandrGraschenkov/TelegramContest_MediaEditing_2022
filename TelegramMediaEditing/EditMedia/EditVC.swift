@@ -21,8 +21,8 @@ final class TextContainer: UIView, Figure {
                 return
             }
             addSubview(content)
-            content.center = CGPoint(x: bounds.width / 2, y: bounds.height / 2)
-//            content.backgroundColor = .red
+            content.frame = bounds
+            content.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         }
     }
     
@@ -69,6 +69,11 @@ final class EditVC: UIViewController {
         tools[activeTool]!.toolSize = ToolDefaults.getSize(type: activeTool)
         tools[activeTool]!.color = ToolDefaults.getColor(type: activeTool) ?? .white
         toolbar.colorChangeOutside(color: tools[activeTool]!.color)
+        
+        history.onHistoryUpdate = { [weak self] in
+            guard let self = self else { return }
+            self.toolbar.saveButton.isEnabled = self.history.elements.count > 0
+        }
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -98,7 +103,7 @@ final class EditVC: UIViewController {
         view.addSubview(scroll)
         scroll.setup(content: mediaContainer)
         
-        toolbar = EditorToolbar.createAndAdd(toView: view)
+        toolbar = EditorToolbar.createAndAdd(toView: view, history: history)
         toolbar.toolSizeDemoContainer = view
         toolbar.actionHandler = { [unowned self] action in
             switch action {
@@ -123,13 +128,17 @@ final class EditVC: UIViewController {
                 self.addTextView(overlay: overlay)
             case .textEditEnded(let result):
                 insertTextResult(result: result)
+            case .textEditCanceled:
+                self.setTopControlsHidden(isHidden: false)
             case .close:
-                dismiss(animated: true)
+                self.close()
             case .switchedToDraw:
                 self.tools[self.activeTool]?.active = true
             case .switchedToText:
                 self.tools[self.activeTool]?.active = false
-            case .save, .add, .toolShapeChanged:
+            case .save:
+                self.saveResults()
+            case .add:
                 // TODO: implement
                 break
             }
@@ -142,7 +151,7 @@ final class EditVC: UIViewController {
         
         setupZoomOutUI()
         
-        view.addSubview(gesturesOverlay)
+        view.insertSubview(gesturesOverlay, belowSubview: toolbar)
         gesturesOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         gesturesOverlay.delegate = self
     }
@@ -167,7 +176,7 @@ final class EditVC: UIViewController {
 
     private func insertTextResult(result: TextEditingResult) {
         var frame = mediaContainer.convert(result.editingFrameInWindow, from: view.window)
-        if let center = result.view.movedCenterInCanvas {
+        if let center = result.view.moveState?.center {
             frame.origin.x = center.x - frame.width / 2
             frame.origin.y = center.y - frame.height / 2
         }
@@ -182,6 +191,9 @@ final class EditVC: UIViewController {
         let transform = view.transform.scaledBy(x: 1 / scroll.zoomScale, y: 1 / scroll.zoomScale)
         result.view.transform = transform
         view.content = result.view
+        if let transform = result.view.moveState?.transform {
+            view.transform = transform
+        }
         
         let add = History.Element(
             objectId: id,
@@ -233,10 +245,19 @@ final class EditVC: UIViewController {
         return CGRect(origin: tl, size: br.subtract(tl).size)
     }
     
-    @objc
     private func close() {
-        dismiss(animated: true)
+        if history.elements.isEmpty {
+            dismiss(animated: true)
+        } else {
+            let alert = UIAlertController(title: "Are you sure?", message: "You will lose all changes", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Close", style: .default, handler: { [weak self] _ in
+                self?.dismiss(animated: true)
+            }))
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            present(alert, animated: true)
+        }
     }
+    
     private func addTextView(overlay: TextViewEditingOverlay) {
         view.addSubview(overlay)
         overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -264,7 +285,59 @@ final class EditVC: UIViewController {
     
     // MARK: -
     
-
+    private func saveResults() {
+        insertLoader()
+        self.mediaContainer.snapshotInBackground { image in
+            guard let image = image else {
+                return
+            }
+            let uiImage = UIImage(cgImage: image)
+            UIImageWriteToSavedPhotosAlbum(uiImage, self, #selector(EditVC.image(_:didFinishSavingWithError:contextInfo:)), nil)
+        }
+    }
+    
+    @objc
+    private func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        DispatchQueue.main.async {
+            self.loaderView?.removeFromSuperview()
+            self.view.isUserInteractionEnabled = true
+            if let error = error {
+                let alert = UIAlertController(title: "Save error", message: error.localizedDescription, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(alert, animated: true)
+            } else {
+                let alert = UIAlertController(title: "Saved!", message: "You can find the resuts in your photos", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+                    self.dismiss(animated: true)
+                }))
+                self.present(alert, animated: true)
+            }
+        }
+    }
+    
+    private weak var loaderView: UIView?
+    private func insertLoader() {
+        let style: UIActivityIndicatorView.Style
+        if #available(iOS 13.0, *) {
+            style = .large
+        } else {
+            style = .white
+        }
+  
+        let loaderContainer = UIView(frame: CGRect(origin: .zero, size: .square(side: 70)))
+        view.addSubview(loaderContainer)
+        loaderContainer.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
+        loaderContainer.backgroundColor = .black
+        loaderContainer.layer.cornerRadius = 12
+        loaderView = loaderContainer
+        
+        let loader = UIActivityIndicatorView(style: style)
+        loaderContainer.addSubview(loader)
+        loader.hidesWhenStopped = true
+        loader.center = CGPoint(x: loaderContainer.bounds.midX, y: loaderContainer.bounds.midY)
+        loader.startAnimating()
+        view.isUserInteractionEnabled = false
+    }
 }
 
 private extension ToolDrawer {
@@ -283,8 +356,8 @@ private extension ToolDrawer {
 }
 
 extension EditVC: GesturesOverlayDelegate {
-    func gestureOverlay(_ gesturesOverlay: GesturesOverlay, didTapOnOverlay: FigureView) {
-        guard let textView = view as? TextEditingResultView else { return }
+    func gestureOverlay(_ gesturesOverlay: GesturesOverlay, didTapOnOverlay overlay: FigureView) {
+        guard let textContainer = overlay as? TextContainer, let textView = textContainer.content else { return }
         toolbar?.handleTap(on: textView)
     }
     
@@ -293,5 +366,47 @@ extension EditVC: GesturesOverlayDelegate {
         let forward = History.Element.init(objectId: overlay.historyId, action: .update, updateKeys: ["center" : endState.center, "transform": endState.transform])
         let backwards = History.Element.init(objectId: overlay.historyId, action: .update, updateKeys: ["center" : startState.center, "transform": startState.transform])
         history.add(element: .init(forward: [forward], backward: [backwards]))
+    }
+}
+
+extension EditVC: ImageDetailAnimatorDelegate {
+    
+    private var viewsToMove: [UIView] { [toolbar, nav].compactMap { $0 } }
+    
+    func transitionWillStartWith(imageDetailAnimator: ImageDetailAnimator) {
+        guard imageDetailAnimator.isPresenting else { return }
+        
+        for view in viewsToMove {
+            view.alpha = 0
+            let frame = view.frameIn(view: imageDetailAnimator.transitionContainer)
+            view.removeFromSuperview()
+            if let bar = view as? EditNavBar, let container = imageDetailAnimator.transitionContainer {
+                bar.insert(to: container)
+            } else {
+                imageDetailAnimator.transitionContainer?.addSubview(view)
+            }
+            view.frame = frame
+        }
+        
+        UIView.animate(withDuration: 0.3, delay: 0, options: [], animations: {
+            self.viewsToMove.forEach { $0.alpha = 1 }
+        }, completion: nil)
+    }
+    
+    func transitionDidEndWith(imageDetailAnimator: ImageDetailAnimator) {
+        toolbar.removeFromSuperview()
+        view.addSubview(toolbar)
+        toolbar.frame = EditorToolbar.frame(in: view)
+        
+        nav.removeFromSuperview()
+        nav.insert(to: view)
+    }
+    
+    func referenceImageView(for imageDetailAnimator: ImageDetailAnimator) -> UIImageView? {
+        mediaContainer as? UIImageView
+    }
+    
+    func referenceImageViewFrameInTransitioningView(for imageDetailAnimator: ImageDetailAnimator) -> CGRect? {
+        mediaContainer.frameIn(view: view)
     }
 }

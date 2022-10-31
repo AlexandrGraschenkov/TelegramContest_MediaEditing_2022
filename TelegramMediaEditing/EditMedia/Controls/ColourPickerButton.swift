@@ -12,7 +12,7 @@ final class ColourPickerButton: UIView {
     private var centerView: ColourPickerCirlceOpacity!
     private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
     
-    var onColourChange: ((UIColor) -> Void)?
+    var onColourChange: ((TextPanelPropertyChange.Change<UIColor>, Bool) -> Void)?
     var onPress: ((ColourPickerButton) -> Void)?
     
     var selectedColour: UIColor {
@@ -58,22 +58,26 @@ final class ColourPickerButton: UIView {
     
     @objc
     func onTap(tap: UITapGestureRecognizer) {
-//        let state = tap.state
-//        print(state)
         if tap.state == .ended {
             onPress?(self)
         }
     }
     
+    private var startColor: UIColor?
+    
     @objc
     private func onLongPressOrPan(recongizer: UIGestureRecognizer) {
         switch recongizer.state {
         case .began:
+            startColor = selectedColour
             insertGradientView(recogniser: recongizer)
             if recongizer is UILongPressGestureRecognizer {
                 feedbackGenerator.impactOccurred()
             }
-        case .failed, .ended, .cancelled:
+        case .failed, .cancelled:
+            removeGradient()
+        case .ended:
+            onColourChange?(.init(oldValue: startColor, newValue: selectedColour), true)
             removeGradient()
         case .possible:
             if recongizer is UILongPressGestureRecognizer {
@@ -95,9 +99,10 @@ final class ColourPickerButton: UIView {
             
             let pickedColor = activeGradientView.getColor(at: center) ?? .clear
             pickerView.backgroundColor = pickedColor
+            let oldColor = selectedColour
             centerView.color = pickedColor
             
-            onColourChange?(pickedColor)
+            onColourChange?(.init(oldValue: oldColor, newValue: pickedColor), false)
         @unknown default:
             break
         }

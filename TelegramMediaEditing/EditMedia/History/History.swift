@@ -13,6 +13,8 @@ class History {
     private(set) var elements: [ElementGroup] = []
     private(set) var currentIdx: Int = 0
     
+    var onHistoryUpdate: VoidBlock?
+    
     var forwardEnabled: Bool { currentIdx < elements.count }
     var backwardEnabled: Bool { currentIdx > 0 }
     
@@ -98,6 +100,7 @@ class History {
                 clearAllButton?.fadeAnimation(duration: 0.2)
             }
         }
+        onHistoryUpdate?()
     }
     
     private func apply(element: Element) {

@@ -30,15 +30,18 @@ class EditNavBar: UIView {
     
     static func createAndAdd(toView view: UIView) -> EditNavBar {
         let bar = EditNavBar(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-        view.addSubview(bar)
-        bar.pinEdges(to: view, edges: [.top, .leading, .trailing])
-        
-        let topConstraint = bar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: bar.buttHeight + bar.blurAdditionalHeight)
-        NSLayoutConstraint.activate([topConstraint])
+        bar.insert(to: view)
         view.layoutIfNeeded()
         
         bar.setup()
         return bar
+    }
+    
+    func insert(to view: UIView) {
+        view.addSubview(self)
+        pinEdges(to: view, edges: [.top, .leading, .trailing])
+        bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: buttHeight + blurAdditionalHeight).isActive = true
+        layoutIfNeeded()
     }
     
     func pushDoneCancel(onDone: (()->())?, onCancel: (()->())?, animated: Bool = true) {

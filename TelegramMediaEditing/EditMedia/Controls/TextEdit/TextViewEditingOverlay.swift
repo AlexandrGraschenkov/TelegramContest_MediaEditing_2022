@@ -22,54 +22,55 @@ final class TextEditingResultView: UIView {
             borderLayer.lineWidth = 2
             borderLayer.lineCap = .round
             borderLayer.lineDashPattern = [12, 8]
-            borderLayer.frame = self.bounds
+            borderLayer.frame = self.bounds.inset(by: .tm_insets(top: -7, left: -15, bottom: -7, right: -15))
             borderLayer.path = UIBezierPath(roundedRect: borderLayer.bounds, cornerRadius: 12).cgPath
         }
+
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
     }
     
     var resultId: UUID?
-    var movedCenterInCanvas: CGPoint?
+    var moveState: OverlayOperationState?
     private var dashedBorder: BorderView?
+    weak var textView: UITextView?
     
     func setDashedBorderHidden(_ isHidden: Bool) {
-        let borderView = BorderView(frame: bounds)
-        addSubview(borderView)
-        borderView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        if (dashedBorder == nil) {
+            let borderView = BorderView(frame: bounds)
+            addSubview(borderView)
+            borderView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            self.dashedBorder = borderView
+        }
         dashedBorder?.isHidden = isHidden
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-//        guard let dashedBorderLayer = dashedBorderLayer else { return }
-//        dashedBorderLayer.frame = self.bounds
-//        var boundingRect = bounds
-//        for layer in (layer.sublayers ?? []) {
-//            boundingRect = boundingRect.union(layer.frame)
-//        }
-        
-//        for view in subviews {
-//            for layer in (view.layer.sublayers ?? []) {
-//                var rectInSelf = layer.frame
-//                rectInSelf.origin.x += view.x
-//                rectInSelf.origin.y += view.y
-//                boundingRect = boundingRect.union(rectInSelf)
-//            }
-//        }
-//        dashedBorderLayer.frame = boundingRect.inset(top: -10, left: -10, bottom: -10, right: -10)
     }
 }
 
-struct ImageEditingTextState: Equatable {
-    let text: String?
-    let font: UIFont
-    let color: UIColor
-    let style: TextStyle
-    let alignment: NSTextAlignment
+final class ImageEditingTextState {
+    internal init(text: String? = nil, font: UIFont, color: UIColor, style: TextStyle, alignment: NSTextAlignment) {
+        self.text = text
+        self.font = font
+        self.color = color
+        self.style = style
+        self.alignment = alignment
+    }
     
-    static let defaultState = ImageEditingTextState(text: "", font: .systemFont(ofSize: 32), color: .white, style: .regular, alignment: .center)
+    var text: String?
+    var font: UIFont
+    var color: UIColor
+    var style: TextStyle
+    var alignment: NSTextAlignment
+
+    static func defaultState() -> ImageEditingTextState {
+        ImageEditingTextState(
+            text: "",
+            font: .systemFont(ofSize: 32),
+            color: .white,
+            style: .regular,
+            alignment: .center
+        )
+    }
 }
 
 final class TextEditingResult: Equatable {
@@ -115,12 +116,13 @@ final class TextViewEditingOverlay: UIView {
     
     weak var delegate: TextViewEditingOverlayDelegate?
     
-    private let state: ImageEditingTextState?
+    private let state: ImageEditingTextState
         
     private let panelView: TextPanel
     private let colourPicker: ColourPickerButton
     private var panelContainer: UIView!
     private var textView: OutlineableTextView!
+    private let history: History
     
     init(
         panelView: TextPanel,
@@ -128,11 +130,13 @@ final class TextViewEditingOverlay: UIView {
         panelContainer: UIView,
         state: ImageEditingTextState,
         previousResultId: UUID?,
-        frame: CGRect
+        frame: CGRect,
+        history: History
     ) {
         self.panelView = panelView
         self.colourPicker = colourPicker
         self.state = state
+        self.history = history
         super.init(frame: frame)
         setup(panelOriginalContainer: panelContainer)
     }
@@ -189,14 +193,15 @@ final class TextViewEditingOverlay: UIView {
         textViewCenteringContainer.addSubview(textView)
         textView.delegate = self
         self.textView = textView
-        textView.textColor = state?.color
+        textView.textColor = state.color
         textView.backgroundColor = .clear
         textView.spellCheckingType = .no
         textView.autocorrectionType = .no
+        textViewCenteringContainer.textView = textView
         
         self.slider = ToolSlider(frame: CGRect(origin: .zero, size: CGSize(width: 256, height: 56)))
         slider.valuesRange = 20...60
-        slider.currentValue = state!.font.pointSize
+        slider.currentValue = state.font.pointSize
         addSubview(slider)
         slider.center.y = textViewCenteringContainer.center.y - textViewCenteringContainer.height / 2
         slider.transform = CGAffineTransform(rotationAngle: -CGFloat.pi / 2)
@@ -216,8 +221,8 @@ final class TextViewEditingOverlay: UIView {
             self?.scheduleSliderHide()
         }
         
-        textStyleChangeHandler = TextStyleChangeHandler(textView: textView)
-        textStyleChangeHandler.assignControls(textPanel: panelView, colourPicker: colourPicker)
+        textStyleChangeHandler = TextStyleChangeHandler(textView: textView, history: history)
+        textStyleChangeHandler.assignControls(textPanel: panelView, colourPicker: colourPicker, state: state)
         
         NotificationCenter.default.addObserver(
             forName: UIApplication.keyboardWillShowNotification,
@@ -244,14 +249,10 @@ final class TextViewEditingOverlay: UIView {
             }
         }
         
-        guard let state = state else {
-            return
-        }
-        
         performAsyncIn(.main, closure: {
-            self.textStyleChangeHandler.applyState(state)
+            self.textStyleChangeHandler.applyState(self.state)
             self.textStyleChangeHandler.updateTextViewAttributes()
-            if let text = state.text {
+            if let text = self.state.text {
                 self.textView.text = text
                 self.textViewDidChange(self.textView)
             }
@@ -265,6 +266,7 @@ final class TextViewEditingOverlay: UIView {
             addSubview(btn)
             btn.y = 10 + safeArea.top
             btn.setTitleColor(.white, for: .normal)
+            btn.setTitleColor(.white.withAlphaComponent(0.6), for: .disabled)
         }
         
         cancelButton.addAction { [weak self] in
@@ -285,6 +287,7 @@ final class TextViewEditingOverlay: UIView {
         doneButton.addAction { [weak self] in
             self?.done()
         }
+        doneButton.isEnabled = false
         doneButton.setTitle("Done", for: .normal)
         doneButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
         doneButton.sizeToFit()
@@ -310,7 +313,7 @@ final class TextViewEditingOverlay: UIView {
         
         let result = TextEditingResult(
             view: textViewCenteringContainer,
-            state: textStyleChangeHandler.currentState,
+            state: state,
             editingFrameInWindow: textViewCenteringContainer.frameIn(view: window),
             changeHandler: self.textStyleChangeHandler
         )
@@ -384,7 +387,17 @@ final class TextViewEditingOverlay: UIView {
         textSize.width *= scaleX
         textSize.height *= scaleY
 
+        func scaleView(view: UIView, scale: CGFloat) {
+            view.contentScaleFactor = scale
+            print(view.contentScaleFactor)
+            for vi in view.subviews {
+                scaleView(view: vi, scale: scale)
+            }
+        }
+        
         textView.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin, .flexibleRightMargin, .flexibleBottomMargin]
+        scaleView(view: textView.subviews[1], scale: UIScreen.main.scale * 6)
+        
         let oldSize = textViewCenteringContainer.frame.size
 
         switch panelView.alignmentButton.textAlignment {
@@ -442,11 +455,14 @@ extension TextViewEditingOverlay: UITextViewDelegate {
         } else if panelView.styleButton.textStyle == .outlined {
             self.textView.outline()
         }
+        doneButton.isEnabled = !textView.text.isEmpty
+        state.text = textView.text
     }
 }
 
 
 final class TextStyleChangeHandler {
+    private let historyId = UUID().uuidString
     private let textView: OutlineableTextView
     fileprivate(set) var textHighlightLayer: CAShapeLayer?
     private(set) var currentColor: UIColor! {
@@ -456,30 +472,103 @@ final class TextStyleChangeHandler {
     }
     private var textPanel: TextPanel?
     private var colourPicker: ColourPickerButton?
-    
-    var currentState: ImageEditingTextState {
-        .init(
-            text: textView.text,
-            font: textView.font!,
-            color: currentColor,
-            style: textPanel?.styleButton.textStyle ?? .regular,
-            alignment: textPanel?.alignmentButton.textAlignment ?? .center
-        )
-    }
-    
-    init(textView: OutlineableTextView) {
+    private let history: History
+    private var state: ImageEditingTextState?
+//
+//    var currentState: ImageEditingTextState {
+//        .init(
+//            text: textView.text,
+//            font: textView.font!,
+//            color: currentColor,
+//            style: textPanel?.styleButton.textStyle ?? .regular,
+//            alignment: textPanel?.alignmentButton.textAlignment ?? .center
+//        )
+//    }
+//
+    init(textView: OutlineableTextView, history: History) {
         self.textView = textView
+        self.history = history
     }
     
-    func assignControls(textPanel: TextPanel, colourPicker: ColourPickerButton) {
+    func assignControls(textPanel: TextPanel, colourPicker: ColourPickerButton, state: ImageEditingTextState) {
         self.textPanel = textPanel
         self.colourPicker = colourPicker
+        self.state = state
         
-        colourPicker.onColourChange = { [weak self] color in
-            self?.currentColor = color
+        colourPicker.onColourChange = { [weak self] change, isFinal in
+            guard let self = self else { return }
+            self.currentColor = change.newValue
+            self.state?.color = change.newValue
+            
+            guard !self.textView.isFirstResponder, isFinal else { return }
+            let forward = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
+                self.colourPicker?.selectedColour = change.newValue
+                self.currentColor = change.newValue
+                self.state?.color = change.newValue
+            }
+            let back = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
+                let oldValue = change.oldValue ?? .white
+                self.colourPicker?.selectedColour = change.oldValue ?? .white
+                self.currentColor = oldValue
+                self.state?.color = oldValue
+            }
+            self.history.add(element: History.ElementGroup(forward: [forward], backward: [back]))
         }
-        textPanel.onAnyAttributeChange = { [weak self] in
-            self?.updateTextViewAttributes()
+        textPanel.onAttributeChange = { [weak self] change in
+            guard let self = self else { return }
+            var forward: History.Element?
+            var back: History.Element?
+            let defaultState = ImageEditingTextState.defaultState()
+            switch change {
+            case .font(let change):
+                self.state?.font = change.newValue
+                guard !self.textView.isFirstResponder else { break }
+                forward = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
+                    self.textPanel?.selectedFont = change.newValue
+                    self.state?.font = change.newValue
+                    self.updateTextViewAttributes()
+                }
+                back = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
+                    let oldValue = change.oldValue ?? defaultState.font
+                    self.textPanel?.selectedFont = oldValue
+                    self.state?.font = oldValue
+                    self.updateTextViewAttributes()
+                }
+                self.state?.font = change.newValue
+            case .alignment(let change):
+                self.state?.alignment = change.newValue
+                guard !self.textView.isFirstResponder else { break }
+                forward = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
+                    self.textPanel?.alignmentButton.textAlignment = change.newValue
+                    self.state?.alignment = change.newValue
+                    self.updateTextViewAttributes()
+                }
+                back = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
+                    let oldValue = change.oldValue ?? defaultState.alignment
+                    self.textPanel?.alignmentButton.textAlignment = oldValue
+                    self.state?.alignment = oldValue
+                    self.updateTextViewAttributes()
+                }
+            case .style(let change):
+                self.state?.style = change.newValue
+                guard !self.textView.isFirstResponder else { break }
+                forward = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
+                    self.textPanel?.styleButton.setStyle(change.newValue, animated: true)
+                    self.state?.style = change.newValue
+                    self.updateTextViewAttributes()
+                }
+                back = History.Element(objectId: self.historyId, action: .closure) { _, _, _ in
+                    let style = change.oldValue ?? defaultState.style
+                    self.textPanel?.styleButton.setStyle(style, animated: true)
+                    self.state?.style = style
+                    self.updateTextViewAttributes()
+                }
+                self.state?.style = change.newValue
+            }
+            if let forward = forward, let back = back {
+                self.history.add(element: History.ElementGroup(forward: [forward], backward: [back]))
+            }
+            self.updateTextViewAttributes()
         }
     }
     
@@ -499,7 +588,7 @@ final class TextStyleChangeHandler {
         let textLayer = textView.layer
         textView.clipsToBounds = false
         let textContainerInset = textView.textContainerInset
-        let uiInset: CGFloat = -10//CGFloat(insetSlider.value)
+        let uiInset: CGFloat = -10
         let radius: CGFloat = 6 * UIScreen.main.scale
         let highlightLayer: CAShapeLayer
         if let textHighlightLayer = textHighlightLayer {
