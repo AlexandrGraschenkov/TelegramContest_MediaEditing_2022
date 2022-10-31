@@ -166,4 +166,16 @@ class ToolDrawer: NSObject {
         
         return layer
     }
+    
+    func generateForwardAddHistory(layer: CALayer, objectId: String, overrideKeys: [String: Any?]? = nil) -> History.Element {
+        var layerClass: AnyClass = CALayer.self
+        if layer is CAReplicatorLayer {
+            layerClass = CAReplicatorLayer.self
+        } else if layer is CAShapeLayer {
+            layerClass = CAShapeLayer.self
+        }
+        let keys = layer.getKeys(override: overrideKeys)
+        let elem = History.Element(objectId: objectId, action: .add(classType: layerClass), updateKeys: keys)
+        return elem
+    }
 }
