@@ -199,7 +199,7 @@ class ToolDrawer: NSObject {
     }
     
     // for shape creation
-    func applyNewPath(layer: CALayer, path: UIBezierPath) {
+    func applyNewPath(layer: CALayer, path: CGPath) {
         guard let shape = layer.mask as? CAShapeLayer ??
             layer.sublayers?.first as? CAShapeLayer ??
                 layer as? CAShapeLayer else {
@@ -207,6 +207,6 @@ class ToolDrawer: NSObject {
             return
         }
         
-        shape.path = path.cgPath
+        shape.path = path
     }
 }
