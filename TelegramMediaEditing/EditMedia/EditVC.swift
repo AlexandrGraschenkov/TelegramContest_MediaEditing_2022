@@ -348,12 +348,14 @@ final class EditVC: UIViewController {
     
     private func saveResults() {
         insertLoader()
-        self.mediaContainer.snapshotInBackground { image in
-            guard let image = image else {
-                return
+        delay(0.2) {
+            self.mediaContainer.snapshotInMain { image in
+                guard let image = image else {
+                    return
+                }
+                let uiImage = UIImage(cgImage: image)
+                UIImageWriteToSavedPhotosAlbum(uiImage, self, #selector(EditVC.image(_:didFinishSavingWithError:contextInfo:)), nil)
             }
-            let uiImage = UIImage(cgImage: image)
-            UIImageWriteToSavedPhotosAlbum(uiImage, self, #selector(EditVC.image(_:didFinishSavingWithError:contextInfo:)), nil)
         }
     }
     

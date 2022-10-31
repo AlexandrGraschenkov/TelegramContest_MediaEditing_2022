@@ -226,7 +226,18 @@ extension GalleryViewController: UICollectionViewDelegate, UICollectionViewDataS
 
 extension GalleryViewController: PHPhotoLibraryChangeObserver {
     func photoLibraryDidChange(_ changeInstance: PHChange) {
-        allPhotos = Self.generateResults()
+        if let selectedIndexPath = selectedIndexPath {
+            let oldPhotos = allPhotos
+            let selectedAsset = oldPhotos[selectedIndexPath.item]
+            allPhotos = Self.generateResults()
+            let diff = allPhotos.count - oldPhotos.count
+            if (selectedIndexPath.item + diff) < allPhotos.count, allPhotos[selectedIndexPath.item + diff].localIdentifier == selectedAsset.localIdentifier {
+                self.selectedIndexPath = IndexPath(item: selectedIndexPath.item + diff, section: 0)
+            }
+        } else {
+            allPhotos = Self.generateResults()
+        }
+        
         DispatchQueue.main.async {
             self.collection.reloadData()
         }
