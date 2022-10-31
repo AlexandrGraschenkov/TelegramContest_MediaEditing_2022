@@ -12,38 +12,14 @@ class NeonDrawer: ToolDrawer {
     
     fileprivate var parentLayer: CALayer?
     fileprivate var suggestLayer: CAShapeLayer?
+    fileprivate var suggestParentLayer: CALayer?
     
     override func updateDrawLayer() {
         if !splitOpt.isPrepared {
-            var scale: CGFloat = 1.0
-            if let content = content {
-                scale = content.bounds.width / content.frame.width
-            }
-            let size = toolSize * 2 * scale
+            parentLayer = generateLayer(path: nil)
+            let layer = parentLayer!.sublayers!.first as! CAShapeLayer
             
-            let comp = color.components
-            let parentWithOpacity = CALayer()
-            parentWithOpacity.opacity = Float(comp.a)
-            parentWithOpacity.shadowColor = comp.toColorOverride(a: 1).cgColor
-            parentWithOpacity.shadowRadius = size
-            parentWithOpacity.shadowOpacity = 1
-            parentWithOpacity.shadowOffset = .zero
-            content?.layer.addSublayer(parentWithOpacity)
-            parentLayer = parentWithOpacity
-            
-            
-            let layer = CAShapeLayer()
-            layer.strokeColor = comp.toColorOverride(a: 1).cgColor
-            layer.lineWidth = size
-            layer.lineCap = .round
-            layer.lineJoin = .round
-            layer.shadowColor = parentWithOpacity.shadowColor
-            layer.shadowRadius = size / 2
-            layer.shadowOpacity = parentWithOpacity.shadowOpacity
-            layer.shadowOffset = parentWithOpacity.shadowOffset
-            layer.fillColor = nil //comp.toColorOverride(a: 1).cgColor
-            
-            parentWithOpacity.addSublayer(layer)
+            content?.layer.addSublayer(parentLayer!)
             
 //            parentWithOpacity.addSublayer(rep)
             splitOpt.start(layer: layer, penGen: curveGen)
@@ -60,6 +36,8 @@ class NeonDrawer: ToolDrawer {
             splitOpt.finish()
             addToHistory()
         }
+        suggestParentLayer = nil
+        suggestLayer = nil
         parentLayer = nil
     }
     
@@ -73,44 +51,98 @@ class NeonDrawer: ToolDrawer {
 
         // WARNING: For optimization purpose we have layer with multiple sublayers; Possible some bugs in future;
         let name = layers.generateUniqueName(prefix: toolType.rawValue)
-        history.layerContainer?.layers[name] = parentLayer
-        let bezier = UIBezierPath()
-        for b in splitOpt.bezierArr {
-            bezier.append(b)
+        
+        let cgPath: CGPath
+        let opacity: Float
+        if let suggestParent = suggestParentLayer {
+            history.layerContainer?.layers[name] = suggestParent
+            cgPath = suggestLayer!.path!
+            opacity = suggestParent.opacity
+            parentLayer.removeFromSuperlayer()
+        } else {
+            history.layerContainer?.layers[name] = parentLayer
+            opacity = parentLayer.opacity
+            let bezier = UIBezierPath()
+            for b in splitOpt.bezierArr {
+                bezier.append(b)
+            }
+            cgPath = bezier.cgPath
+            suggestParentLayer?.removeFromSuperlayer()
         }
-        let lineWidth = (parentLayer.sublayers?.first as? CAShapeLayer)?.lineWidth ?? toolSize
         
-        let shapeDict: [String: Any] = [
-            "path": bezier.cgPath,
-            "strokeColor": color.withAlphaComponent(1).cgColor,
-            "lineJoin": CAShapeLayerLineJoin.round,
-            "lineCap": CAShapeLayerLineCap.round,
-            "lineWidth": lineWidth,
-            "shadowOpacity": parentLayer.shadowOpacity,
-            "shadowColor": parentLayer.shadowColor ?? color.withAlphaComponent(1).cgColor,
-            "shadowRadius": parentLayer.shadowRadius,
-            "shadowOffset": parentLayer.shadowOffset,
-            "fillColor": UIColor.clear.cgColor
-        ]
+        let shape = parentLayer.sublayers!.first as! CAShapeLayer
+        var shapeDict = shape.getKeys()
+        shapeDict["path"] = cgPath
         
-        let forward = History.Element(objectId: name, action: .add(classType: CAShapeLayer.self), updateKeys: [
-            "shadowOpacity": parentLayer.shadowOpacity,
-            "shadowColor": parentLayer.shadowColor ?? color.withAlphaComponent(1).cgColor,
-            "shadowRadius": parentLayer.shadowRadius,
-            "shadowOffset": parentLayer.shadowOffset,
-        ]) { elem, container, obj in
+        let forward = History.Element(objectId: name, action: .add(classType: CALayer.self), updateKeys: parentLayer.getKeys(override: ["opacity": opacity])) { elem, container, obj in
             guard let container = container.layers[elem.objectId] else {
                 return
             }
             
             let shape = CAShapeLayer()
-            for (k, v) in shapeDict {
-                shape.setValue(v, forKeyPath: k)
-            }
+            shape.apply(keys: shapeDict)
             container.addSublayer(shape)
         }
         
         let backward = History.Element(objectId: name, action: .remove)
         history.add(element: .init(forward: [forward], backward: [backward]))
+    }
+    
+    override func generateLayer(path: UIBezierPath?, overrideColor: UIColor? = nil, overrideFinalSize: CGFloat? = nil) -> CALayer {
+        let size = overrideFinalSize ?? toolSize * 2 * contentScale
+        let color = overrideColor ?? self.color
+        let comp = color.components
+        
+        let parent = CALayer()
+        parent.opacity = Float(comp.a)
+        parent.shadowColor = comp.toColorOverride(a: 1).cgColor
+        parent.shadowRadius = size
+        parent.shadowOpacity = 1
+        parent.shadowOffset = .zero
+        
+        let layer = CAShapeLayer()
+        layer.strokeColor = comp.toColorOverride(a: 1).cgColor
+        layer.lineWidth = size
+        layer.lineCap = .round
+        layer.lineJoin = .round
+        layer.shadowColor = parent.shadowColor
+        layer.shadowRadius = size / 2
+        layer.shadowOpacity = parent.shadowOpacity
+        layer.shadowOffset = parent.shadowOffset
+        layer.fillColor = comp.toColorOverride(a: 0).cgColor
+        layer.path = path?.cgPath
+        
+        parent.addSublayer(layer)
+        
+        return parent
+    }
+    
+    override func onShapeSuggested(path: UIBezierPath?) {
+        if path == nil && suggestLayer == nil { return }
+        guard let parentLayer = parentLayer else { return }
+        if suggestLayer == nil {
+            suggestParentLayer = generateLayer(path: nil)
+            suggestLayer = suggestParentLayer?.sublayers?.first as? CAShapeLayer
+            suggestLayer?.opacity = 0
+            
+            parentLayer.superlayer?.addSublayer(suggestParentLayer!)
+            
+            suggestLayer?.opacity = 1
+            parentLayer.opacity = 0
+        }
+        if let path = path {
+            suggestLayer?.path = path.cgPath
+        } else if let layer = suggestLayer {
+            suggestLayer = nil
+            suggestParentLayer = nil
+            let suggestParent = suggestParentLayer
+            
+            layer.opacity = 0
+            parentLayer.opacity = Float(color.components.a)
+            delay(0.3) {
+                layer.removeFromSuperlayer();
+                suggestParent?.removeFromSuperlayer()
+            }
+        }
     }
 }

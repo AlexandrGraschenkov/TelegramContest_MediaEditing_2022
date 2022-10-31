@@ -56,6 +56,7 @@
 		FA8DDBD9290FC6240065E9DC /* ShapeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8DDBD5290FC6240065E9DC /* ShapeGenerator.swift */; };
 		FA8DDBDB290FC6350065E9DC /* DrawnImageClassifier_8.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = FA8DDBDA290FC6350065E9DC /* DrawnImageClassifier_8.mlmodel */; };
 		FA8DDBDD290FD0990065E9DC /* ToolShapeSuggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8DDBDC290FD0990065E9DC /* ToolShapeSuggestion.swift */; };
+		FA8DDBDF290FFB620065E9DC /* CALayer+Copy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8DDBDE290FFB620065E9DC /* CALayer+Copy.swift */; };
 		FACBB876290A72D3005B6941 /* ToolDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB875290A72D3005B6941 /* ToolDrawer.swift */; };
 		FACBB87A290A791A005B6941 /* MarkerDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB879290A791A005B6941 /* MarkerDrawer.swift */; };
 		FACBB87C290AAE52005B6941 /* Bezier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACBB87B290AAE52005B6941 /* Bezier.swift */; };
@@ -139,6 +140,7 @@
 		FA8DDBD5290FC6240065E9DC /* ShapeGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShapeGenerator.swift; sourceTree = "<group>"; };
 		FA8DDBDA290FC6350065E9DC /* DrawnImageClassifier_8.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = DrawnImageClassifier_8.mlmodel; sourceTree = "<group>"; };
 		FA8DDBDC290FD0990065E9DC /* ToolShapeSuggestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolShapeSuggestion.swift; sourceTree = "<group>"; };
+		FA8DDBDE290FFB620065E9DC /* CALayer+Copy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CALayer+Copy.swift"; sourceTree = "<group>"; };
 		FACBB875290A72D3005B6941 /* ToolDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDrawer.swift; sourceTree = "<group>"; };
 		FACBB879290A791A005B6941 /* MarkerDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerDrawer.swift; sourceTree = "<group>"; };
 		FACBB87B290AAE52005B6941 /* Bezier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bezier.swift; sourceTree = "<group>"; };
@@ -288,6 +290,7 @@
 				AAAB482B28F982BB008373CB /* UIEdgeInsets+Ex.swift */,
 				FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */,
 				AA79DEBA290DD4C100905FEF /* UIApplication+Ex.swift */,
+				FA8DDBDE290FFB620065E9DC /* CALayer+Copy.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -512,6 +515,7 @@
 				FACBB886290D0A5D005B6941 /* UIView+Blur.swift in Sources */,
 				FA046EE528F54B23002D5023 /* AppDelegate.swift in Sources */,
 				AA79DEA429000CB000905FEF /* TextViewEditingOverlay.swift in Sources */,
+				FA8DDBDF290FFB620065E9DC /* CALayer+Copy.swift in Sources */,
 				AAAB482E28F9A99D008373CB /* ToolView.swift in Sources */,
 				AAAB481E28F70891008373CB /* PhotoPermissionOverlay.swift in Sources */,
 				AA79DEC0290EEF8900905FEF /* ImageDetailAnimator.swift in Sources */,

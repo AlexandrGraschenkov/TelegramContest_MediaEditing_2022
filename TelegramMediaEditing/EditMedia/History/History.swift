@@ -190,7 +190,7 @@ class History {
     struct Element {
         typealias Closure = (Element, LayerContainer, AnyObject?) -> ()
         
-        init(objectId: String, action: History.Element.LayerAction, zIndex: Int? = nil, updateKeys: [String : Any]? = nil, backgroundFill: UIColor? = nil, closure: Closure? = nil) {
+        init(objectId: String, action: History.Element.LayerAction, zIndex: Int? = nil, updateKeys: [String : Any?]? = nil, backgroundFill: UIColor? = nil, closure: Closure? = nil) {
             self.objectId = objectId
             self.action = action
             self.zIndex = zIndex

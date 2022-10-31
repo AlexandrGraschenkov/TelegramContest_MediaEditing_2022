@@ -9,7 +9,7 @@ import UIKit
 
 class PenDrawer: ToolDrawer {
     
-    fileprivate var parentLayer: CAShapeLayer?
+    fileprivate var parentLayer: CALayer?
     fileprivate var suggestLayer: CAShapeLayer?
     override var toolShape: ToolShape {
         didSet {
@@ -25,7 +25,7 @@ class PenDrawer: ToolDrawer {
     override func updateDrawLayer() {
         if !splitOpt.isPrepared {
             let comp = color.components
-            let parentWithOpacity = CAShapeLayer()
+            let parentWithOpacity = CALayer()
             parentWithOpacity.opacity = Float(comp.a)
             content?.layer.addSublayer(parentWithOpacity)
             parentLayer = parentWithOpacity
@@ -95,14 +95,7 @@ class PenDrawer: ToolDrawer {
         let name = layers.generateUniqueName(prefix: toolType.rawValue)
         if let suggestLayer = suggestLayer {
             history.layerContainer?.layers[name] = suggestLayer
-            let forward = History.Element(objectId: name, action: .add(classType: CAShapeLayer.self), updateKeys: [
-                "path": suggestLayer.path as Any,
-                "fillColor": UIColor.clear.cgColor,
-                "strokeColor": suggestLayer.strokeColor as Any,
-                "lineJoin": suggestLayer.lineJoin,
-                "lineCap": suggestLayer.lineCap,
-                "lineWidth": suggestLayer.lineWidth
-            ])
+            let forward = History.Element(objectId: name, action: .add(classType: CAShapeLayer.self), updateKeys: suggestLayer.getKeys())
             let backward = History.Element(objectId: name, action: .remove)
             history.add(element: .init(forward: [forward], backward: [backward]))
         } else {
@@ -150,13 +143,9 @@ class PenDrawer: ToolDrawer {
     override func onShapeSuggested(path: UIBezierPath?) {
         if path == nil && suggestLayer == nil { return }
         if suggestLayer == nil {
-            suggestLayer = CAShapeLayer()
+            suggestLayer = (generateLayer(path: nil) as! CAShapeLayer)
             suggestLayer!.opacity = 0
             suggestLayer!.lineWidth = contentScale * toolSize * 1.5
-            suggestLayer?.strokeColor = color.cgColor
-            suggestLayer?.fillColor = nil
-            suggestLayer?.lineCap = .round
-            suggestLayer?.lineJoin = .round
             content?.layer.addSublayer(suggestLayer!)
 
             suggestLayer?.opacity = 1

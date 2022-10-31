@@ -151,4 +151,19 @@ class ToolDrawer: NSObject {
     open func onShapeSuggested(path: UIBezierPath?) {
 //        assert(false, "Override method")
     }
+    open func generateLayer(path: UIBezierPath?, overrideColor: UIColor? = nil, overrideFinalSize: CGFloat? = nil) -> CALayer {
+        let size = overrideFinalSize ?? toolSize * 2 * contentScale
+        let color = overrideColor ?? self.color
+        let comp = color.components
+        
+        let layer = CAShapeLayer()
+        layer.strokeColor = comp.toColorOverride(a: 1).cgColor
+        layer.lineWidth = size
+        layer.lineCap = .round
+        layer.lineJoin = .round
+        layer.fillColor = comp.toColorOverride(a: 0).cgColor
+        layer.path = path?.cgPath
+        
+        return layer
+    }
 }
