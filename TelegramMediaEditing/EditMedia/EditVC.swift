@@ -189,7 +189,7 @@ final class EditVC: UIViewController {
                 self.tools[self.activeTool]?.active = false
             case .save:
                 self.saveResults()
-            case .add:
+            case .addShape:
                 // TODO: implement
                 break
             }

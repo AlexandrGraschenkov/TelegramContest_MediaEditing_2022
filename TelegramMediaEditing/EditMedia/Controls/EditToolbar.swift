@@ -10,7 +10,7 @@ import UIKit
 enum EditToolbarAction {
     case close
     case save
-    case add
+    case addShape(FigureShape)
     case toolChanged(ToolType)
     case lineWidthChanged(CGFloat)
     case toolShapeChanged(ToolShape)
@@ -163,16 +163,16 @@ final class EditorToolbar: UIView {
     private func setupButtons() {
         let btns = [cancelButton, saveButton, plusButton]
         saveButton.isEnabled = false
-        let actions: [EditToolbarAction] = [.close, .save, .add]
         let images = ["cancel_empty", "edit_save", "edit_plus"]
         
-        for (btn, action, image) in zip3(btns, actions, images) {
-            btn.addAction { [weak self] in
-                self?.actionHandler?(action)
-            }
+        for (btn, image) in zip(btns, images) {
             btn.setImage(.init(named: image), for: .normal)
             btn.translatesAutoresizingMaskIntoConstraints = true
             btn.frame.size = .square(side: 44)
+        }
+        
+        saveButton.addAction { [weak self] in
+            self?.actionHandler?(.save)
         }
         
         cancelButton.removeTarget(nil, action: nil, for: .allEvents)
@@ -206,7 +206,7 @@ final class EditorToolbar: UIView {
                 }
                 self.animateToTextMode()
             case .base:
-                // TODO: add shapes popup
+                self.showFiguresMenu()
                 break
             case .toolEdit:
                 break
@@ -559,5 +559,119 @@ extension EditorToolbar: TextViewEditingOverlayDelegate {
         if textResult == focusedResult {
             self.focusedResult = nil
         }
+    }
+}
+
+enum FigureShape {
+    case rectangle
+    case ellipse
+    case bubble
+    case star
+    case arrow
+    
+    static let all: [FigureShape] = [.rectangle, .ellipse, .bubble, .star, .arrow]
+    
+    var name: String {
+        switch self {
+        case .rectangle:
+            return "Rectangle"
+        case .ellipse:
+            return "Ellipse"
+        case .bubble:
+            return "Bubble"
+        case .star:
+            return "Star"
+        case .arrow:
+            return "Arrow"
+        }
+    }
+    
+    var previewImage: UIImage? {
+        let imageName: String
+        switch self {
+        case .rectangle:
+            imageName = "rect_preview"
+        case .ellipse:
+            imageName = "circle_preview"
+        case .bubble:
+            imageName = "bubble_preview"
+        case .star:
+            imageName = "star_preview"
+        case .arrow:
+            imageName = "arrow_preview"
+        }
+        return UIImage(named: imageName)
+    }
+}
+
+extension EditorToolbar {
+    private func showFiguresMenu() {
+        
+        guard let window = self.window else { return }
+        let container = MenuOverlayView(frame: window.bounds)
+        container.translatesAutoresizingMaskIntoConstraints = true
+        container.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        window.addSubview(container)
+        
+        let actions = FigureShape.all.map { shape in
+            PopupMenu.Action(title: shape.name, image: shape.previewImage, action: { [weak self, weak container] in
+                self?.actionHandler?(.addShape(shape))
+                container?.onInteraction?()
+            })
+        }
+        
+        func animate(_ animation: @escaping VoidBlock, completion: VoidBlock? = nil) {
+            UIView.animate(
+                withDuration: 0.4,
+                delay: 0,
+                usingSpringWithDamping: 0.6,
+                initialSpringVelocity: 0,
+                options: [],
+                animations: animation,
+                completion: { finished in
+                    if finished {
+                        completion?()
+                    }
+                }
+            )
+        }
+        
+        let selfFrame = self.frameIn(view: window)
+        let plusFrame = plusButton.frameIn(view: window)
+        
+        let width: CGFloat = 180
+        let initialFrame = CGRect(x: selfFrame.maxX - width - 8, y: plusFrame.minY - 18, width: width, height: 10)
+        
+        let targetFrame = CGRect(
+            x: selfFrame.maxX - width - 8,
+            y: plusFrame.minY - CGFloat(actions.count * 44) - 8,
+            width: width,
+            height: CGFloat(actions.count) * 44
+        )
+        
+        let menu = PopupMenu(
+            actions: actions,
+            frame: initialFrame,
+            imageSize: .square(side: 24)
+        )
+        menu.alpha = 0
+        menu.translatesAutoresizingMaskIntoConstraints = true
+        container.addSubview(menu)
+        menu.frame = initialFrame
+        
+        container.onInteraction = { [weak menu, weak container] in
+            animate({
+                menu?.alpha = 0
+                menu?.y += menu?.height ?? 0
+                menu?.height = 0
+            }, completion: {
+                container?.removeFromSuperview()
+            })
+        }
+        
+        animate({
+            menu.alpha = 1
+            menu.frame = targetFrame
+        })
     }
 }

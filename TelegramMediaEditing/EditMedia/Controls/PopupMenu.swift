@@ -14,18 +14,18 @@ final class PopupMenu: UIView {
         let action: VoidBlock
     }
     
-    init(actions: [Action], frame: CGRect) {
+    init(actions: [Action], frame: CGRect, imageSize: CGSize = .square(side: 17)) {
         super.init(frame: frame)
-        setup(actions: actions)
+        setup(actions: actions, imageSize: imageSize)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setup(actions: [Action]) {
+    private func setup(actions: [Action], imageSize: CGSize) {
         for (idx, action) in actions.enumerated() {
-            let item = PopupMenuRow(frame: CGRect(x: 0, y: idx * 44, width: Int(width), height: 44))
+            let item = PopupMenuRow(frame: CGRect(x: 0, y: idx * 44, width: Int(width), height: 44), imageSize: imageSize)
             item.translatesAutoresizingMaskIntoConstraints = true
             addSubview(item)
             item.autoresizingMask = [.flexibleWidth]
@@ -52,9 +52,9 @@ final class PopupMenuRow: UIView {
         }
     }
     
-    override init(frame: CGRect) {
+    init(frame: CGRect, imageSize: CGSize) {
         super.init(frame: frame)
-        setup()
+        setup(imageSize: imageSize)
     }
     
     required init?(coder: NSCoder) {
@@ -65,7 +65,7 @@ final class PopupMenuRow: UIView {
         separator.isHidden = true
     }
     
-    private func setup() {
+    private func setup(imageSize: CGSize) {
         label.translatesAutoresizingMaskIntoConstraints = true
         addSubview(label)
         label.frame = bounds.inset(by: .tm_insets(top: 0, left: 16, bottom: 0, right: 16))
@@ -77,7 +77,7 @@ final class PopupMenuRow: UIView {
         
         imageView.translatesAutoresizingMaskIntoConstraints = true
         addSubview(imageView)
-        let imgSize: CGFloat = 17
+        let imgSize = imageSize.width
         imageView.frame = .init(x: width - 16 - imgSize, y: (height - imgSize) / 2, width: imgSize, height: imgSize)
         imageView.autoresizingMask = [.flexibleLeftMargin, .flexibleTopMargin, .flexibleBottomMargin]
         
