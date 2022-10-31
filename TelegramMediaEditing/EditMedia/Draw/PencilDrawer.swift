@@ -15,6 +15,7 @@ class PencilDrawer: ToolDrawer {
     
     override var toolType: ToolType { .pencil }
     
+    fileprivate var suggestLayer: CAShapeLayer?
     fileprivate var parentLayer: CAShapeLayer?
     fileprivate lazy var patternImage = UIImage(named: "pencil_texture")!
     
@@ -43,7 +44,7 @@ class PencilDrawer: ToolDrawer {
             layer.lineCap = .round
             layer.lineJoin = .round
 //            print("Tool size", toolSize * scale / 2)
-            layer.fillColor = nil //comp.toColorOverride(a: 1).cgColor
+            layer.fillColor = comp.toColorOverride(a: 0).cgColor
             
             
             let mask = CALayer()
@@ -65,6 +66,7 @@ class PencilDrawer: ToolDrawer {
             addToHistory()
         }
         parentLayer = nil
+        suggestLayer = nil
     }
     
     fileprivate func addToHistory() {
@@ -77,40 +79,32 @@ class PencilDrawer: ToolDrawer {
 
         // WARNING: For optimization purpose we have layer with multiple sublayers; Possible some bugs in future;
         let name = layers.generateUniqueName(prefix: toolType.rawValue)
-        history.layerContainer?.layers[name] = parentLayer
-        let bezier = UIBezierPath()
-        for b in splitOpt.bezierArr {
-            bezier.append(b)
-        }
-        let cgPath = bezier.cgPath
-        let lineWidth = (parentLayer.mask?.sublayers?.first as? CAShapeLayer)?.lineWidth ?? toolSize
-        let drawBbox = getOptimalBbox(bounds: content!.bounds, patternSize: patternImage.size, path: cgPath, lineWidth: lineWidth)
-        parentLayer.path = CGPath(rect: drawBbox, transform: nil)
         
-        let shapeDict: [String: Any] = [
-            "path": cgPath,
-            "strokeColor": UIColor.white.cgColor,
-            "lineJoin": CAShapeLayerLineJoin.round,
-            "lineCap": CAShapeLayerLineCap.round,
-            "lineWidth": lineWidth,
-            "fillColor": UIColor.clear.cgColor
-        ]
-        
-        let forward = History.Element(objectId: name, action: .add(classType: CAShapeLayer.self), updateKeys: [
-            "path": parentLayer.path!,
-            "fillColor": parentLayer.fillColor!
-        ]) { elem, container, obj in
-            guard let container = container.layers[elem.objectId] else {
-                return
-            }
+        let cgPath: CGPath
+        let opacity: Float
+        if let suggest = suggestLayer {
+            history.layerContainer?.layers[name] = suggest
+            cgPath = suggest.path!
+            opacity = suggest.opacity
+            parentLayer.removeFromSuperlayer()
+        } else {
+            history.layerContainer?.layers[name] = parentLayer
+            opacity = parentLayer.opacity
+            cgPath = splitOpt.resultBezier.cgPath
+            suggestLayer?.removeFromSuperlayer()
             
-            let shape = CAShapeLayer()
-            for (k, v) in shapeDict {
-                shape.setValue(v, forKeyPath: k)
-            }
-            container.mask = shape
+            let lineWidth = (parentLayer.mask?.sublayers?.first as? CAShapeLayer)?.lineWidth ?? toolSize
+            let drawBbox = getOptimalBbox(bounds: content!.bounds, patternSize: patternImage.size, path: cgPath, lineWidth: lineWidth)
+            parentLayer.path = CGPath(rect: drawBbox, transform: nil)
         }
         
+        let shape = (parentLayer.mask!.sublayers!.first as! CAShapeLayer)
+        var shapeDict = shape.getKeys()
+        shapeDict["strokeColor"] = parentLayer.fillColor
+        shapeDict["path"] = cgPath
+        shapeDict["opacity"] = opacity
+        
+        let forward = History.Element(objectId: name, action: .add(classType: CAShapeLayer.self), updateKeys: shapeDict)
         let backward = History.Element(objectId: name, action: .remove)
         history.add(element: .init(forward: [forward], backward: [backward]))
     }
@@ -134,4 +128,48 @@ class PencilDrawer: ToolDrawer {
         return CGRect(origin: tl, size: br.subtract(tl).size)
     }
     
+    override func generateLayer(path: UIBezierPath?, overrideColor: UIColor? = nil, overrideFinalSize: CGFloat? = nil) -> CALayer {
+        let size = overrideFinalSize ?? toolSize * 2 * contentScale
+        let color = overrideColor ?? self.color
+        let comp = color.components
+        
+        let img = patternImage.imageWithColor(color1: comp.toColorOverride(a: 1))
+        
+        let layer = CAShapeLayer()
+        layer.strokeColor = UIColor(patternImage: img).cgColor
+        layer.opacity = Float(comp.a)
+        layer.lineWidth = size
+        layer.lineCap = .round
+        layer.lineJoin = .round
+        layer.fillColor = comp.toColorOverride(a: 0).cgColor
+        layer.path = path?.cgPath
+        
+        return layer
+    }
+    
+    override func onShapeSuggested(path: UIBezierPath?) {
+        if path == nil && suggestLayer == nil { return }
+        guard let parentLayer = parentLayer else { return }
+        if suggestLayer == nil {
+            suggestLayer = (generateLayer(path: nil) as! CAShapeLayer)
+            let opacity = suggestLayer!.opacity
+            suggestLayer?.opacity = 0
+            
+            parentLayer.superlayer?.addSublayer(suggestLayer!)
+            
+            suggestLayer?.opacity = opacity
+            parentLayer.opacity = 0
+        }
+        if let path = path {
+            suggestLayer?.path = path.cgPath
+        } else if let layer = suggestLayer {
+            suggestLayer = nil
+            
+            layer.opacity = 0
+            parentLayer.opacity = Float(color.components.a)
+            delay(0.3) {
+                layer.removeFromSuperlayer()
+            }
+        }
+    }
 }

@@ -157,6 +157,11 @@ class EraserDrawer: ToolDrawer {
         })
     }
     
+    override func generateLayer(path: UIBezierPath?, overrideColor: UIColor? = nil, overrideFinalSize: CGFloat? = nil) -> CALayer {
+        print("You should not call this method")
+        return CALayer()
+    }
+    
     // --------------------------------------------
     // MARK: - Object eraser
     override func onPan(pan: UIPanGestureRecognizer) {
