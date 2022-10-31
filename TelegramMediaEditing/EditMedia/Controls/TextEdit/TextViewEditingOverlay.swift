@@ -65,7 +65,7 @@ final class ImageEditingTextState {
     static func defaultState() -> ImageEditingTextState {
         ImageEditingTextState(
             text: "",
-            font: .systemFont(ofSize: 32),
+            font: FontsSelector.defaultFonts.first!,
             color: .white,
             style: .regular,
             alignment: .center
@@ -384,6 +384,10 @@ final class TextViewEditingOverlay: UIView {
             withHorizontalFittingPriority: .defaultHigh,
             verticalFittingPriority: .fittingSizeLevel
         )
+        if textSize.width < textViewCenteringContainer.width {
+            // leave some place for the font change
+            textSize.width += textView.font!.pointSize / 2
+        }
         textSize.width *= scaleX
         textSize.height *= scaleY
 
@@ -395,7 +399,7 @@ final class TextViewEditingOverlay: UIView {
             }
         }
         
-        textView.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin, .flexibleRightMargin, .flexibleBottomMargin]
+//        textView.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin, .flexibleRightMargin, .flexibleBottomMargin]
         scaleView(view: textView.subviews[1], scale: UIScreen.main.scale * 6)
         
         let oldSize = textViewCenteringContainer.frame.size
@@ -495,6 +499,11 @@ final class TextStyleChangeHandler {
         self.colourPicker = colourPicker
         self.state = state
         
+        colourPicker.selectedColour = state.color
+        textPanel.styleButton.setStyle(state.style, animated: true)
+        textPanel.alignmentButton.textAlignment = state.alignment
+        textPanel.selectedFont = state.font
+        
         colourPicker.onColourChange = { [weak self] change, isFinal in
             guard let self = self else { return }
             self.currentColor = change.newValue
@@ -514,6 +523,7 @@ final class TextStyleChangeHandler {
             }
             self.history.add(element: History.ElementGroup(forward: [forward], backward: [back]))
         }
+
         textPanel.onAttributeChange = { [weak self] change in
             guard let self = self else { return }
             var forward: History.Element?

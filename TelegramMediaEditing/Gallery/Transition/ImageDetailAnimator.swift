@@ -67,7 +67,6 @@ final class ImageDetailAnimator: NSObject {
                        animations: {
                         self.transitionImageView?.frame = finalTransitionSize
                         toVC.view.alpha = 1.0
-                        fromVC.tabBarController?.tabBar.alpha = 0
         },
                        completion: { completed in
                     
@@ -80,6 +79,7 @@ final class ImageDetailAnimator: NSObject {
                         transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
                         self.toDelegate?.transitionDidEndWith(imageDetailAnimator: self)
                         self.fromDelegate?.transitionDidEndWith(imageDetailAnimator: self)
+            fromVC.view.isHidden = true
         })
     }
     
@@ -87,7 +87,7 @@ final class ImageDetailAnimator: NSObject {
         let containerView = transitionContext.containerView
         
         guard
-//            let toVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to),
+            let toVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to),
             let fromVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from),
             let fromReferenceImageView = self.fromDelegate?.referenceImageView(for: self),
             let toReferenceImageView = self.toDelegate?.referenceImageView(for: self),
@@ -101,6 +101,7 @@ final class ImageDetailAnimator: NSObject {
         self.toDelegate?.transitionWillStartWith(imageDetailAnimator: self)
         
         toReferenceImageView.isHidden = true
+        toVC.view.isHidden = false
         
         let referenceImage = fromReferenceImageView.image!
         

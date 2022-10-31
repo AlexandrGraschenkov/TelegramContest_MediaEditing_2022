@@ -13,6 +13,20 @@ protocol Figure: NSObjectProtocol {
     var isText: Bool { get }
 }
 
+@objc
+protocol FigureContextMenuActionDelegate: NSObjectProtocol {
+    func handleTextContextAction(_ contextAction: FigureContextMenuAction, sender: UIView)
+}
+
+@objc
+enum FigureContextMenuAction: Int32 {
+    case moveForward
+    case moveBackwards
+    case edit
+    case delete
+    case duplicate
+}
+
 final class TextContainer: UIView, Figure {
     @objc
     var content: TextEditingResultView? {
@@ -30,6 +44,43 @@ final class TextContainer: UIView, Figure {
     var historyId: String = ""
     
     var isText: Bool { true }
+    
+    @objc
+    weak var contextActionsDelegate: FigureContextMenuActionDelegate?
+    
+    override var canBecomeFirstResponder: Bool {
+        true
+    }
+    
+    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        if action == #selector(TextContainer.moveForward) ||
+            action == #selector(TextContainer.moveBackwards) ||
+            action == #selector(TextContainer.deleteFigure) ||
+            action == #selector(TextContainer.editFigure) {
+            return true
+        }
+        return false
+    }
+    
+    @objc
+    fileprivate func moveForward(sender: Any?) {
+        contextActionsDelegate?.handleTextContextAction(.moveForward, sender: self)
+    }
+    
+    @objc
+    fileprivate func moveBackwards(sender: Any?) {
+        contextActionsDelegate?.handleTextContextAction(.moveBackwards, sender: self)
+    }
+    
+    @objc
+    fileprivate func deleteFigure(sender: Any?) {
+        contextActionsDelegate?.handleTextContextAction(.delete, sender: self)
+    }
+    
+    @objc
+    fileprivate func editFigure(sender: Any?) {
+        contextActionsDelegate?.handleTextContextAction(.edit, sender: self)
+    }
 }
 
 final class EditVC: UIViewController {
@@ -188,17 +239,18 @@ final class EditVC: UIViewController {
         view.frame = frame
         mediaContainer.addSubview(view)
         gesturesOverlay.overlays.append(view)
-        let transform = view.transform.scaledBy(x: 1 / scroll.zoomScale, y: 1 / scroll.zoomScale)
+        let transform = result.view.transform.scaledBy(x: 1 / scroll.zoomScale, y: 1 / scroll.zoomScale)
         result.view.transform = transform
         view.content = result.view
         if let transform = result.view.moveState?.transform {
             view.transform = transform
         }
         
+        weak var weakSelf = self
         let add = History.Element(
             objectId: id,
             action: .add(classType: TextContainer.self),
-            updateKeys: ["content": result.view, "frame": frame, "historyId": id]
+            updateKeys: ["content": result.view, "frame": frame, "historyId": id, "contextActionsDelegate": weakSelf!]
         ) { [weak self] _, _, obj in
             guard let obj = obj as? FigureView else { return }
             self?.gesturesOverlay.overlays.append(obj)
@@ -211,6 +263,7 @@ final class EditVC: UIViewController {
             })
         }
         history.layerContainer?.views[id] = view
+        view.contextActionsDelegate = self
         self.history.add(element: .init(forward: [add], backward: [remove]))
         self.setTopControlsHidden(isHidden: false)
     }
@@ -232,7 +285,7 @@ final class EditVC: UIViewController {
 //        present(nav, animated: true, completion: nil)
         present(picker, animated: false)
     }
-    
+
     private func getMediaContainerContentFrame() -> CGRect {
         // intersection of counte
         let bounds = mediaContainer.convert(mediaContainer.bounds, to: view)
@@ -358,7 +411,30 @@ private extension ToolDrawer {
 extension EditVC: GesturesOverlayDelegate {
     func gestureOverlay(_ gesturesOverlay: GesturesOverlay, didTapOnOverlay overlay: FigureView) {
         guard let textContainer = overlay as? TextContainer, let textView = textContainer.content else { return }
-        toolbar?.handleTap(on: textView)
+        let menu = UIMenuController.shared
+        menu.setMenuVisible(false, animated: false)
+        textContainer.becomeFirstResponder()
+        var menuItems: [UIMenuItem] = [
+            UIMenuItem(title: "Delete", action: #selector(TextContainer.deleteFigure(sender:))),
+            UIMenuItem(title: "Edit", action: #selector(TextContainer.editFigure(sender:))),
+        ]
+        
+        if !textContainer.isInFront {
+            menuItems.append(UIMenuItem(
+                title: "Move Forward",
+                action: #selector(TextContainer.moveForward(sender:))
+            ))
+        }
+        if !textContainer.isInBottom {
+            menuItems.append(UIMenuItem(
+                title: "Move Backward",
+                action: #selector(TextContainer.moveBackwards(sender:))
+            ))
+        }
+        menu.menuItems = menuItems
+        menu.setTargetRect(textContainer.frameIn(view: view), in: view)
+        menu.setMenuVisible(true, animated: true)
+        toolbar?.focus(on: textView)
     }
     
     func gestureOverlay(_ gesturesOverlay: GesturesOverlay, didFinishChangesOf overlay: FigureView, startState: OverlayOperationState, endState: OverlayOperationState) {
@@ -408,5 +484,98 @@ extension EditVC: ImageDetailAnimatorDelegate {
     
     func referenceImageViewFrameInTransitioningView(for imageDetailAnimator: ImageDetailAnimator) -> CGRect? {
         mediaContainer.frameIn(view: view)
+    }
+}
+
+extension EditVC: FigureContextMenuActionDelegate {
+    func handleTextContextAction(_ contextAction: FigureContextMenuAction, sender: UIView) {
+        self.handleTextContextAction(contextAction, sender: sender, addToHistory: true)
+    }
+    
+    private func handleTextContextAction(_ contextAction: FigureContextMenuAction, sender: UIView, addToHistory: Bool) {
+        guard let sender = sender as? TextContainer, let content = sender.content else { return }
+
+        let positionHistoryActionProvider = { (redoAction: FigureContextMenuAction, undoAction: FigureContextMenuAction) -> (History.Element, History.Element) in
+            let redo = History.Element(
+                objectId: sender.historyId,
+                action: .closure) { [weak self, weak sender] _, _, _ in
+                    guard let sender = sender else { return }
+                    self?.handleTextContextAction(redoAction, sender: sender, addToHistory: false)
+                }
+            
+            let undo = History.Element(
+                objectId: sender.historyId,
+                action: .closure) { [weak self, weak sender] _, _, obj in
+                    guard let sender = sender else { return }
+                    self?.handleTextContextAction(undoAction, sender: sender, addToHistory: false)
+                }
+            return (redo, undo)
+        }
+        switch contextAction {
+        case .moveForward:
+            guard let siblings = sender.superview?.subviews, let index = siblings.firstIndex(of: sender), index < siblings.count - 1 else {
+                return
+            }
+            sender.superview?.insertSubview(sender, aboveSubview: siblings[index + 1])
+            if addToHistory {
+                let (redo, undo) = positionHistoryActionProvider(.moveForward, .moveBackwards)
+                history.add(element: .init(forward: [redo], backward: [undo]))
+            }
+        case .moveBackwards:
+            guard let siblings = sender.superview?.subviews, let index = siblings.firstIndex(of: sender), index > 0 else {
+                return
+            }
+            sender.superview?.insertSubview(sender, belowSubview: siblings[index - 1])
+            if addToHistory {
+                let (redo, undo) = positionHistoryActionProvider(.moveBackwards, .moveForward)
+                history.add(element: .init(forward: [redo], backward: [undo]))
+            }
+        case .edit:
+            toolbar?.handleTap(on: content)
+        case .delete:
+            weak var weakSelf = self
+            let add = History.Element(
+                objectId: sender.historyId,
+                action: .add(classType: TextContainer.self),
+                updateKeys: ["content": content, "bounds": sender.bounds, "transform": sender.transform, "center": sender.center, "historyId": sender.historyId, "contextActionsDelegate": weakSelf!]
+            ) { [weak self] _, _, obj in
+                guard let obj = obj as? FigureView else { return }
+                self?.gesturesOverlay.overlays.append(obj)
+            }
+
+            let remove = History.Element(
+                objectId: sender.historyId,
+                action: .remove
+            ) { [weak self] element, _, content in
+                self?.gesturesOverlay.overlays.removeAll(where: { overlay in
+                    guard let text = overlay as? TextContainer else { return false }
+                    return text.content?.resultId == sender.content?.resultId
+                })
+            }
+            if addToHistory {
+                history.add(element: .init(forward: [remove], backward: [add]))
+            }
+            sender.removeFromSuperview()
+            gesturesOverlay.overlays.removeAll(where: { overlay in
+                guard let text = overlay as? TextContainer else { return false }
+                return text.content?.resultId == sender.content?.resultId
+            })
+        case .duplicate:
+            // TODO: implement
+            break
+        }
+    }
+    
+}
+
+extension UIView {
+    var isInFront: Bool {
+        guard let siblings = superview?.subviews else { return true }
+        return siblings.last == self
+    }
+    
+    var isInBottom: Bool {
+        guard let siblings = superview?.subviews else { return true }
+        return siblings.first == self
     }
 }

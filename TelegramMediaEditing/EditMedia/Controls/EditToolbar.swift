@@ -531,15 +531,18 @@ extension EditorToolbar: TextViewEditingOverlayDelegate {
     
     private func handlePreviouslySelectedViewIfNeeded(newResult: TextEditingResult) {
         guard let focusedResult = focusedResult else { return }
-        let transform = focusedResult.view.transform
         let center = focusedResult.view.center
         if let mutation = focusedResult.view.moveState {
             newResult.view.moveState = mutation
         }
         focusedResult.view.superview?.removeFromSuperview()
-        newResult.view.transform = transform
         newResult.view.center = center
         textEditingResults[focusedResult.id] = nil
+    }
+
+    func focus(on textView: TextEditingResultView) {
+        guard let id = textView.resultId, let result = textEditingResults[id] else { return }
+        focus(on: result)
     }
 
     private func focus(on textResult: TextEditingResult) {
