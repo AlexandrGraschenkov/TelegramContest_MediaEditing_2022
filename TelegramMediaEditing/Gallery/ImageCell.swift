@@ -18,7 +18,7 @@ final class ImageCell: UICollectionViewCell {
     var assetId: String?
     var onReuse: Cancelable?
     
-    private var imageView: UIImageView!
+    private(set) var imageView: UIImageView!
     private var label: UILabel!
     private var gradientView: UIView!
     

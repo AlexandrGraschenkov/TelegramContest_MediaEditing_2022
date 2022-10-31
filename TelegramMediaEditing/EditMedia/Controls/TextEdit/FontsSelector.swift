@@ -9,7 +9,7 @@ import UIKit
 
 final class FontsSelector: UIView {
     
-    var onFontSelect: ((UIFont) -> Void)?
+    var onFontSelect: ((UIFont?, UIFont) -> Void)?
     var insets: UIEdgeInsets {
         get {
             layout.sectionInset
@@ -19,6 +19,7 @@ final class FontsSelector: UIView {
         }
     }
 
+    private var previouslySelectedFont: UIFont?
     var selectedFont: UIFont? {
         get {
             guard let indexPath = collectionView.indexPathsForSelectedItems?.first, allFonts.indices.contains(indexPath.item) else {
@@ -28,6 +29,7 @@ final class FontsSelector: UIView {
         }
         set {
             guard let font = newValue, let index = allFonts.firstIndex(of: font) else { return }
+            previouslySelectedFont = selectedFont
             collectionView.selectItem(
                 at: IndexPath(item: index, section: 0),
                 animated: false,
@@ -138,7 +140,7 @@ extension FontsSelector: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let font = self.selectedFont else { return }
         collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
-        onFontSelect?(font)
+        onFontSelect?(previouslySelectedFont, font)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
