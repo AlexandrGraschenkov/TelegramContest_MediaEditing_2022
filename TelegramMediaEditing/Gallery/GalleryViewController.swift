@@ -43,6 +43,13 @@ final class GalleryViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if #available(iOS 13.0, *) {
+            overrideUserInterfaceStyle = .dark
+        } else {
+            // Don't care
+        }
+        
         view.backgroundColor = .black
         if PHPhotoLibrary.authorizationStatus() == .authorized {
             showPhotos()
