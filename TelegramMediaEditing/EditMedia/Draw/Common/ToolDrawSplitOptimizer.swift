@@ -13,8 +13,8 @@ class ToolDrawSplitOptimizer: NSObject {
     fileprivate(set) var shapeArr: [CAShapeLayer] = []
     fileprivate(set) var penGen: ToolCurveGenerator!
     fileprivate(set) var frozenCount: Int = 0
-    let splitThreshCount = 1100
-    let splitCount = 800
+    let splitThreshCount = 110
+    let splitCount = 80
     fileprivate(set) var isPrepared: Bool = false
     var resultBezier: UIBezierPath {
         let bezier = UIBezierPath()

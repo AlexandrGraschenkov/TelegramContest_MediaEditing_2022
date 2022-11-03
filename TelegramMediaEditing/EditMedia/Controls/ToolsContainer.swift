@@ -7,7 +7,7 @@
 
 import UIKit
 
-private final class ToolViewContainer: UIView {
+private final class ToolViewContainer: PassthroughView {
     var toolView: ToolView!
 }
 
@@ -19,7 +19,7 @@ protocol ToolsContainerDelegate: AnyObject {
 //    func toolsContainer(_ container: ToolsContainer, didChangeActiveTool: ToolView)
 }
 
-final class ToolsContainer: UIView {
+final class ToolsContainer: PassthroughView {
     
     weak var delegate: ToolsContainerDelegate?
     
@@ -176,7 +176,7 @@ final class ToolsContainer: UIView {
     }
 }
 
-private final class ToolsStack: UIView {
+private final class ToolsStack: PassthroughView {
     private let views: [ToolViewContainer]
     private var expandedIndex: Int?
     

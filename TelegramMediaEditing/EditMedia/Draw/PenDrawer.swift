@@ -35,27 +35,11 @@ class PenDrawer: ToolDrawer {
             layer.fillColor = comp.toColorOverride(a: 1).cgColor
             parentWithOpacity.addSublayer(layer)
             splitOpt.start(layer: layer, penGen: curveGen)
-            
-//            currentDrawDebugLayer = CAShapeLayer()
-//            currentDrawDebugLayer?.strokeColor = UIColor.red.cgColor
-//            currentDrawDebugLayer?.lineWidth = scale
-//            currentDrawDebugLayer?.fillColor = nil
-//            content?.layer.addSublayer(currentDrawDebugLayer!)
         }
         
         CALayer.withoutAnimation {
             splitOpt.updatePath(points: drawPath)
         }
-//        let bezier = penGen.generatePolygon(type: .standart, points: drawPath)
-//        currentDrawLayer?.path = bezier.cgPath
-//        var debugPath = penGen.generateStrokePolygon(type: .standart, points: drawPath)
-//        if drawPath.count > 1 {
-//            debugPath.move(to: drawPath[0].point)
-//            for point in drawPath {
-//                debugPath.addLine(to: point.point)
-//            }
-//        }
-//        currentDrawDebugLayer?.path = debugPath.cgPath
     }
     
     override func finishDraw(canceled: Bool) {

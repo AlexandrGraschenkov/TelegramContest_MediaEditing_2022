@@ -29,7 +29,7 @@ enum EditMode {
     case textEdit
 }
 
-final class EditorToolbar: UIView {
+final class EditorToolbar: PassthroughView {
     
     static func createAndAdd(toView view: UIView, history: History) -> EditorToolbar {
         let botInset = UIApplication.shared.tm_keyWindow.safeAreaInsets.bottom
@@ -265,6 +265,7 @@ final class EditorToolbar: UIView {
         let blur = UIVisualEffectView(frame: bounds.inset(top: 30))
         blur.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         blur.effect = UIBlurEffect(style: .regular)
+        blur.isUserInteractionEnabled = false
 //        for sub in blur.subviews {
 //            let className = NSStringFromClass(type(of: sub))
 //            if className == "_UIVisualEffectSubview" {

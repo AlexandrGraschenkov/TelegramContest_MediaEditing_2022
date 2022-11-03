@@ -11,8 +11,7 @@ class ToolDrawer: NSObject {
     var active: Bool = false {
         didSet {
             if oldValue == active { return }
-            pan?.isEnabled = active
-            longPress?.isEnabled = active
+            gestures.forEach({ $0.isEnabled = active })
         }
     }
     open var enableSuggestion: Bool {
@@ -21,6 +20,7 @@ class ToolDrawer: NSObject {
         default: return false
         }
     }
+    weak var feedback: UIFeedbackGenerator?
     var toolType: ToolType { .pen }
     var toolShape: ToolShape = .circle
     var color: UIColor = .white
@@ -32,6 +32,7 @@ class ToolDrawer: NSObject {
         }
         return scale
     }
+    var onFillTrigger: ((CGPoint)->())?
     
     func setup(content: UIView, history: History) {
         longPress = UILongPressGestureRecognizer(target: self, action: #selector(onLongPress(gesture:)))
@@ -42,29 +43,39 @@ class ToolDrawer: NSObject {
         pan = UIPanGestureRecognizer(target: self, action: #selector(onPan(pan:)))
         pan.isEnabled = active
         pan.maximumNumberOfTouches = 1
+        pan.require(toFail: longPress)
         content.addGestureRecognizer(pan)
+        content.isUserInteractionEnabled = true
+        
+        tap = UITapGestureRecognizer(target: self, action: #selector(onTap(tap:)))
+        tap.isEnabled = active
+        tap.require(toFail: longPress)
+        content.addGestureRecognizer(tap)
         content.isUserInteractionEnabled = true
         
         self.content = content
         self.history = history
         shapeSuggestion.onShape = { [weak self] path in
             self?.onShapeSuggested(path: path)
+            if path != nil {
+                self?.history?.layerContainer?.toolFeedback.impactOccurred()
+            }
         }
     }
     
+    var testOffset = false
 //    var debugBegunFlag = false
     @objc
     open func onPan(pan: UIPanGestureRecognizer) {
         let p = pan.location(in: content)
         let t = CACurrentMediaTime()
-        let pp = PanPoint(point: p, time: t)
+        var pp = PanPoint(point: p, time: t)
         switch pan.state {
         case .began:
-//// MARK: - FOR DEBUG
-//            if debugBegunFlag {
-//                return
-//            }
-//            debugBegunFlag = true
+            testOffset = !testOffset
+            // to determine pan we already have some offset on view
+            let startPanOffset = pan.translation(in: content)
+            pp = PanPoint(point: pp.point.subtract(startPanOffset), time: t)
             let scale: CGFloat = contentScale
             curveGen.toolSize = toolSize*scale
             curveGen.scrollZoomScale = scale
@@ -97,10 +108,29 @@ class ToolDrawer: NSObject {
         }
     }
     
+    @objc
+    func onTap(tap: UITapGestureRecognizer) {
+        if tap.state != .ended { return }
+        let p = pan.location(in: content)
+        let scale: CGFloat = contentScale
+        curveGen.toolSize = toolSize*scale
+        curveGen.scrollZoomScale = scale
+        
+        let t = CACurrentMediaTime()
+        drawPath = [PanPoint(point: p, time: t, speed: 1, bezierSmooth: true),
+                    PanPoint(point: p.add(CGPoint(x: 0.001, y: 0.001)), time: t, speed: 1, bezierSmooth: true)]
+        updateDrawLayer()
+        finishDraw(canceled: false)
+    }
+    
     fileprivate(set) var smooth = PanSmoothIK()
 //    fileprivate var smooth = PanSmoothTime()
     fileprivate var pan: UIPanGestureRecognizer!
+    fileprivate var tap: UITapGestureRecognizer!
     fileprivate var longPress: UILongPressGestureRecognizer!
+    fileprivate var gestures: [UIGestureRecognizer] {
+        [pan, tap, longPress].compactMap({$0})
+    }
     fileprivate(set) weak var content: UIView?
     fileprivate(set) weak var history: History?
     fileprivate(set) var drawPath: [PanPoint] = []
@@ -224,32 +254,11 @@ class ToolDrawer: NSObject {
             return
         }
         
-        pan.isEnabled = false
-        delay(0.1) { self.pan.isEnabled = true }
         let point = gesture.location(in: gesture.view)
-        
-        let prevFillView = UIView(frame: fillView.frame)
-        prevFillView.backgroundColor = fillView.backgroundColor
-        fillView.superview?.insertSubview(prevFillView, belowSubview: fillView)
-        
-        let prevColor = container.fillView?.backgroundColor
+        let prevColor = fillView.backgroundColor
         let newColor = color.withAlphaComponent(1)
         
-        let mask = UIView(frame: CGRect(mid: point, size: .square(side: 6)))
-        mask.backgroundColor = UIColor.white
-        mask.layer.masksToBounds = true
-        mask.layer.cornerRadius = mask.width / 2
-        
-        container.fillView?.mask = mask
-        container.fillView?.backgroundColor = newColor
-        let diameter = container.fillView!.bounds.size.point.distance()
-        let scale = diameter / mask.width
-        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseIn]) {
-            mask.transform = .init(scaleX: scale, y: scale)
-        } completion: { _ in
-            mask.removeFromSuperview()
-            prevFillView.removeFromSuperview()
-        }
+        container.animateFill(fromPoint: point, color: color.withAlphaComponent(1))
         
         // History
         let forward = History.Element(objectId: "", action: .closure) { _, container, _ in

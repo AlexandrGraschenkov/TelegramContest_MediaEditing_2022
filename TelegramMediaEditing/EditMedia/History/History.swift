@@ -71,6 +71,7 @@ class History {
         for (_, v) in layerContainer.views {
             v.removeFromSuperview()
         }
+        layerContainer.fillView?.backgroundColor = .clear
         currentIdx = 0
         historyUpdated(animated: true)
     }

@@ -50,7 +50,7 @@ class ShapeClassifier {
             switch res.category {
             case "star", "mosquito":
                 return .star(center: bounds.mid, size: avgSize)
-            case "picture frame", "pillow", "square":
+            case "picture frame", "pillow", "square", "sandwich":
                 if !isConvex { break }
                 let size = sizeRatio > 0.8 ? CGSize(width: avgSize, height: avgSize) : bounds.size
                 return .rectangle(center: bounds.mid, size: size)

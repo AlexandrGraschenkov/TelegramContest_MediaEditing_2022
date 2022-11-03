@@ -26,7 +26,7 @@ public extension UIView {
             let t2 = CACurrentMediaTime()
             self.layer.render(in: rendererContext.cgContext)
             let t3 = CACurrentMediaTime()
-            let blurred = UIView.blurredImage(blurRadius: blur, context: rendererContext.cgContext, scale: 1)
+            let blurred = UIView.blurImageAccelerate(context: rendererContext.cgContext, blurRadius: blur, scale: 1)
             let t4 = CACurrentMediaTime()
             completion(blurred)
             print("Blur time: prepare \(t2-t1); render \(t3-t2); blur \(t4-t3)")
@@ -77,7 +77,7 @@ public extension UIView {
             if blur > 0 {
 //                let blurred = UIView.blurImageFrom(cgImage: image, blurSize: blur, reuseContext: context)
                 
-                let blurred = UIView.blurredImage(blurRadius: blur, context: context, scale: contentsScale)
+                let blurred = UIView.blurImageAccelerate(context: context, blurRadius: blur, scale: contentsScale)
                 t4 = CACurrentMediaTime()
                 completion(blurred)
             } else {
@@ -87,13 +87,8 @@ public extension UIView {
         }
     }
     
-    //    private func blurImageFrom(context: CGContext) {
-    //        let ciContext = CIContext(cgContext: context)
-    //        // Is it possible to do in place blur?
-    //    }
-    
     /// works much slower, cause need to transfer data to GPU
-    private static func blurImageFrom(cgImage: CGImage, blurSize: CGFloat, reuseContext: CGContext? = nil) -> CGImage? {
+    private static func blurImageCIFilter(cgImage: CGImage, blurSize: CGFloat, reuseContext: CGContext? = nil) -> CGImage? {
         let image = CIImage(cgImage: cgImage)
         let blur = CIFilter(name: "CIGaussianBlur")!
         blur.setValue(image, forKey: kCIInputImageKey)
@@ -105,7 +100,7 @@ public extension UIView {
         return outputImage
     }
     
-    private static  func blurredImage(blurRadius: CGFloat, context: CGContext, scale: CGFloat) -> CGImage? {
+    private static func blurImageAccelerate(context: CGContext, blurRadius: CGFloat, scale: CGFloat) -> CGImage? {
         if blurRadius <= .ulpOfOne { return context.makeImage() }
         
         var inBuffer = vImage_Buffer()
@@ -125,9 +120,8 @@ public extension UIView {
             space: CGColorSpaceCreateDeviceRGB(),
             bitmapInfo: context.bitmapInfo.rawValue
         )!
-        //        UIGraphicsBeginImageContextWithOptions(boundingBoxSize, false, scale)
+        
         var outImage: CGImage? = nil
-        //        if let outContext = UIGraphicsGetCurrentContext() {
         outBuffer.data = outContext.data
         outBuffer.width = vImagePixelCount(outContext.width)
         outBuffer.height = vImagePixelCount(outContext.height)

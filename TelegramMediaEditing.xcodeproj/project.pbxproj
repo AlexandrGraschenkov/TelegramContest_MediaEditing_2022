@@ -679,9 +679,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = L3NMRMB3TX;
+				DEVELOPMENT_TEAM = RE82W8HD52;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TelegramMediaEditing/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "TG Draw";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "For photo editing";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -709,9 +710,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = L3NMRMB3TX;
+				DEVELOPMENT_TEAM = RE82W8HD52;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TelegramMediaEditing/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "TG Draw";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "For photo editing";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
