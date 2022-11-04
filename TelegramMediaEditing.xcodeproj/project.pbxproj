@@ -45,6 +45,7 @@
 		FA046F0328F55987002D5023 /* UIColor+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA046F0228F55987002D5023 /* UIColor+Ex.swift */; };
 		FA046F0528F56996002D5023 /* PHPhotoLibrary+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA046F0428F56996002D5023 /* PHPhotoLibrary+Ex.swift */; };
 		FA046F0728F569BE002D5023 /* GlobalFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA046F0628F569BE002D5023 /* GlobalFunctions.swift */; };
+		FA1CBC7E2915148600B33439 /* ArrowClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1CBC7B2915148600B33439 /* ArrowClassifier.swift */; };
 		FA39D93A28F7FE1900CBA7A4 /* PHImageManager+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA39D93928F7FE1900CBA7A4 /* PHImageManager+Ex.swift */; };
 		FA4BF3D428F6A4E800592051 /* EditVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D328F6A4E800592051 /* EditVC.swift */; };
 		FA4BF3D628F6A80100592051 /* UIImage+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */; };
@@ -131,6 +132,7 @@
 		FA046F0228F55987002D5023 /* UIColor+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Ex.swift"; sourceTree = "<group>"; };
 		FA046F0428F56996002D5023 /* PHPhotoLibrary+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PHPhotoLibrary+Ex.swift"; sourceTree = "<group>"; };
 		FA046F0628F569BE002D5023 /* GlobalFunctions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlobalFunctions.swift; sourceTree = "<group>"; };
+		FA1CBC7B2915148600B33439 /* ArrowClassifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArrowClassifier.swift; sourceTree = "<group>"; };
 		FA39D93928F7FE1900CBA7A4 /* PHImageManager+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PHImageManager+Ex.swift"; sourceTree = "<group>"; };
 		FA4BF3D328F6A4E800592051 /* EditVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditVC.swift; sourceTree = "<group>"; };
 		FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ex.swift"; sourceTree = "<group>"; };
@@ -320,6 +322,7 @@
 				FA8DDBD4290FC6240065E9DC /* Moments.swift */,
 				FA8DDBD3290FC6240065E9DC /* ShapeClassifier.swift */,
 				FA8DDBD5290FC6240065E9DC /* ShapeGenerator.swift */,
+				FA1CBC7B2915148600B33439 /* ArrowClassifier.swift */,
 			);
 			path = ShapeClassifier;
 			sourceTree = "<group>";
@@ -530,6 +533,7 @@
 				FA046EFF28F558DF002D5023 /* UIView+Ex.swift in Sources */,
 				AA79DEAB290320BE00905FEF /* FontsSelector.swift in Sources */,
 				FA046F0728F569BE002D5023 /* GlobalFunctions.swift in Sources */,
+				FA1CBC7E2915148600B33439 /* ArrowClassifier.swift in Sources */,
 				FACBB8AA290D7733005B6941 /* DemoToolSizeView.swift in Sources */,
 				FACE5BDE2902E75E00960A48 /* ColorGridView.swift in Sources */,
 				FA8DDBD6290FC6240065E9DC /* ConvexHull.swift in Sources */,

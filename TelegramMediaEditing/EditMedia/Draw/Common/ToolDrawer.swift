@@ -77,6 +77,8 @@ class ToolDrawer: NSObject {
             let startPanOffset = pan.translation(in: content)
             pp = PanPoint(point: pp.point.subtract(startPanOffset), time: t)
             let scale: CGFloat = contentScale
+            shapeSuggestion.toolFinalSize = toolSize*scale
+            shapeSuggestion.scale = scale
             curveGen.toolSize = toolSize*scale
             curveGen.scrollZoomScale = scale
             smooth.scale = scale

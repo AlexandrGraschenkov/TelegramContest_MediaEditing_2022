@@ -21,7 +21,7 @@ class ShapeClassifier {
     
     static let shared = ShapeClassifier()
     
-    func detect(points: [CGPoint]) -> Shape? {
+    func detect(points: [CGPoint], scale: CGFloat) -> Shape? {
         let bounds = getBounds(points: points)
         let avgSize = (bounds.width + bounds.height) / 2.0
         let sizeRatio = min(bounds.width, bounds.height) / max(bounds.width, bounds.height)
@@ -30,6 +30,10 @@ class ShapeClassifier {
         if shapeInfo.circularity > 0.94 {
             // pretty easy to determine circle without neural net
             return .ellipse(center: bounds.mid, size: CGSize(width: avgSize, height: avgSize))
+        }
+        
+        if let arrow = ArrowClassifier.detectArrow(points: points) {
+            return .arrow(from: arrow.from, to: arrow.to)
         }
         
         // Otherwise process with neural net

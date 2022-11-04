@@ -10,6 +10,8 @@ import UIKit
 class ToolShapeSuggestion {
     
     var onShape: ((UIBezierPath?)->())?
+    var toolFinalSize: CGFloat = 10
+    var scale: CGFloat = 1
     
     func onPanClassify(_ pan: UIPanGestureRecognizer, drawPath: [PanPoint]) {
         lastPoints = drawPath
@@ -80,13 +82,15 @@ class ToolShapeSuggestion {
         processing = true
         var canceled = false
         let points = lastPoints.map { $0.point }
+        let lineWidth = toolFinalSize
+        let scale = scale
         performInBackground {
-            let shape = ShapeClassifier.shared.detect(points: points)
+            let shape = ShapeClassifier.shared.detect(points: points, scale: scale)
             if canceled {
                 self.processing = false
                 return
             }
-            let path = shape?.generate()
+            let path = shape?.generate(lineWidth: lineWidth)
             performInMain {
                 self.processing = false
                 if canceled { return }

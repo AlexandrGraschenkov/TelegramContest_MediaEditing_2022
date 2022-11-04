@@ -8,7 +8,10 @@
 import UIKit
 
 extension ShapeClassifier.Shape {
-    func generate() -> UIBezierPath? {
+    
+    /// - Parameter lineWidth: for correct arrow bezier
+    /// - Returns: bezier path of ideal figure
+    func generate(lineWidth: CGFloat) -> UIBezierPath? {
         switch self {
         case .ellipse(center: let center, size: let size):
             return UIBezierPath(ovalIn: CGRect(mid: center, size: size))
@@ -51,9 +54,8 @@ extension ShapeClassifier.Shape {
             path.close()
             return path
             
-        case .arrow(from: _, to: _):
-            // TODO
-            break
+        case .arrow(from: let from, to: let to):
+            return generateArrow(from: from, to: to, lineWidth: lineWidth)
         }
         
         return nil
@@ -76,6 +78,26 @@ extension ShapeClassifier.Shape {
             }
         }
         bezier.close()
+        return bezier
+    }
+    
+    fileprivate func generateArrow(from: CGPoint, to: CGPoint, lineWidth: CGFloat) -> UIBezierPath {
+        let dir = to.subtract(from)
+        let angle = atan2(dir.y, dir.x)
+        let angle1 = angle + .pi * 3 / 4
+        let angle2 = angle - .pi * 3 / 4
+        let distOffset = lineWidth * 5
+        let p1 = to.add(CGPoint(x: cos(angle1) * distOffset, y: sin(angle1) * distOffset))
+        let p2 = to.add(CGPoint(x: cos(angle2) * distOffset, y: sin(angle2) * distOffset))
+        let pCenter = to.subtract(dir.norm.multiply(0.1))
+        
+        let bezier = UIBezierPath()
+        bezier.move(to: from)
+        bezier.addLine(to: to)
+        bezier.addLine(to: p1)
+        bezier.addLine(to: pCenter)
+        bezier.addLine(to: p2)
+        
         return bezier
     }
 }
