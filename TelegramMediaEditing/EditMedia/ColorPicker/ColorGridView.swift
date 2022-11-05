@@ -64,13 +64,13 @@ final class ColorGridView: UIView, ColorSelectorProtocol {
             }
         }
         if let idx = selectedIdx {
-            selectionView.frame = colorViews[idx.row][idx.col].frame.insetBy(dx: -1.5, dy: -1.5)
+            updatePosAndColor(index: idx)
         }
     }
 
     // MARK: - private
     fileprivate var colorPrivate: UIColor = UIColor()
-    fileprivate var selectionView: UIView!
+    fileprivate var selectionView: GridSelectionView!
     fileprivate var colorViews: [[UIView]] = []
     fileprivate func setup() {
         for r in 0..<colors.count {
@@ -83,17 +83,8 @@ final class ColorGridView: UIView, ColorSelectorProtocol {
             }
         }
         
-        selectionView = UIView()
-        selectionView.layer.cornerRadius = 2
-        selectionView.layer.borderColor = UIColor.white.cgColor
-        selectionView.layer.borderWidth = 3
-        
-        selectionView.layer.shadowColor = UIColor.black.cgColor
-        selectionView.layer.shadowOpacity = 0.2
-        selectionView.layer.shadowOffset = .zero
-        selectionView.layer.shadowRadius = 3
-        selectionView.layer.shouldRasterize = true
-        selectionView.layer.rasterizationScale = UIScreen.main.scale
+        selectionView = GridSelectionView()
+        selectionView.strokeColor = .white
         addSubview(selectionView)
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(onGesture(_:)))
@@ -126,11 +117,10 @@ final class ColorGridView: UIView, ColorSelectorProtocol {
             return
         }
         let prevHidden = selectionView.alpha == 0
-        let dstFrame = colorViews[idx.row][idx.col].frame.insetBy(dx: -1.5, dy: -1.5)
         if isInsideAnimationBlock {
             if prevHidden {
                 // animate only alpha on new position
-                self.selectionView.frame = dstFrame
+                self.updatePosAndColor(index: idx)
                 self.selectionView.layer.removeAllAnimations() // otherwise we animate change frame
                 UIView.animate(withDuration: 0.1, delay: 0, options: []) {
                     self.selectionView.alpha = 1
@@ -139,7 +129,7 @@ final class ColorGridView: UIView, ColorSelectorProtocol {
                 UIView.animate(withDuration: 0.1, delay: 0, options: []) {
                     self.selectionView.alpha = 0
                 } completion: { _ in
-                    self.selectionView.frame = dstFrame
+                    self.updatePosAndColor(index: idx)
                     UIView.animate(withDuration: 0.1, delay: 0, options: []) {
                         self.selectionView.alpha = 1
                     }
@@ -147,7 +137,29 @@ final class ColorGridView: UIView, ColorSelectorProtocol {
             }
         } else {
             selectionView.alpha = 1
-            selectionView.frame = dstFrame
+            updatePosAndColor(index: idx)
+        }
+    }
+    
+    fileprivate func updatePosAndColor(index: Index? = nil) {
+        guard let idx = index ?? selectedIdx else {
+            return
+        }
+        
+        let dstFrame = colorViews[idx.row][idx.col].frame//.insetBy(dx: -1, dy: -1)
+        self.selectionView.frame = dstFrame
+//        let isLight = colors[idx.row][idx.col].components.isLightColor
+//        selectionView.strokeColor = isLight ? UIColor.black : UIColor.white
+        let r: CGFloat = 2 // default radius
+        let rr: CGFloat = container.layer.cornerRadius // near corner radius
+        let lastCol = colors[0].count - 1
+        let lastRow = colors.count - 1
+        switch idx {
+        case Index(row: 0, col: 0): selectionView.setCorner(tl: rr, tr: r, bl: r, br: r)
+        case Index(row: lastRow, col: 0): selectionView.setCorner(tl: r, tr: r, bl: rr, br: r)
+        case Index(row: 0, col: lastCol): selectionView.setCorner(tl: r, tr: rr, bl: r, br: r)
+        case Index(row: lastRow, col: lastCol): selectionView.setCorner(tl: r, tr: r, bl: r, br: rr)
+        default: selectionView.setCorner(tl: r, tr: r, bl: r, br: r)
         }
     }
     
@@ -193,5 +205,62 @@ fileprivate extension Array {
         return stride(from: 0, to: count, by: size).map {
             Array(self[$0 ..< Swift.min($0 + size, count)])
         }
+    }
+}
+
+fileprivate class GridSelectionView: UIView {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setup()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setup()
+    }
+    
+    override class var layerClass: AnyClass {
+        CAShapeLayer.self
+    }
+    var shape: CAShapeLayer? { layer as? CAShapeLayer }
+    var strokeColor: UIColor? {
+        get { shape?.strokeColor.map({UIColor(cgColor:$0)}) }
+        set { shape?.strokeColor = newValue?.cgColor }
+    }
+    
+    func setCorner(tl: CGFloat, tr: CGFloat, bl: CGFloat, br: CGFloat) {
+        let newCorners = Corners(tl: tl, tr: tr, bl: bl, br: br)
+        if newCorners == lastCorners { return }
+        
+        shape?.path = UIBezierPath.roundRect(bounds, tl: tl, tr: tr, bl: bl, br: br).cgPath
+        lastBounds = bounds
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard bounds != lastBounds, let corners = lastCorners else { return }
+        
+        lastBounds = bounds
+        shape?.path = UIBezierPath.roundRect(bounds, tl: corners.tl, tr: corners.tr, bl: corners.bl, br: corners.br).cgPath
+    }
+    
+    private var lastCorners: Corners?
+    private var lastBounds: CGRect?
+    private func setup() {
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOpacity = 0.4
+        layer.shadowOffset = .zero
+        layer.shadowRadius = 3
+        
+        shape?.lineWidth = 3
+        shape?.strokeColor = UIColor.white.cgColor
+        shape?.fillColor = nil
+    }
+    
+    private struct Corners: Equatable {
+        let tl: CGFloat
+        let tr: CGFloat
+        let bl: CGFloat
+        let br: CGFloat
     }
 }

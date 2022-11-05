@@ -46,6 +46,7 @@
 		FA046F0528F56996002D5023 /* PHPhotoLibrary+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA046F0428F56996002D5023 /* PHPhotoLibrary+Ex.swift */; };
 		FA046F0728F569BE002D5023 /* GlobalFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA046F0628F569BE002D5023 /* GlobalFunctions.swift */; };
 		FA1CBC7E2915148600B33439 /* ArrowClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1CBC7B2915148600B33439 /* ArrowClassifier.swift */; };
+		FA1CBC8229162EF800B33439 /* UIBezierPath+Corners.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1CBC8129162EF800B33439 /* UIBezierPath+Corners.swift */; };
 		FA39D93A28F7FE1900CBA7A4 /* PHImageManager+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA39D93928F7FE1900CBA7A4 /* PHImageManager+Ex.swift */; };
 		FA4BF3D428F6A4E800592051 /* EditVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D328F6A4E800592051 /* EditVC.swift */; };
 		FA4BF3D628F6A80100592051 /* UIImage+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */; };
@@ -133,6 +134,7 @@
 		FA046F0428F56996002D5023 /* PHPhotoLibrary+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PHPhotoLibrary+Ex.swift"; sourceTree = "<group>"; };
 		FA046F0628F569BE002D5023 /* GlobalFunctions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlobalFunctions.swift; sourceTree = "<group>"; };
 		FA1CBC7B2915148600B33439 /* ArrowClassifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArrowClassifier.swift; sourceTree = "<group>"; };
+		FA1CBC8129162EF800B33439 /* UIBezierPath+Corners.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIBezierPath+Corners.swift"; sourceTree = "<group>"; };
 		FA39D93928F7FE1900CBA7A4 /* PHImageManager+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PHImageManager+Ex.swift"; sourceTree = "<group>"; };
 		FA4BF3D328F6A4E800592051 /* EditVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditVC.swift; sourceTree = "<group>"; };
 		FA4BF3D528F6A80100592051 /* UIImage+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ex.swift"; sourceTree = "<group>"; };
@@ -296,6 +298,7 @@
 				FACE5BD4290147EF00960A48 /* DisplayLinkAnimator.swift */,
 				AA79DEBA290DD4C100905FEF /* UIApplication+Ex.swift */,
 				FA8DDBDE290FFB620065E9DC /* CALayer+Copy.swift */,
+				FA1CBC8129162EF800B33439 /* UIBezierPath+Corners.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -503,6 +506,7 @@
 				FA8DDBDD290FD0990065E9DC /* ToolShapeSuggestion.swift in Sources */,
 				FADCE2192906AFE400E92CD9 /* FavoriteColorsView.swift in Sources */,
 				FACBB87E290BBCD3005B6941 /* NeonDrawer.swift in Sources */,
+				FA1CBC8229162EF800B33439 /* UIBezierPath+Corners.swift in Sources */,
 				AAAB483128F9C876008373CB /* ToolsContainer.swift in Sources */,
 				AAAB483328FAD13A008373CB /* CorneredSegmentedControl.swift in Sources */,
 				AAAB483B28FB6022008373CB /* ToolSlider.swift in Sources */,
