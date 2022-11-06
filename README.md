@@ -1,4 +1,4 @@
-# TelegramContest_MediaEditing_2022
+# Telegram Contest 2022, Media Editing
 
 Implemetation for Telegram contest 2022 for media editing.
 
