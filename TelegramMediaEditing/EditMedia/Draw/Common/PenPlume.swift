@@ -8,7 +8,7 @@
 import UIKit
 
 class PenPlume: NSObject {
-    /// оставляем шлейф за линией, перезаписываем скорость только если она больше
+    /// leave the plume behind the line, rewrite the speed only if it is greater
     static func makePlumeOnEndPath(points: inout [PanPoint], lastNPoints: CGFloat, lastPointOverrideSpeed: Double) {
         let startIdx = max(0, CGFloat(points.count) - lastNPoints)
         let startUpdateIdx = Int(floor(startIdx+1))
@@ -31,7 +31,7 @@ class PenPlume: NSObject {
         }
     }
     
-    /// оставляем шлейф за линией, перезаписываем скорость только если она больше
+    /// leave the plume behind the line, rewrite the speed only if it is greater
     static func makePlumeOnEndPath(points: inout [PanPoint], lastTimePoints: Double, lastPointOverrideSpeed: Double) {
         var pointsCount: CGFloat = 0
         var idx = points.count-2

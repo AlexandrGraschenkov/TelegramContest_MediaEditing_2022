@@ -8,7 +8,7 @@
 import UIKit
 import CoreML
 
-class ShapeClassifier {
+final class ShapeClassifier {
     
     enum Shape {
         case ellipse(center: CGPoint, size: CGSize)
@@ -79,12 +79,15 @@ class ShapeClassifier {
 
     // MARK: - fileprivate
     @available(iOS 13.0, *)
-    private lazy var net: DrawnImageClassifier_8 = {
-        let config = MLModelConfiguration()
-        config.computeUnits = .all
-        let net = try! DrawnImageClassifier_8(configuration: config)
-        return net
-    }()
+    private var net: DrawnImageClassifier_8 {
+        if net_ == nil {
+            let config = MLModelConfiguration()
+            config.computeUnits = .all
+            net_ = try! DrawnImageClassifier_8(configuration: config)
+        }
+        return net_ as! DrawnImageClassifier_8
+    }
+    private var net_: Any?
     private lazy var context: CGContext = {
         let size = CGSize(width: 28, height: 28)
         let bytesPerRow = Int(size.width)

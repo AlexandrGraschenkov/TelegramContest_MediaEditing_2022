@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ArrowClassifier {
+final class ArrowClassifier {
 
     static func detectArrow(points: [CGPoint]) -> (from: CGPoint, to: CGPoint)? {
         if let res = checkPoints(points: points) {

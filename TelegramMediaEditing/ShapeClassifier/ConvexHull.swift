@@ -7,7 +7,11 @@
 
 import UIKit
 
+
+/// Convert polygon to convex by removing some points
 class ConvexHull {
+    // Implementation taken from here:
+    // https://github.com/kodecocodes/swift-algorithm-club/blob/master/Convex%20Hull/Convex%20Hull/View.swift
     static func process(points: [CGPoint]) -> [CGPoint] {
         if points.count <= 3 {
             return points

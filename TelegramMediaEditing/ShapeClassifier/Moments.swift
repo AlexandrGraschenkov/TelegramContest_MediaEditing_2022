@@ -7,7 +7,10 @@
 
 import UIKit
 
+/// With this object you can analyze shape of figure
+/// More information here: https://learnopencv.com/shape-matching-using-hu-moments-c-python/
 struct Moments {
+    // Implementation taken from OpenCV
     init(m00: CGFloat = 0, m10: CGFloat = 0, m01: CGFloat = 0, m20: CGFloat = 0, m11: CGFloat = 0, m02: CGFloat = 0, m30: CGFloat = 0, m21: CGFloat = 0, m12: CGFloat = 0, m03: CGFloat = 0) {
         self.m00 = m00
         self.m10 = m10

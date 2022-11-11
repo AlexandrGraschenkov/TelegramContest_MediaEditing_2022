@@ -191,13 +191,12 @@ class History {
     struct Element {
         typealias Closure = (Element, LayerContainer, AnyObject?) -> ()
         
-        init(objectId: String, action: History.Element.LayerAction, zIndex: Int? = nil, updateKeys: [String : Any?]? = nil, backgroundFill: UIColor? = nil, closure: Closure? = nil) {
+        init(objectId: String, action: History.Element.LayerAction, zIndex: Int? = nil, updateKeys: [String : Any?]? = nil, closure: Closure? = nil) {
             self.objectId = objectId
             self.action = action
             self.zIndex = zIndex
             self.closure = closure
             self.updateKeys = updateKeys
-            self.backgroundFill = backgroundFill
         }
         
         enum LayerAction {
@@ -210,8 +209,6 @@ class History {
         var zIndex: Int?
         var updateKeys: [String: Any?]?
         var closure: Closure?
-        
-        var backgroundFill: UIColor? // TODO: don't forget implement it
     }
 }
 

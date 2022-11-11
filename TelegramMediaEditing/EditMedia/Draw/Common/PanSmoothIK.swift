@@ -73,34 +73,18 @@ class PanSmoothIK: NSObject {
             return
         }
         lastPoint = PanPoint(point: point.point, time: point.time+0.001)
-//        defer {
-//            let path = UIBezierPath()
-//            path.move(to: lastPoint!.point)
-//            path.addLine(to: smoothPoints.last!.point)
-//            debugLayer.path = path.cgPath
-//        }
         
         let lineLenght = calcLineLength(points: lastPoints)
         let dt = lastPoints.last!.time - lastPoints.first!.time
-        var speed = dt > 0.00001 ? lineLenght / dt : 0
-//        if speed > 0 {
-//            let dist = lastPoints[lastPoints.count-1].point.distance(p: lastPoints[lastPoints.count-2].point)
-//            speed = Double(speedFilter.process(val: CGFloat(speed), dt: dist))
-//            lastPoint?.speed = speed
-//            for idx in 0..<smoothPoints.count {
-//                if smoothPoints[idx].speed == nil {
-//                    smoothPoints[idx].speed = speed
-//                }
-//            }
-//        }
+        let speed = dt > 0.00001 ? lineLenght / dt : 0
         // larger speed => larger offset dist
-        var maxPanOffset = log(speed/2/scale+1) * 3 * scale + 2 // just gogle it to understand formula of log
+        var maxPanOffset = log(speed/2/scale+1) * 3 * scale + 2 // just google it to understand formula of log
 //        print(speed, maxPanOffset, log(speed/2/scale+1) * 2)
         
-        // чем меньше кисточка, тем точней необходимо рисовать
-//        let mult = toolSize.percent(min: 1, max: 30).percentToRange(min: 0.2, max: 2)
-//        maxPanOffset *= mult * smoothMultiplier
-        maxPanOffset *= smoothMultiplier
+        // the smaller the brush, the more accurately you need to draw
+        let mult = toolSize.percent(min: 1, max: 30).percentToRange(min: 0.2, max: 1.5)
+        maxPanOffset *= mult * smoothMultiplier
+//        maxPanOffset *= smoothMultiplier
         
         let dist = smoothPoints.last!.point.distance(p: point.point)
         if dist < maxPanOffset {

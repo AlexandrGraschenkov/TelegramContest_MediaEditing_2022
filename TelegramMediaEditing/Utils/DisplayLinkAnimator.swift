@@ -7,11 +7,11 @@
 
 import UIKit
 
-public class DisplayLinkAnimator: NSObject {
+final class DisplayLinkAnimator: NSObject {
     public static func animate(duration: Double, closure: @escaping (CGFloat)->()) -> Cancelable {
-        let anim = DisplayLinkAnimator(duration: duration, closure: closure)
-        anim.retainSelf = anim
-        return anim.cancel
+        let animator = DisplayLinkAnimator(duration: duration, closure: closure)
+        animator.retainSelf = animator
+        return animator.cancel
     }
     
     // MARK: - private

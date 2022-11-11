@@ -147,7 +147,6 @@ final class FavoriteColorsView: UIView {
     }
     
     @objc private func addColorPressed() {
-        // TODO
         guard let newColor = onAddColor?() else {
             return
         }

@@ -41,7 +41,7 @@ class ToolCurveGenerator {
         let minPenSizeMultiplier: CGFloat = 0.4
         let maxPixSpeed: Double = 800
         let minPixSpeed: Double = 50
-        /// какой продолжительности отдается шлейф за кистью
+        /// how long is the plume behind the brush
         var plumePointsCount: CGFloat = 10
         /// 0 - minPixSpeed, 1 - maxPixSpeed
         var plumeLastSpeedPercent: CGFloat = 0.2
@@ -59,8 +59,8 @@ class ToolCurveGenerator {
     var scrollZoomScale: CGFloat = 1
     var markerBendPoints: [CGPoint] = []
     
-    // Извне у нас идет разбиение на саблееры, при котором бывает некорректно отображается ширина линий на стыке
-    // данным подходом мы запоминаем последнее сглаживание скорости и "замораживаем" его
+    // From the outside, we are splitting into sublayers. In which the width of the lines at the joints is incorrectly displayed
+    // With this approach, we remember the last speed smoothing and "freeze" it
     var lastProcessedSpeeds: [Double] = []
     var overrideStartSmoothSpeeds: [Double] = []
     
@@ -184,13 +184,13 @@ class ToolCurveGenerator {
             return bezier
         }
         
-        // рисуем по правой стороне в одну сторону, и по левой в обратную
-        // проходим по массиву 2 раза
+        // draw on the right side in one direction, and on the left side in the opposite direction
+        // loop through the array 2 times
         if mode == .pen {
-            penStartCirleLeftRightConterClock(start: traj[0], end: traj[1], moveToStart: true, bezier: &bezier)
+            penStartCircleLeftRightCounterClock(start: traj[0], end: traj[1], moveToStart: true, bezier: &bezier)
             penRightSide(traj: traj, reversed: false, bezier: &bezier)
             
-            penStartCirleLeftRightConterClock(start: traj[traj.count-1], end: traj[traj.count-2], moveToStart: false, bezier: &bezier)
+            penStartCircleLeftRightCounterClock(start: traj[traj.count-1], end: traj[traj.count-2], moveToStart: false, bezier: &bezier)
             penRightSide(traj: traj, reversed: true, bezier: &bezier)
             
             bezier.close()
@@ -263,7 +263,7 @@ class ToolCurveGenerator {
 
 // MARK: - Pen
 extension ToolCurveGenerator {
-    fileprivate func penStartCirleLeftRightConterClock(start: DrawBezierInfo, end: DrawBezierInfo, moveToStart: Bool, bezier: inout UIBezierPath) {
+    fileprivate func penStartCircleLeftRightCounterClock(start: DrawBezierInfo, end: DrawBezierInfo, moveToStart: Bool, bezier: inout UIBezierPath) {
         let dirNorm = end.point.subtract(start.point).norm
         let startSize = penSize(speed: start.speed)
         let angl = atan2(dirNorm.y, dirNorm.x)

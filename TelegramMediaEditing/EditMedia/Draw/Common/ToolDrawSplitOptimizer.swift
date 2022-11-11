@@ -7,7 +7,8 @@
 
 import UIKit
 
-/// Если пользователь будет водить продолжительное время кисточкой, обновление CAShapeLayer начинает занимать слишком много, поэтому бъем на кусочки
+/// If the user drives for a long time with a brush, updating the CAShapeLayer starts to take too much.
+/// So we break it into pieces (some bugs occurred with this breaking)
 class ToolDrawSplitOptimizer: NSObject {
     fileprivate(set) var bezierArr: [UIBezierPath] = []
     fileprivate(set) var shapeArr: [CAShapeLayer] = []

@@ -20,7 +20,6 @@ public extension UIView {
         } else {
             format.prefersExtendedRange = false
         }
-        // TODO: maybe need to move in background?
         let renderer = UIGraphicsImageRenderer(bounds: bounds, format: format)
         _ = renderer.image { rendererContext in
             let t2 = CACurrentMediaTime()

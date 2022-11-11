@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// This class is base for all drawing tools. It already contains states, gesture recognizers
 class ToolDrawer: NSObject {
     var active: Bool = false {
         didSet {
