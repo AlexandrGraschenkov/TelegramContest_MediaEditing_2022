@@ -8,7 +8,7 @@ Implemetation for Telegram contest 2022 for media editing.
 
 This work done with huge impact from [Azat](https://github.com/azatZul). Telegram always give short period of time for contests. So you only can win if you will leave the rest of your life. Or.. you can invite friend and implement it together.
 
-In this competition we took 4'th place. The quality of line drawing [is not smooth](https://contest.com/ios2022-r1/entry4203).
+In this competition we took [4'th place](https://contest.com/ios2022-r1/entry4203). The quality of line drawing is not smooth.
 
 ## Bugs and improvements
 
